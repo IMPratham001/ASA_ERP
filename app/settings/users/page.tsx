@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { UserPermissionForm } from "@/components/auth/user-permission-form";
+import { UserPermissionForm } from "@/components/features/auth/user-permission-form";
 import {
   Table,
   TableBody,
