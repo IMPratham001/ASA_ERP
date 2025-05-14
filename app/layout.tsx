@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   description: 'Modern ERP system for business management',
 };
 
+"use client";
 function ShortcutsWrapper() {
-  "use client";
   const { useKeyboardShortcuts } = require('@/lib/shortcuts');
   useKeyboardShortcuts();
   return null;
