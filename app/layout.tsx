@@ -13,14 +13,18 @@ export const metadata: Metadata = {
   description: 'Modern ERP system for business management',
 };
 
-import { useKeyboardShortcuts } from '@/lib/shortcuts';
+function ShortcutsWrapper() {
+  "use client";
+  const { useKeyboardShortcuts } = require('@/lib/shortcuts');
+  useKeyboardShortcuts();
+  return null;
+}
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  useKeyboardShortcuts();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
@@ -31,6 +35,7 @@ export default function RootLayout({
           disableTransitionOnChange
           suppressHydrationWarning
         >
+          <ShortcutsWrapper />
           <div className="relative min-h-screen bg-background">
             <MainNav />
             <main className="container mx-auto px-4 py-6">{children}</main>
