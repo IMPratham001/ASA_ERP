@@ -6,14 +6,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuthStore } from "@/lib/store/store";
+import { useStore } from "@/lib/store/store";
 
 export default function AuthPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const setUser = useAuthStore((state) => state.setUser);
+  const setUser = useStore((state) => state.setUser);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
