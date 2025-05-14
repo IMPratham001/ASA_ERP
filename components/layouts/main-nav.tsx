@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useStore } from "@/lib/store/store";
+import { useAuthStore } from "@/lib/store/store";
 import { Separator } from "@/components/ui/separator";
 
 const getNavItems = (role: string) => {
@@ -130,7 +130,8 @@ const helpNavItems = [
 export function MainNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useStore();
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
 
   return (
     <div className="flex flex-col h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
@@ -220,7 +221,7 @@ export function MainNav() {
                   variant="outline" 
                   className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
                   onClick={() => {
-                    useStore.setState({ user: null });
+                    setUser(null);
                     router.push('/auth');
                   }}
                 >

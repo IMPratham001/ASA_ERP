@@ -1,35 +1,27 @@
+
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-interface Store {
-  id: string;
+interface User {
+  id?: string;
+  email: string;
   name: string;
-  region: string;
-  status: 'active' | 'inactive';
+  role: string;
 }
 
-interface StoreState {
-  stores: Store[];
-  currentStore: Store | null;
-  setStores: (stores: Store[]) => void;
-  setCurrentStore: (store: Store) => void;
+interface AuthState {
+  user: User | null;
+  setUser: (user: User | null) => void;
 }
 
-export const useStore = create<StoreState>((set) => ({
-  stores: [
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      setUser: (user) => set({ user }),
+    }),
     {
-      id: '1',
-      name: 'Main Store',
-      region: 'North',
-      status: 'active',
-    },
-    {
-      id: '2',
-      name: 'Branch Store',
-      region: 'South',
-      status: 'active',
-    },
-  ],
-  currentStore: null,
-  setStores: (stores) => set({ stores }),
-  setCurrentStore: (store) => set({ currentStore: store }),
-}));
+      name: 'auth-storage',
+    }
+  )
+);
