@@ -13,7 +13,7 @@ export function RecentSales() {
           <div className="ml-4 space-y-1">
             <p className="text-sm font-medium leading-none">{name}</p>
             <p className="text-sm text-muted-foreground">
-              {`order_${Math.random().toString(36).substr(2, 9)}`}
+              {"order_" + Date.now().toString()}
             </p>
           </div>
           <div className="ml-auto font-medium">

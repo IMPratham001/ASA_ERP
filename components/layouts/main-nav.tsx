@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -56,7 +55,7 @@ const mainNavItems = [
   },
   {
     title: "Settings",
-    href: "/settings/users",
+    href: "/settings",
     icon: Settings,
     description: "System settings"
   },
