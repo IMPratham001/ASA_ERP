@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
@@ -28,9 +28,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ClientProviders>
-            <div className="min-h-screen flex flex-col">
+            <div className="flex h-screen">
               <MainNav />
-              <main className="flex-1 p-8 pt-6">{children}</main>
+              <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+                <div className="container mx-auto p-6">
+                  {children}
+                </div>
+              </main>
             </div>
             <Toaster />
           </ClientProviders>
