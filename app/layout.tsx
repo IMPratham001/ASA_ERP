@@ -1,3 +1,4 @@
+
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -18,13 +19,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ClientProviders>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="flex">
+            <div className="flex min-h-screen">
               <MainNav />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 overflow-auto">
+                {children}
+              </main>
             </div>
           </ThemeProvider>
         </ClientProviders>

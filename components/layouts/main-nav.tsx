@@ -134,9 +134,8 @@ const helpNavItems = [
 export function MainNav() {
   const pathname = usePathname();
   const router = useRouter();
-  // Fix: Use the store properly
-  const user = useAuthStore((state) => state.user);
-  const setUser = useAuthStore((state) => state.setUser);
+  const user = useStore((state) => state.user);
+  const setUser = useStore((state) => state.setUser);
 
   const handleLogout = () => {
     setUser(null);

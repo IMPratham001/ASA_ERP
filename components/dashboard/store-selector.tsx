@@ -1,36 +1,32 @@
 
 "use client";
 
-import * as React from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useStore } from "@/lib/store/store";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function StoreSelector() {
-  const [selectedStore, setSelectedStore] = React.useState("1");
+  const stores = useStore((state) => state.stores);
+  const currentStore = useStore((state) => state.currentStore);
+  const setCurrentStore = useStore((state) => state.setCurrentStore);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Store Selection</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Select value={selectedStore} onValueChange={setSelectedStore}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a store" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">Store One</SelectItem>
-            <SelectItem value="2">Store Two</SelectItem>
-            <SelectItem value="3">Store Three</SelectItem>
-          </SelectContent>
-        </Select>
-      </CardContent>
-    </Card>
+    <Select
+      value={currentStore?.id}
+      onValueChange={(storeId) => {
+        const store = stores.find((s) => s.id === storeId);
+        if (store) setCurrentStore(store);
+      }}
+    >
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Select store" />
+      </SelectTrigger>
+      <SelectContent>
+        {stores.map((store) => (
+          <SelectItem key={store.id} value={store.id}>
+            {store.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
