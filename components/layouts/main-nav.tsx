@@ -69,6 +69,7 @@ const mainNavItems = [
 
 export function MainNav() {
   const pathname = usePathname();
+  const { user } = useStore();
 
   return (
     <nav className="flex items-start space-x-6">
@@ -93,6 +94,23 @@ export function MainNav() {
           </Link>
         );
       })}
+      {user && (
+        <div className="ml-auto flex items-center gap-4">
+          <div className="text-sm">
+            <p className="font-medium">{user.name}</p>
+            <p className="text-muted-foreground">{user.email}</p>
+          </div>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              useStore.setState({ user: null });
+              window.location.href = '/auth';
+            }}
+          >
+            Logout
+          </Button>
+        </div>
+      )}
     </nav>
   );
 }
