@@ -147,18 +147,15 @@ export const useStore = create<State>()(
       activityLogs: [],
       hasPermission: (module: string, permission: string) => {
         const user = get().user;
-        if (!user) return false;
-        const moduleAccess = user.moduleAccess?.find(m => m.module === module);
-        return moduleAccess?.permissions?.includes(permission as Permission) ?? false;
+        if (!user?.moduleAccess) return false;
+        try {
+          const moduleAccess = user.moduleAccess.find((m) => m.module === module);
+          return moduleAccess?.permissions?.includes(permission as Permission) ?? false;
+        } catch (error) {
+          console.error("Permission check error:", error);
+          return false;
+        }
       },
-      user: null,
-      stores: [],
-      currentStore: null,
-      products: [],
-      inventory: [],
-      orders: [],
-      transactions: [],
-      activityLogs: [],
       setUser: (user) => set({ user }),
       addStore: (store) =>
         set((state) => ({ stores: [...state.stores, store] })),

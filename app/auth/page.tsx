@@ -23,9 +23,26 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
-      // Demo login - in production, implement proper authentication
+      setIsLoading(true);
+      // Demo login with better error handling
       if (email === "admin@example.com" && password === "admin") {
-        setUser({
+        const adminUser = {
+          id: "1",
+          email,
+          name: "Super Admin",
+          role: "super_admin" as Role,
+          storeId: null,
+          moduleAccess: [
+            { module: "dashboard", permissions: ["view", "edit"] },
+            { module: "inventory", permissions: ["view", "create", "edit", "delete"] },
+            { module: "orders", permissions: ["view", "create", "edit", "delete"] },
+            { module: "users", permissions: ["view", "create", "edit", "delete"] },
+            { module: "finance", permissions: ["view", "create", "edit"] },
+            { module: "stores", permissions: ["view", "create", "edit", "delete"] },
+          ],
+          lastLogin: new Date().toISOString(),
+        };
+        setUser(adminUser);
           id: "1",
           email,
           name: "Super Admin",
