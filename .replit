@@ -25,7 +25,11 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pg_ctl -D /workspace/data -l /workspace/data/logfile start"
+args = "mkdir -p /workspace/data"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pg_ctl -D /workspace/data -l /workspace/data/logfile start || pg_ctl -D /workspace/data -l /workspace/data/logfile restart"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -33,7 +37,7 @@ args = "cd laravel-backend && composer install && php artisan migrate && php art
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm install && npm run dev"
+args = "npm install && npx prisma generate && npm run dev"
 
 [[workflows.workflow]]
 name = "Database Services"
