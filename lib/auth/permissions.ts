@@ -1,81 +1,78 @@
-import { Role, Permission, ModulePermission, UserPermissions } from './types';
+
+import { Role, Permission, ModulePermission, UserPermissions, Store } from './types';
 
 export const DEFAULT_PERMISSIONS: Record<Role, UserPermissions> = {
-  super_admin: {
-    canCreateInvoice: true,
+  brand_owner: {
+    canManageStores: true,
+    canViewAllStores: true,
+    canTransferInventory: true,
     canViewFinancials: true,
-    canManageProducts: true,
     canManageStaff: true,
-    canSwitchStores: true,
+    canManageRoles: true,
+    canAccessEcommerce: true,
+    canManageInventory: true,
+    storeAccess: ['*'],
+    departmentAccess: ['*'],
   },
-  store_manager: {
-    canCreateInvoice: true,
+  super_manager: {
+    canManageStores: false,
+    canViewAllStores: true,
+    canTransferInventory: true,
     canViewFinancials: true,
-    canManageProducts: true,
-    canManageStaff: false,
-    canSwitchStores: false,
+    canManageStaff: true,
+    canManageRoles: false,
+    canAccessEcommerce: true,
+    canManageInventory: true,
+    storeAccess: [],
+    departmentAccess: ['*'],
   },
-  marketing_staff: {
-    canCreateInvoice: false,
-    canViewFinancials: false,
-    canManageProducts: true,
-    canManageStaff: false,
-    canSwitchStores: false,
-  },
-  sales_staff: {
-    canCreateInvoice: true,
-    canViewFinancials: false,
-    canManageProducts: false,
-    canManageStaff: false,
-    canSwitchStores: false,
-  },
-  accounting_staff: {
-    canCreateInvoice: false,
-    canViewFinancials: true,
-    canManageProducts: false,
-    canManageStaff: false,
-    canSwitchStores: false,
-  },
+  // Add other roles with their default permissions
 };
 
-export const DEFAULT_MODULE_ACCESS: Record<Role, ModulePermission[]> = {
-  super_admin: [
-    { module: 'dashboard', permissions: ['view', 'create', 'edit', 'delete'] },
-    { module: 'inventory', permissions: ['view', 'create', 'edit', 'delete'] },
-    { module: 'sales', permissions: ['view', 'create', 'edit', 'delete'] },
-    { module: 'finance', permissions: ['view', 'create', 'edit', 'delete'] },
-    { module: 'users', permissions: ['view', 'create', 'edit', 'delete'] },
-  ],
-  store_manager: [
-    { module: 'dashboard', permissions: ['view'] },
-    { module: 'inventory', permissions: ['view', 'edit'] },
-    { module: 'sales', permissions: ['view', 'create', 'edit'] },
-    { module: 'finance', permissions: ['view'] },
-  ],
-  marketing_staff: [
-    { module: 'dashboard', permissions: ['view'] },
-    { module: 'inventory', permissions: ['view'] },
-  ],
-  sales_staff: [
-    { module: 'dashboard', permissions: ['view'] },
-    { module: 'sales', permissions: ['view', 'create'] },
-  ],
-  accounting_staff: [
-    { module: 'dashboard', permissions: ['view'] },
-    { module: 'finance', permissions: ['view', 'create', 'edit'] },
-  ],
-};
-
-export function hasPermission(user: User | null, module: string, permission: Permission): boolean {
+export function hasPermission(
+  user: User | null, 
+  module: string, 
+  permission: Permission, 
+  storeId?: string,
+  ip?: string
+): boolean {
   if (!user) return false;
-  if (user.role === 'super_admin') return true;
+  
+  // Brand owner has all permissions
+  if (user.role === 'brand_owner') return true;
   
   const moduleAccess = user.moduleAccess.find(m => m.module === module);
-  return moduleAccess?.permissions.includes(permission) || false;
+  
+  if (!moduleAccess) return false;
+  
+  // Check IP restrictions
+  if (moduleAccess.ipRestrictions && ip && 
+      !moduleAccess.ipRestrictions.includes(ip)) {
+    return false;
+  }
+  
+  // Check store access
+  if (storeId && !user.permissions.storeAccess.includes(storeId) && 
+      !user.permissions.storeAccess.includes('*')) {
+    return false;
+  }
+  
+  // Check temporary access expiration
+  if (user.temporaryAccess && new Date() > user.temporaryAccess.validUntil) {
+    return false;
+  }
+  
+  return moduleAccess.permissions.includes(permission);
 }
 
-export function canAccessStore(user: User | null, storeId: string): boolean {
+export function canAccessStore(user: User | null, store: Store): boolean {
   if (!user) return false;
-  if (user.role === 'super_admin') return true;
-  return user.storeId === storeId;
+  if (user.role === 'brand_owner') return true;
+  
+  // Super manager can access assigned stores
+  if (user.role === 'super_manager' && store.superManagerId === user.id) {
+    return true;
+  }
+  
+  return user.permissions.storeAccess.includes(store.id);
 }

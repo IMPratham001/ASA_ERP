@@ -1,18 +1,49 @@
-export type Role = 'super_admin' | 'store_manager' | 'marketing_staff' | 'sales_staff' | 'accounting_staff';
+
+export type Role = 
+  | 'brand_owner' 
+  | 'super_manager' 
+  | 'store_manager' 
+  | 'department_head' 
+  | 'accountant' 
+  | 'inventory_manager' 
+  | 'sales_staff' 
+  | 'hr_staff'
+  | 'temp_staff';
 
 export type Permission = 'view' | 'create' | 'edit' | 'delete';
 
 export type ModulePermission = {
   module: string;
   permissions: Permission[];
+  storeId?: string;
+  validUntil?: Date;
+  ipRestrictions?: string[];
+  requires2FA: boolean;
 };
 
 export type UserPermissions = {
-  canCreateInvoice: boolean;
+  canManageStores: boolean;
+  canViewAllStores: boolean;
+  canTransferInventory: boolean;
   canViewFinancials: boolean;
-  canManageProducts: boolean;
   canManageStaff: boolean;
-  canSwitchStores: boolean;
+  canManageRoles: boolean;
+  canAccessEcommerce: boolean;
+  canManageInventory: boolean;
+  storeAccess: string[];
+  departmentAccess: string[];
+};
+
+export type Store = {
+  id: string;
+  name: string;
+  parentStoreId?: string;
+  managerId: string;
+  superManagerId?: string;
+  region: string;
+  status: 'active' | 'inactive';
+  inventoryAlertRoles: string[];
+  ipWhitelist?: string[];
 };
 
 export type User = {
@@ -23,4 +54,9 @@ export type User = {
   storeId: string | null;
   permissions: UserPermissions;
   moduleAccess: ModulePermission[];
+  requires2FA: boolean;
+  temporaryAccess?: {
+    validUntil: Date;
+    permissions: ModulePermission[];
+  };
 };
