@@ -1,4 +1,6 @@
+
 "use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -14,9 +16,14 @@ import {
   BarChart2,
   CreditCard,
   LogOut,
+  HelpCircle,
+  BookOpen,
+  Building2,
+  Receipt,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store/store";
+import { Separator } from "@/components/ui/separator";
 
 const mainNavItems = [
   {
@@ -42,22 +49,40 @@ const mainNavItems = [
   {
     title: "Invoices",
     href: "/invoices",
-    icon: FileText,
+    icon: Receipt,
   },
   {
-    title: "Payments",
-    href: "/payments",
-    icon: CreditCard,
+    title: "Stores",
+    href: "/stores",
+    icon: Store,
   },
   {
-    title: "Expenses",
-    href: "/expenses",
+    title: "Users",
+    href: "/users",
+    icon: Building2,
+  },
+  {
+    title: "Finance",
+    href: "/finance",
     icon: Calculator,
   },
   {
     title: "Reports",
     href: "/reports",
     icon: BarChart2,
+  },
+];
+
+const helpNavItems = [
+  {
+    title: "Help Center",
+    href: "/help",
+    icon: HelpCircle,
+  },
+  {
+    title: "User Manual",
+    href: "/help/manual",
+    icon: BookOpen,
   },
 ];
 
@@ -73,6 +98,7 @@ export function MainNav() {
           <span className="text-lg font-semibold">ASA ERP</span>
         </div>
       </div>
+
       <nav className="flex-1 overflow-y-auto p-2 space-y-1">
         {mainNavItems.map((item) => {
           const Icon = item.icon;
@@ -83,17 +109,42 @@ export function MainNav() {
               href={item.href}
               className={cn(
                 "flex items-center px-3 py-2 rounded-lg transition-colors",
-                isActive
+                isActive 
                   ? "bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400"
-                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700",
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
               )}
             >
               <Icon
                 className={cn(
                   "h-5 w-5 mr-3",
-                  isActive
-                    ? "text-blue-600 dark:text-blue-400"
-                    : "text-gray-500 dark:text-gray-400",
+                  isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
+                )}
+              />
+              <span className="text-sm font-medium">{item.title}</span>
+            </Link>
+          );
+        })}
+
+        <Separator className="my-2" />
+
+        {helpNavItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center px-3 py-2 rounded-lg transition-colors",
+                isActive 
+                  ? "bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+              )}
+            >
+              <Icon
+                className={cn(
+                  "h-5 w-5 mr-3",
+                  isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
                 )}
               />
               <span className="text-sm font-medium">{item.title}</span>
@@ -101,6 +152,7 @@ export function MainNav() {
           );
         })}
       </nav>
+
       {user && (
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
