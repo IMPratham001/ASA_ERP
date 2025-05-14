@@ -20,10 +20,10 @@ import { useStore } from '@/lib/store/store';
 export function StoreSelector() {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const { currentStore, stores, setCurrentStore } = useStore();
+  const { currentStore, stores = [], setCurrentStore } = useStore();
 
-  const filteredStores = stores.filter((store) =>
-    store.name.toLowerCase().includes(searchValue.toLowerCase())
+  const filteredStores = (stores || []).filter((store) =>
+    store?.name?.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   const onStoreSelect = useCallback((store: any) => {

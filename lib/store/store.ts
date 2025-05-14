@@ -186,7 +186,7 @@ export const useStore = create<State>()(
         const user = get().user;
         if (!user) return false;
         if (user.role === 'super_admin') return true;
-        
+
         const moduleAccess = user.moduleAccess.find((m) => m.module === module);
         return moduleAccess?.permissions.includes(permission) || false;
       },
