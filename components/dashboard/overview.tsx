@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { useStore } from "@/lib/store/store";
@@ -12,7 +11,7 @@ const defaultData = [
   { name: "Jun", total: 3800 },
 ];
 
-export function Overview() {
+export function Overview({ data = [] }) {
   const { currentStore } = useStore();
 
   return (
