@@ -1,47 +1,35 @@
 "use client";
 
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useStore } from "@/lib/store/store";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { Store } from "lucide-react";
 
 export function StoreSelector() {
-  const { stores, currentStore, setCurrentStore, isLoading } = useStore();
+  const { stores, currentStore, setCurrentStore } = useStore();
 
-  if (isLoading) {
-    return <LoadingSpinner />;
+  if (!stores?.length) {
+    return null;
   }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="w-[200px] justify-between">
+        <Button variant="outline" className="w-[200px] justify-start">
+          <Store className="mr-2 h-4 w-4" />
           {currentStore?.name || "Select Store"}
-          <CaretSortIcon className="ml-2 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[200px]">
-        {stores?.map((store) => (
+      <DropdownMenuContent align="end">
+        {stores.map((store) => (
           <DropdownMenuItem
             key={store.id}
-            onSelect={() => setCurrentStore(store)}
-            className="justify-between"
+            onClick={() => setCurrentStore(store)}
           >
+            <Store className="mr-2 h-4 w-4" />
             {store.name}
-            {currentStore?.id === store.id && (
-              <CheckIcon className="h-4 w-4" />
-            )}
           </DropdownMenuItem>
         ))}
-        {(!stores || stores.length === 0) && (
-          <DropdownMenuItem disabled>No stores available</DropdownMenuItem>
-        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

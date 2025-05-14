@@ -1,39 +1,39 @@
 
 "use client";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useStore } from "@/lib/store/store";
 
-interface ProductSelectProps {
-  value: string;
-  onChange: (value: string) => void;
-}
+export function ProductSelect({ onSelect }) {
+  const [search, setSearch] = useState("");
+  const { products } = useStore();
 
-export function ProductSelect({ value, onChange }: ProductSelectProps) {
-  // TODO: Replace with actual product data from API/store
-  const products = [
-    { id: "1", name: "Product 1", price: 100 },
-    { id: "2", name: "Product 2", price: 200 },
-    { id: "3", name: "Product 3", price: 300 },
-  ];
+  const filteredProducts = products?.filter(p => 
+    p.name.toLowerCase().includes(search.toLowerCase())
+  ) || [];
 
   return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger>
-        <SelectValue placeholder="Select product" />
-      </SelectTrigger>
-      <SelectContent>
-        {products.map((product) => (
-          <SelectItem key={product.id} value={product.id}>
-            {product.name}
-          </SelectItem>
+    <div className="space-y-2">
+      <Input
+        type="search"
+        placeholder="Search products..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <div className="grid gap-2">
+        {filteredProducts.map((product) => (
+          <Button
+            key={product.id}
+            variant="outline"
+            className="w-full justify-start"
+            onClick={() => onSelect(product)}
+          >
+            {product.name} - ${product.price}
+          </Button>
         ))}
-      </SelectContent>
-    </Select>
+      </div>
+    </div>
   );
 }

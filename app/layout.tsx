@@ -13,13 +13,6 @@ export const metadata: Metadata = {
   description: 'Modern ERP system for business management',
 };
 
-"use client";
-function ShortcutsWrapper() {
-  const { useKeyboardShortcuts } = require('@/lib/shortcuts');
-  useKeyboardShortcuts();
-  return null;
-}
-
 export default function RootLayout({
   children,
 }: {
@@ -35,7 +28,6 @@ export default function RootLayout({
           disableTransitionOnChange
           suppressHydrationWarning
         >
-          <ShortcutsWrapper />
           <div className="relative min-h-screen bg-background">
             <MainNav />
             <main className="container mx-auto px-4 py-6">{children}</main>
