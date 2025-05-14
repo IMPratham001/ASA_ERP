@@ -25,60 +25,99 @@ import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store/store";
 import { Separator } from "@/components/ui/separator";
 
-const mainNavItems = [
-  {
-    title: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Customers",
-    href: "/customers",
-    icon: Users,
-  },
-  {
-    title: "Products",
-    href: "/inventory",
-    icon: Package,
-  },
-  {
-    title: "Orders",
-    href: "/orders",
-    icon: ShoppingCart,
-  },
-  {
-    title: "Invoices",
-    href: "/invoices",
-    icon: Receipt,
-  },
-  {
-    title: "Stores",
-    href: "/stores",
-    icon: Store,
-  },
-  {
-    title: "Users",
-    href: "/users",
-    icon: Building2,
-  },
-  {
-    title: "Finance",
-    href: "/finance",
-    icon: Calculator,
-  },
-  {
-    title: "Reports",
-    href: "/reports",
-    icon: BarChart2,
-  },
-];
+const getNavItems = (role: string) => {
+  const baseItems = [
+    {
+      title: "Dashboard",
+      href: "/dashboard",
+      icon: LayoutDashboard,
+      roles: ["owner", "admin", "sales", "accountant"],
+    },
+  ];
+
+  const roleSpecificItems = {
+    owner: [
+      {
+        title: "Customers",
+        href: "/customers",
+        icon: Users,
+      },
+      {
+        title: "Products",
+        href: "/inventory",
+        icon: Package,
+      },
+      {
+        title: "Orders",
+        href: "/orders",
+        icon: ShoppingCart,
+      },
+      {
+        title: "Invoices",
+        href: "/invoices",
+        icon: Receipt,
+      },
+      {
+        title: "Stores",
+        href: "/stores",
+        icon: Store,
+      },
+      {
+        title: "Users",
+        href: "/users",
+        icon: Building2,
+      },
+      {
+        title: "Finance",
+        href: "/finance",
+        icon: Calculator,
+      },
+      {
+        title: "Reports",
+        href: "/reports",
+        icon: BarChart2,
+      },
+    ],
+    sales: [
+      {
+        title: "Customers",
+        href: "/customers",
+        icon: Users,
+      },
+      {
+        title: "Orders",
+        href: "/orders",
+        icon: ShoppingCart,
+      },
+      {
+        title: "Invoices",
+        href: "/invoices",
+        icon: Receipt,
+      },
+    ],
+    accountant: [
+      {
+        title: "Finance",
+        href: "/finance",
+        icon: Calculator,
+      },
+      {
+        title: "Reports",
+        href: "/reports",
+        icon: BarChart2,
+      },
+      {
+        title: "Invoices",
+        href: "/invoices",
+        icon: Receipt,
+      },
+    ],
+  };
+
+  return [...baseItems, ...(roleSpecificItems[role as keyof typeof roleSpecificItems] || [])];
+};
 
 const helpNavItems = [
-  {
-    title: "Help Center",
-    href: "/help",
-    icon: HelpCircle,
-  },
   {
     title: "User Manual",
     href: "/help/manual",
@@ -100,7 +139,7 @@ export function MainNav() {
       </div>
 
       <nav className="flex-1 overflow-y-auto p-2 space-y-1">
-        {mainNavItems.map((item) => {
+        {user && getNavItems(user.role).map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
           return (
