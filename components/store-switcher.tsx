@@ -1,8 +1,9 @@
+
 "use client";
 
 import * as React from "react";
 import { useStore } from "@/lib/store/store";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Store, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,31 +19,27 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const stores = [
-  {
-    id: "1",
-    name: "Main Store",
-    location: "New York",
-  },
-  {
-    id: "2",
-    name: "Branch Store",
-    location: "Los Angeles",
-  },
-];
-
 export function StoreSwitcher() {
   const [open, setOpen] = React.useState(false);
-  const { user } = useStore();
+  const { user, stores } = useStore();
 
-  // If user is not super admin and has an assigned store, show store name without switcher
+  const groupedStores = stores.reduce((acc, store) => {
+    if (!acc[store.region]) {
+      acc[store.region] = [];
+    }
+    acc[store.region].push(store);
+    return acc;
+  }, {});
+
   if (!user?.permissions.canSwitchStores) {
     const assignedStore = stores.find((store) => store.id === user?.storeId);
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 px-4 py-2 border rounded-lg">
+        <Store className="w-4 h-4" />
         <span className="text-sm font-medium">{assignedStore?.name}</span>
+        <MapPin className="w-4 h-4 text-muted-foreground" />
         <span className="text-xs text-muted-foreground">
-          ({assignedStore?.location})
+          {assignedStore?.region}
         </span>
       </div>
     );
@@ -55,8 +52,9 @@ export function StoreSwitcher() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-[250px] justify-between"
         >
+          <Store className="w-4 h-4 mr-2" />
           <span className="truncate">
             {user?.storeId
               ? stores.find((store) => store.id === user.storeId)?.name
@@ -65,30 +63,37 @@ export function StoreSwitcher() {
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[250px] p-0">
         <Command>
           <CommandInput placeholder="Search stores..." />
           <CommandEmpty>No store found.</CommandEmpty>
-          <CommandGroup>
-            {stores.map((store) => (
-              <CommandItem
-                key={store.id}
-                value={store.id}
-                onSelect={() => {
-                  // Will be integrated with store switching logic later
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    user?.storeId === store.id ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {store.name}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          {Object.entries(groupedStores).map(([region, regionStores]) => (
+            <CommandGroup key={region} heading={region}>
+              {regionStores.map((store) => (
+                <CommandItem
+                  key={store.id}
+                  value={store.id}
+                  onSelect={() => {
+                    // Will be integrated with store switching logic later
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      user?.storeId === store.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  <div className="flex flex-col">
+                    <span>{store.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {store.address}
+                    </span>
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))}
         </Command>
       </PopoverContent>
     </Popover>
