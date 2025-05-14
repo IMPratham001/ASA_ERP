@@ -24,7 +24,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/lib/store/store";
+// Fix: Import the store properly - update the import path if needed
+import { useAuthStore } from "@/lib/store";
 import { Separator } from "@/components/ui/separator";
 
 const getNavItems = (role: string) => {
@@ -133,6 +134,7 @@ const helpNavItems = [
 export function MainNav() {
   const pathname = usePathname();
   const router = useRouter();
+  // Fix: Use the store properly
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
 
