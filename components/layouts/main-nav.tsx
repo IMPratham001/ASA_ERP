@@ -16,6 +16,7 @@ import {
   BarChart2,
   CreditCard,
   LogOut,
+  LogIn,
   HelpCircle,
   BookOpen,
   Building2,
