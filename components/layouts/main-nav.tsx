@@ -133,6 +133,22 @@ export function MainNav() {
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
 
+  const handleLogout = () => {
+    setUser(null);
+    router.push('/auth');
+  };
+
+  if (!user) {
+    return (
+      <div className="flex justify-end p-4">
+        <Button onClick={() => router.push('/auth')}>
+          <LogIn className="h-4 w-4 mr-2" />
+          Login
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -220,10 +236,7 @@ export function MainNav() {
                 <Button 
                   variant="outline" 
                   className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                  onClick={() => {
-                    setUser(null);
-                    router.push('/auth');
-                  }}
+                  onClick={handleLogout}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
