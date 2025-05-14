@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -8,14 +9,17 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AuthPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const setUser = useStore((state) => state.setUser);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +27,6 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
-      setIsLoading(true);
       // Demo login with better error handling
       if (email === "admin@example.com" && password === "admin") {
         const adminUser = {
@@ -43,22 +46,16 @@ export default function AuthPage() {
           lastLogin: new Date().toISOString(),
         };
         setUser(adminUser);
-          id: "1",
-          email,
-          name: "Super Admin",
-          role: "super_admin",
-          storeId: null,
-          moduleAccess: [
-            { module: "dashboard", permissions: ["view"] },
-            { module: "inventory", permissions: ["view", "create", "edit", "delete"] },
-            { module: "orders", permissions: ["view", "create", "edit", "delete"] },
-            { module: "users", permissions: ["view", "create", "edit", "delete"] },
-          ],
-          lastLogin: new Date().toISOString(),
+        if (rememberMe) {
+          localStorage.setItem("user", JSON.stringify(adminUser));
+        }
+        toast({
+          title: "Welcome back!",
+          description: "Successfully logged in as admin",
         });
         router.push("/dashboard");
       } else if (email === "manager@example.com" && password === "manager") {
-        setUser({
+        const managerUser = {
           id: "2",
           email,
           name: "Store Manager",
@@ -70,13 +67,31 @@ export default function AuthPage() {
             { module: "orders", permissions: ["view", "create", "edit"] },
           ],
           lastLogin: new Date().toISOString(),
+        };
+        setUser(managerUser);
+        if (rememberMe) {
+          localStorage.setItem("user", JSON.stringify(managerUser));
+        }
+        toast({
+          title: "Welcome back!",
+          description: "Successfully logged in as manager",
         });
         router.push("/dashboard");
       } else {
         setError("Invalid email or password");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Invalid credentials",
+        });
       }
     } catch (err) {
       setError("An error occurred during login");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Login failed. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -120,6 +135,18 @@ export default function AuthPage() {
                 className="w-full"
                 disabled={isLoading}
               />
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="remember"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              <label htmlFor="remember" className="text-sm text-gray-600">
+                Remember me
+              </label>
             </div>
             <Button
               type="submit"
