@@ -1,7 +1,7 @@
+
 "use client";
 
 import { useState } from "react";
-import { useStore } from "@/lib/store/store";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -26,16 +26,45 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Plus } from "lucide-react";
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+}
+
+interface Order {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  status: "pending" | "processing" | "completed" | "cancelled";
+  totalAmount: number;
+  createdAt: string;
+}
 
 export default function OrdersPage() {
-  const { orders, products, addOrder, updateOrderStatus } = useStore();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [newOrder, setNewOrder] = useState({
     customerName: "",
     customerEmail: "",
     items: [] as { productId: string; quantity: number }[],
   });
 
+  // In a real app, fetch products from API
+  useState(() => {
+    // Temporary mock data
+    setProducts([
+      { id: "1", name: "Product 1", price: 100, description: "Description 1" },
+      { id: "2", name: "Product 2", price: 200, description: "Description 2" },
+    ]);
+  });
+
   const handleAddOrder = () => {
+    if (!newOrder.customerName || !newOrder.customerEmail) return;
+
     const orderItems = newOrder.items.map((item) => {
       const product = products.find((p) => p.id === item.productId);
       return {
@@ -52,18 +81,16 @@ export default function OrdersPage() {
       0
     );
 
-    const order = {
+    const order: Order = {
       id: Math.random().toString(),
-      storeId: "1",
       customerName: newOrder.customerName,
       customerEmail: newOrder.customerEmail,
-      status: "pending" as const,
+      status: "pending",
       totalAmount,
-      items: orderItems.map((item) => ({ ...item, orderId: Math.random().toString() })),
       createdAt: new Date().toISOString(),
     };
 
-    addOrder(order);
+    setOrders([...orders, order]);
     setNewOrder({
       customerName: "",
       customerEmail: "",
@@ -72,12 +99,14 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-8">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Orders</h2>
         <Dialog>
           <DialogTrigger asChild>
-            <Button>Create Order</Button>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" /> Create Order
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -113,7 +142,7 @@ export default function OrdersPage() {
                   <SelectValue placeholder="Select Product" />
                 </SelectTrigger>
                 <SelectContent>
-                  {products.map((product) => (
+                  {products && products.map((product) => (
                     <SelectItem key={product.id} value={product.id}>
                       {product.name}
                     </SelectItem>
@@ -143,19 +172,21 @@ export default function OrdersPage() {
               <TableCell>{order.id}</TableCell>
               <TableCell>{order.customerName}</TableCell>
               <TableCell>{order.status}</TableCell>
-              <TableCell>${order.totalAmount}</TableCell>
+              <TableCell>₹{order.totalAmount.toFixed(2)}</TableCell>
               <TableCell>
                 {new Date(order.createdAt).toLocaleDateString()}
               </TableCell>
               <TableCell>
                 <Select
                   value={order.status}
-                  onValueChange={(value) =>
-                    updateOrderStatus(
-                      order.id,
-                      value as "pending" | "processing" | "completed" | "cancelled"
-                    )
-                  }
+                  onValueChange={(value) => {
+                    const updatedOrders = orders.map((o) =>
+                      o.id === order.id
+                        ? { ...o, status: value as Order["status"] }
+                        : o
+                    );
+                    setOrders(updatedOrders);
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue />
