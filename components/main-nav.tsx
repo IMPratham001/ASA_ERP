@@ -108,7 +108,7 @@ export function MainNav() {
           <Link href="/dashboard" className="flex items-center space-x-2">
             <span className="font-bold text-xl">ERP System</span>
           </Link>
-          <nav className="flex items-center space-x-6 lg:space-x-6 mx-6">
+          <nav className="flex items-center space-x-4 lg:space-x-6" role="navigation" aria-label="Main">
             {filteredRoutes.map((route) => (
               <Link
                 key={route.href}
