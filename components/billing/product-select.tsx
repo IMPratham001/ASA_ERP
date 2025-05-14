@@ -1,39 +1,71 @@
 
 "use client";
 
-import { useState } from "react";
+import { Check, ChevronsUpDown, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useStore } from "@/lib/store/store";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
-export function ProductSelect({ onSelect }) {
-  const [search, setSearch] = useState("");
+export function ProductSelect({ onSelect }: { onSelect: (product: any) => void }) {
+  const [open, setOpen] = useState(false);
   const { products } = useStore();
-
-  const filteredProducts = products?.filter(p => 
-    p.name.toLowerCase().includes(search.toLowerCase())
-  ) || [];
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
   return (
-    <div className="space-y-2">
-      <Input
-        type="search"
-        placeholder="Search products..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <div className="grid gap-2">
-        {filteredProducts.map((product) => (
-          <Button
-            key={product.id}
-            variant="outline"
-            className="w-full justify-start"
-            onClick={() => onSelect(product)}
-          >
-            {product.name} - ${product.price}
-          </Button>
-        ))}
-      </div>
-    </div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between"
+        >
+          <Package className="mr-2 h-4 w-4" />
+          {selectedProduct ? 
+            products.find(product => product.id === selectedProduct)?.name : 
+            "Select product..."}
+          <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0">
+        <Command>
+          <CommandInput placeholder="Search product..." />
+          <CommandEmpty>No product found.</CommandEmpty>
+          <CommandGroup>
+            {products.map((product) => (
+              <CommandItem
+                key={product.id}
+                onSelect={() => {
+                  setSelectedProduct(product.id);
+                  onSelect(product);
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    selectedProduct === product.id ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {product.name} - ₹{product.price}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

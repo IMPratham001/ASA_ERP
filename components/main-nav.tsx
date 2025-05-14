@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -16,6 +17,7 @@ import {
   FileText,
   BarChart3,
   LogOut,
+  HelpCircle,
 } from "lucide-react";
 import { useStore } from "@/lib/store/store";
 import { useRouter } from "next/navigation";
@@ -31,7 +33,7 @@ import {
 const routes = [
   {
     label: "Help",
-    icon: QuestionCircle,
+    icon: HelpCircle,
     href: "/help",
     color: "text-purple-500",
     module: "help",
@@ -111,30 +113,26 @@ export function MainNav() {
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4">
-        <div className="flex items-center space-x-4">
-          <Link href="/dashboard" className="flex items-center space-x-2">
-            <span className="font-bold text-xl">ERP System</span>
-          </Link>
-          <nav className="flex items-center space-x-4 lg:space-x-6" role="navigation" aria-label="Main">
-            {filteredRoutes.map((route) => (
-              <Link
-                key={route.href}
-                href={route.href}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  pathname === route.href
-                    ? "text-black dark:text-white"
-                    : "text-muted-foreground"
-                )}
-              >
-                <div className="flex items-center gap-x-2">
-                  <route.icon className={cn("h-4 w-4", route.color)} />
-                  {route.label}
-                </div>
-              </Link>
-            ))}
-          </nav>
-        </div>
+        <Link href="/dashboard" className="flex items-center space-x-2">
+          <span className="font-bold text-xl">ERP System</span>
+        </Link>
+        <nav className="flex items-center space-x-4 lg:space-x-6 ml-6">
+          {filteredRoutes.map((route) => (
+            <Link
+              key={route.href}
+              href={route.href}
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary flex items-center",
+                pathname === route.href
+                  ? "text-black dark:text-white"
+                  : "text-muted-foreground"
+              )}
+            >
+              <route.icon className={cn("h-4 w-4 mr-2", route.color)} />
+              {route.label}
+            </Link>
+          ))}
+        </nav>
         <div className="ml-auto flex items-center space-x-4">
           <Button
             variant="ghost"
@@ -158,9 +156,9 @@ export function MainNav() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>
                 <div className="flex flex-col">
-                  <span>{user?.name}</span>
+                  <span>{user?.name || "Guest"}</span>
                   <span className="text-xs text-muted-foreground">
-                    {user?.email}
+                    {user?.email || ""}
                   </span>
                 </div>
               </DropdownMenuLabel>

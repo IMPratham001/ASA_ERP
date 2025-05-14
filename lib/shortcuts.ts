@@ -9,27 +9,26 @@ export const useKeyboardShortcuts = () => {
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.altKey) {
-        switch (event.key.toLowerCase()) {
-          case 'd':
-            router.push('/dashboard');
-            break;
-          case 'i':
-            router.push('/inventory');
-            break;
-          case 'o':
-            router.push('/orders');
-            break;
-          case 'f':
-            router.push('/finance');
-            break;
-          case 'n':
-            router.push('/create-invoice');
-            break;
-          case 'h':
-            router.push('/help');
-            break;
-        }
+      // Only trigger if Ctrl/Cmd is pressed
+      if (!(event.ctrlKey || event.metaKey)) return;
+
+      switch (event.key) {
+        case 'd':
+          event.preventDefault();
+          router.push('/dashboard');
+          break;
+        case 'i':
+          event.preventDefault();
+          router.push('/inventory');
+          break;
+        case 'o':
+          event.preventDefault();
+          router.push('/orders');
+          break;
+        case 'h':
+          event.preventDefault();
+          router.push('/help');
+          break;
       }
     };
 
