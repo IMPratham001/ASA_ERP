@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -117,7 +116,10 @@ const getNavItems = (role: string) => {
     ],
   };
 
-  return [...baseItems, ...(roleSpecificItems[role as keyof typeof roleSpecificItems] || [])];
+  return [
+    ...baseItems,
+    ...(roleSpecificItems[role as keyof typeof roleSpecificItems] || []),
+  ];
 };
 
 const helpNavItems = [
@@ -136,13 +138,13 @@ export function MainNav() {
 
   const handleLogout = () => {
     setUser(null);
-    router.push('/auth');
+    router.push("/auth");
   };
 
   if (!user) {
     return (
       <div className="flex justify-end p-4">
-        <Button onClick={() => router.push('/auth')}>
+        <Button onClick={() => router.push("/auth")}>
           <LogIn className="h-4 w-4 mr-2" />
           Login
         </Button>
@@ -160,30 +162,33 @@ export function MainNav() {
       </div>
 
       <nav className="flex-1 overflow-y-auto p-2 space-y-1">
-        {user && getNavItems(user.role).map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center px-3 py-2 rounded-lg transition-colors",
-                isActive 
-                  ? "bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400"
-                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-              )}
-            >
-              <Icon
+        {user &&
+          getNavItems(user.role).map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
                 className={cn(
-                  "h-5 w-5 mr-3",
-                  isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
+                  "flex items-center px-3 py-2 rounded-lg transition-colors",
+                  isActive
+                    ? "bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700",
                 )}
-              />
-              <span className="text-sm font-medium">{item.title}</span>
-            </Link>
-          );
-        })}
+              >
+                <Icon
+                  className={cn(
+                    "h-5 w-5 mr-3",
+                    isActive
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-gray-500 dark:text-gray-400",
+                  )}
+                />
+                <span className="text-sm font-medium">{item.title}</span>
+              </Link>
+            );
+          })}
 
         <Separator className="my-2" />
 
@@ -196,15 +201,17 @@ export function MainNav() {
               href={item.href}
               className={cn(
                 "flex items-center px-3 py-2 rounded-lg transition-colors",
-                isActive 
+                isActive
                   ? "bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400"
-                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700",
               )}
             >
               <Icon
                 className={cn(
                   "h-5 w-5 mr-3",
-                  isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
+                  isActive
+                    ? "text-blue-600 dark:text-blue-400"
+                    : "text-gray-500 dark:text-gray-400",
                 )}
               />
               <span className="text-sm font-medium">{item.title}</span>
@@ -221,21 +228,25 @@ export function MainNav() {
               <div className="flex items-center">
                 <div className="ml-2 space-y-1">
                   <p className="text-sm font-medium">{user.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">Role: {user.role}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {user.email}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                    Role: {user.role}
+                  </p>
                 </div>
               </div>
               <div className="space-y-2">
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start" 
-                  onClick={() => router.push('/settings/profile')}
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => router.push("/settings/profile")}
                 >
                   <User className="mr-2 h-4 w-4" />
                   Manage Profile
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
                   onClick={handleLogout}
                 >
