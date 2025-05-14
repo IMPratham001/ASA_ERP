@@ -25,11 +25,11 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "postgresql -D /workspace/data"
+args = "pg_ctl -D /workspace/data -l logfile start"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd laravel-backend && php artisan serve --host=0.0.0.0 --port=8000"
+args = "cd laravel-backend && php artisan migrate && php artisan serve --host=0.0.0.0 --port=8000 &"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
