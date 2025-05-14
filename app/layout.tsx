@@ -13,11 +13,14 @@ export const metadata: Metadata = {
   description: 'Modern ERP system for business management',
 };
 
+import { useKeyboardShortcuts } from '@/lib/shortcuts';
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  useKeyboardShortcuts();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>

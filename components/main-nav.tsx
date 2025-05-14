@@ -30,6 +30,13 @@ import {
 
 const routes = [
   {
+    label: "Help",
+    icon: QuestionCircle,
+    href: "/help",
+    color: "text-purple-500",
+    module: "help",
+  },
+  {
     label: "Dashboard",
     icon: LayoutDashboard,
     href: "/dashboard",
