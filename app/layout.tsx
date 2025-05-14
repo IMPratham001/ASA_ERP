@@ -1,3 +1,4 @@
+
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
@@ -19,14 +20,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider
+      <body className={inter.className} suppressHydrationWarning>
+        <ThemeProvider 
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          suppressHydrationWarning
         >
-          <div className="min-h-screen bg-background">
+          <div className="relative min-h-screen bg-background">
             <MainNav />
             <main className="container mx-auto px-4 py-6">{children}</main>
           </div>

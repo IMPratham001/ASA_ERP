@@ -145,6 +145,20 @@ export const useStore = create<State>()(
       orders: [],
       transactions: [],
       activityLogs: [],
+      hasPermission: (module: string, permission: string) => {
+        const user = get().user;
+        if (!user) return false;
+        const moduleAccess = user.moduleAccess?.find(m => m.module === module);
+        return moduleAccess?.permissions?.includes(permission as Permission) ?? false;
+      },
+      user: null,
+      stores: [],
+      currentStore: null,
+      products: [],
+      inventory: [],
+      orders: [],
+      transactions: [],
+      activityLogs: [],
       setUser: (user) => set({ user }),
       addStore: (store) =>
         set((state) => ({ stores: [...state.stores, store] })),

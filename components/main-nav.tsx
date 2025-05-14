@@ -98,7 +98,7 @@ export function MainNav() {
   };
 
   const filteredRoutes = routes.filter((route) =>
-    hasPermission(route.module, "view")
+    hasPermission ? hasPermission(route.module, "view") : true
   );
 
   return (
