@@ -30,10 +30,17 @@ import { StoreSelect } from "@/components/billing/store-select";
 import { PrinterIcon, Save } from "lucide-react";
 
 const formSchema = z.object({
-  invoiceType: z.enum(["retail", "wholesale"]),
+  invoiceType: z.enum(["retail", "wholesale", "tax"]),
+  templateId: z.string(),
   customerId: z.string(),
   storeId: z.string(),
-  paymentMode: z.enum(["cash", "upi", "card", "credit"]),
+  currency: z.string().default("USD"),
+  paymentMode: z.enum(["cash", "upi", "card", "credit", "razorpay"]),
+  dueDate: z.date(),
+  isRecurring: z.boolean().default(false),
+  recurringFrequency: z.enum(["monthly", "quarterly", "yearly"]).optional(),
+  approvalRequired: z.boolean().default(false),
+  customFields: z.record(z.string()).default({}),
   note: z.string().optional(),
 });
 
