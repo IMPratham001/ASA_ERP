@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -11,9 +12,11 @@ export default function AuthPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     // Demo login - replace with actual authentication
     const demoUsers = {
@@ -24,7 +27,7 @@ export default function AuthPage() {
 
     const user = demoUsers[email as keyof typeof demoUsers];
 
-    if (user) {
+    if (user && password.length > 0) {
       useStore.setState({
         user: {
           email,
@@ -32,11 +35,13 @@ export default function AuthPage() {
         }
       });
       router.push("/dashboard");
+    } else {
+      setError("Invalid credentials");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
       <Card className="w-[400px]">
         <CardHeader>
           <CardTitle>Login to ASA ERP</CardTitle>
@@ -49,14 +54,17 @@ export default function AuthPage() {
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
               <Input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
+            {error && <p className="text-sm text-red-500">{error}</p>}
             <Button type="submit" className="w-full">
               Login
             </Button>

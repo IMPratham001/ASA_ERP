@@ -20,7 +20,9 @@ import {
   BookOpen,
   Building2,
   Receipt,
+  User,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store/store";
 import { Separator } from "@/components/ui/separator";
@@ -127,6 +129,7 @@ const helpNavItems = [
 
 export function MainNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useStore();
 
   return (
@@ -193,25 +196,39 @@ export function MainNav() {
       </nav>
 
       {user && (
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user.name}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {user.email}
-              </p>
+        <div className="mt-auto">
+          <Separator className="my-2" />
+          <div className="p-4">
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <div className="ml-2 space-y-1">
+                  <p className="text-sm font-medium">{user.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">Role: {user.role}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start" 
+                  onClick={() => router.push('/settings/profile')}
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Manage Profile
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => {
+                    useStore.setState({ user: null });
+                    router.push('/auth');
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              onClick={() => {
-                useStore.setState({ user: null });
-                window.location.href = "/auth";
-              }}
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       )}
