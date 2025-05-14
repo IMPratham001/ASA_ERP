@@ -1,9 +1,10 @@
+
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Overview } from "@/components/dashboard/overview";
-import { RecentSales } from "@/components/dashboard/recent-sales";
-import { StoreSelector } from "@/components/dashboard/store-selector";
+import { Overview } from "@/components/features/dashboard/overview";
+import { RecentSales } from "@/components/features/dashboard/recent-sales";
+import { StoreSelector } from "@/components/features/dashboard/store-selector";
 import {
   CircleDollarSign,
   Package,
@@ -70,8 +71,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7 animate-in fade-in-50">
-        <Card className="col-span-4 transition-all hover:shadow-lg">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
           <CardHeader>
             <CardTitle>Overview</CardTitle>
           </CardHeader>

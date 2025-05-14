@@ -1,15 +1,17 @@
-import './globals.css';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { ThemeProvider } from '@/components/theme-provider';
-import { Toaster } from '@/components/ui/toaster';
-import MainNav from '@/components/layouts/main-nav';
 
-const inter = Inter({ subsets: ['latin'] });
+import "./globals.css";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
+import MainNav from "@/components/layouts/main-nav";
+import { ClientProviders } from "@/components/client-providers";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Enterprise ERP System',
-  description: 'Modern ERP system for business management',
+  title: "ASA ERP",
+  description: "Modern ERP system for business management",
 };
 
 export default function RootLayout({
@@ -19,17 +21,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
-        <ThemeProvider 
+      <body className={inter.className}>
+        <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-          suppressHydrationWarning
         >
-          <div className="relative min-h-screen bg-background">
+          <div className="flex min-h-screen flex-col">
             <MainNav />
-            <main className="container mx-auto px-4 py-6">{children}</main>
+            <main className="flex-1 p-8 pt-6">{children}</main>
           </div>
           <Toaster />
         </ThemeProvider>

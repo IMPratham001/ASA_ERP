@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Check, ChevronsUpDown, PlusCircle, Store } from "lucide-react";
+import { Check, ChevronsUpDown, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {

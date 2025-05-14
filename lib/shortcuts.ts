@@ -8,31 +8,28 @@ export const useKeyboardShortcuts = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      // Only trigger if Ctrl/Cmd is pressed
-      if (!(event.ctrlKey || event.metaKey)) return;
-
-      switch (event.key) {
-        case 'd':
-          event.preventDefault();
-          router.push('/dashboard');
-          break;
-        case 'i':
-          event.preventDefault();
-          router.push('/inventory');
-          break;
-        case 'o':
-          event.preventDefault();
-          router.push('/orders');
-          break;
-        case 'h':
-          event.preventDefault();
-          router.push('/help');
-          break;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.altKey) {
+        switch (event.key.toLowerCase()) {
+          case 'd':
+            router.push('/dashboard');
+            break;
+          case 'i':
+            router.push('/inventory');
+            break;
+          case 'o':
+            router.push('/orders');
+            break;
+          case 'f':
+            router.push('/finance');
+            break;
+          default:
+            break;
+        }
       }
     };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [router]);
 };
