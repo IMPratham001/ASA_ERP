@@ -1,104 +1,111 @@
 
 "use client";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Card } from "@/components/ui/card";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, Plus } from "lucide-react";
+
+export interface Invoice {
+  id: string;
+  number: string;
+  date: string;
+  customer: string;
+  amount: number;
+  status: "draft" | "pending" | "paid" | "overdue";
+}
+
+const mockInvoices: Invoice[] = [
+  {
+    id: "1",
+    number: "INV-001",
+    date: "2024-02-14",
+    customer: "Acme Corp",
+    amount: 1200.00,
+    status: "paid"
+  },
+  {
+    id: "2", 
+    number: "INV-002",
+    date: "2024-02-15",
+    customer: "Globex Inc",
+    amount: 850.50,
+    status: "pending"
+  },
+  {
+    id: "3",
+    number: "INV-003", 
+    date: "2024-02-16",
+    customer: "Stark Industries",
+    amount: 3200.75,
+    status: "draft"
+  }
+];
+
+const statusColors = {
+  draft: "bg-gray-500",
+  pending: "bg-yellow-500",
+  paid: "bg-green-500",
+  overdue: "bg-red-500"
+};
 
 export function InvoiceList() {
-  // This would come from your data store in a real app
-  const invoices = [
-    {
-      id: "INV-001",
-      customer: "Acme Corp",
-      date: "2024-01-15",
-      dueDate: "2024-02-15",
-      amount: 1500.00,
-      status: "paid",
-    },
-    {
-      id: "INV-002",
-      customer: "Globex Corp",
-      date: "2024-01-16",
-      dueDate: "2024-02-16",
-      amount: 2500.00,
-      status: "pending",
-    },
-    {
-      id: "INV-003",
-      customer: "Wayne Enterprises",
-      date: "2024-01-17",
-      dueDate: "2024-02-17",
-      amount: 3500.00,
-      status: "overdue",
-    },
-  ];
+  const router = useRouter();
+  const [invoices] = useState<Invoice[]>(mockInvoices);
 
   return (
     <Card>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Invoice #</TableHead>
-            <TableHead>Customer</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Due Date</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {invoices.map((invoice) => (
-            <TableRow key={invoice.id}>
-              <TableCell className="font-medium">{invoice.id}</TableCell>
-              <TableCell>{invoice.customer}</TableCell>
-              <TableCell>{invoice.date}</TableCell>
-              <TableCell>{invoice.dueDate}</TableCell>
-              <TableCell className="text-right">₹{invoice.amount.toFixed(2)}</TableCell>
-              <TableCell>
-                <Badge
-                  variant={
-                    invoice.status === "paid"
-                      ? "success"
-                      : invoice.status === "pending"
-                      ? "warning"
-                      : "destructive"
-                  }
-                >
-                  {invoice.status}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Eye className="w-4 h-4 mr-2" />
-                      View
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>Send</DropdownMenuItem>
-                    <DropdownMenuItem>Download</DropdownMenuItem>
-                    <DropdownMenuItem>Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-2xl font-bold">Invoices</CardTitle>
+        <Button onClick={() => router.push("/create-invoice")}>
+          <Plus className="mr-2 h-4 w-4" />
+          New Invoice
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Invoice #</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Customer</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {invoices.map((invoice) => (
+              <TableRow key={invoice.id}>
+                <TableCell>{invoice.number}</TableCell>
+                <TableCell>{invoice.date}</TableCell>
+                <TableCell>{invoice.customer}</TableCell>
+                <TableCell>${invoice.amount.toFixed(2)}</TableCell>
+                <TableCell>
+                  <Badge variant="outline" className={statusColors[invoice.status]}>
+                    {invoice.status.toUpperCase()}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Button variant="ghost" size="icon" onClick={() => router.push(`/invoices/${invoice.id}`)}>
+                    <FileText className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
     </Card>
   );
 }
