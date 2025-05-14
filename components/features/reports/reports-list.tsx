@@ -1,65 +1,135 @@
-
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import * as React from "react";
+import { CalendarIcon } from "lucide-react";
+import { addDays, format } from "date-fns";
+import { DateRange } from "react-day-picker";
+
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
-export function ReportsList() {
-  const [dateRange, setDateRange] = useState({ from: new Date(), to: new Date() });
+interface DateRangePickerProps {
+  value: DateRange;
+  onChange: (value: DateRange) => void;
+  className?: string;
+}
 
-  const reports = [
-    {
-      category: "Sales",
-      items: [
-        { title: "Sales by Customer", href: "/reports/sales/customer" },
-        { title: "Sales by Item", href: "/reports/sales/item" },
-        { title: "Sales by Sales Person", href: "/reports/sales/person" },
-      ]
-    },
-    {
-      category: "Receivables",
-      items: [
-        { title: "AR Aging Summary", href: "/reports/receivables/aging" },
-        { title: "Invoice Details", href: "/reports/receivables/invoices" },
-        { title: "Customer Balance", href: "/reports/receivables/balance" },
-      ]
-    },
-  ];
+export function DateRangePicker({
+  value,
+  onChange,
+  className,
+}: DateRangePickerProps) {
+  const [date, setDate] = React.useState<DateRange | undefined>(value);
+
+  React.useEffect(() => {
+    setDate(value);
+  }, [value]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-4">
-        <DateRangePicker value={dateRange} onChange={setDateRange} />
-        <Input placeholder="Search reports..." className="max-w-xs" />
-        <Button>Run Report</Button>
-      </div>
-
-      <div className="grid gap-6">
-        {reports.map((group) => (
-          <Card key={group.category}>
-            <CardHeader>
-              <CardTitle>{group.category}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-2">
-                {group.items.map((item) => (
-                  <Button 
-                    key={item.title} 
-                    variant="ghost" 
-                    className="justify-start"
-                    onClick={() => window.location.href = item.href}
-                  >
-                    {item.title}
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+    <div className={cn("grid gap-2", className)}>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            id="date"
+            variant="outline"
+            className="w-[300px] justify-start text-left font-normal"
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {date?.from ? (
+              date.to ? (
+                <>
+                  {format(date.from, "MMM d, yyyy")} -{" "}
+                  {format(date.to, "MMM d, yyyy")}
+                </>
+              ) : (
+                format(date.from, "MMM d, yyyy")
+              )
+            ) : (
+              <span>Pick a date range</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={date?.from}
+            selected={date}
+            onSelect={(newDate) => {
+              setDate(newDate);
+              if (newDate?.from && newDate?.to) {
+                onChange(newDate);
+              }
+            }}
+            numberOfMonths={2}
+          />
+          <div className="flex items-center justify-between border-t p-3">
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const newRange = {
+                    from: today,
+                    to: today,
+                  };
+                  setDate(newRange);
+                  onChange(newRange);
+                }}
+              >
+                Today
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const newRange = {
+                    from: addDays(today, -7),
+                    to: today,
+                  };
+                  setDate(newRange);
+                  onChange(newRange);
+                }}
+              >
+                Last 7 days
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const newRange = {
+                    from: addDays(today, -30),
+                    to: today,
+                  };
+                  setDate(newRange);
+                  onChange(newRange);
+                }}
+              >
+                Last 30 days
+              </Button>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => {
+                if (date) {
+                  onChange(date);
+                }
+              }}
+            >
+              Apply
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }
