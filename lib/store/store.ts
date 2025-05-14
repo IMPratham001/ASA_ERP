@@ -182,13 +182,16 @@ export const useStore = create<State>()(
         set((state) => ({
           activityLogs: [...state.activityLogs, log],
         })),
-      hasPermission: (module, permission) => {
+      hasPermission: (module: string, permission: string) => {
         const user = get().user;
-        if (!user) return false;
-        if (user.role === 'super_admin') return true;
-
-        const moduleAccess = user.moduleAccess.find((m) => m.module === module);
-        return moduleAccess?.permissions.includes(permission) || false;
+        if (!user?.moduleAccess) return false;
+        try {
+          const moduleAccess = user.moduleAccess.find((m) => m.module === module);
+          return moduleAccess?.permissions?.includes(permission) || false;
+        } catch (error) {
+          console.error("Permission check error:", error);
+          return false;
+        }
       },
     }),
     {

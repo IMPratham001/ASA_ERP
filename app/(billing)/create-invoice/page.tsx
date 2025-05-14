@@ -56,9 +56,38 @@ export default function CreateInvoicePage() {
     },
   });
 
-  const onSubmit = (values) => {
-    console.log("Form submitted:", values);
-    // Will be integrated with API later
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      // Validate form data
+      const validatedData = formSchema.parse(values);
+      
+      if (items.length === 0) {
+        throw new Error("Please add at least one item to the invoice");
+      }
+
+      const invoiceData = {
+        ...validatedData,
+        items: items.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+          discount: item.discount,
+          tax: item.tax
+        }))
+      };
+
+      // TODO: Integrate with API
+      console.log("Validated data:", invoiceData);
+      
+    } catch (error) {
+      console.error("Form submission error:", error);
+      // Show error toast
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create invoice",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

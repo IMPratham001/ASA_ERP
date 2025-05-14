@@ -119,9 +119,12 @@ export function CustomerSelect({ value, onChange }) {
       </Popover>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent aria-describedby="customer-form-description">
           <DialogHeader>
             <DialogTitle>Add New Customer</DialogTitle>
+            <p id="customer-form-description" className="text-sm text-muted-foreground">
+              Enter the customer details below to add them to your system.
+            </p>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
