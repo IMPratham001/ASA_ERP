@@ -12,12 +12,40 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export function TemplateManager() {
   const [selectedTemplate, setSelectedTemplate] = useState("default");
   const [templates, setTemplates] = useState([
-    { id: "default", name: "Default Invoice", type: "invoice" },
-    { id: "minimal", name: "Minimal Invoice", type: "invoice" },
-    { id: "detailed", name: "Detailed Invoice", type: "invoice" },
-    { id: "quote", name: "Standard Quote", type: "quote" },
-    { id: "po", name: "Purchase Order", type: "purchase_order" },
+    { id: "default-business", name: "Business Invoice", type: "invoice", category: "business" },
+    { id: "default-retail", name: "Retail Invoice", type: "invoice", category: "retail" },
+    { id: "tax-invoice", name: "Tax Invoice", type: "invoice", category: "business" },
+    { id: "proforma", name: "Proforma Invoice", type: "invoice", category: "business" },
+    { id: "quote-business", name: "Business Quote", type: "quote", category: "business" },
+    { id: "quote-retail", name: "Retail Quote", type: "quote", category: "retail" },
+    { id: "po", name: "Purchase Order", type: "purchase_order", category: "business" },
   ]);
+
+  const [newTemplate, setNewTemplate] = useState({
+    name: "",
+    type: "invoice",
+    category: "business",
+    baseTemplate: "",
+  });
+
+  const handleCreateTemplate = () => {
+    if (!newTemplate.name || !newTemplate.type || !newTemplate.category) return;
+    
+    const template = {
+      id: `custom-${Date.now()}`,
+      name: newTemplate.name,
+      type: newTemplate.type,
+      category: newTemplate.category,
+    };
+
+    setTemplates([...templates, template]);
+    setNewTemplate({
+      name: "",
+      type: "invoice",
+      category: "business",
+      baseTemplate: "",
+    });
+  };
 
   return (
     <Card>
@@ -35,7 +63,20 @@ export function TemplateManager() {
           <TabsContent value="select" className="space-y-4">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label>Template Type</Label>
+                <Label>Business Type</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select business type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="business">Business</SelectItem>
+                    <SelectItem value="retail">Retail</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Document Type</Label>
                 <Select>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
@@ -73,24 +114,87 @@ export function TemplateManager() {
             <div className="grid gap-4">
               <div className="space-y-2">
                 <Label htmlFor="templateName">Template Name</Label>
-                <Input id="templateName" placeholder="Enter template name" />
+                <Input 
+                  id="templateName" 
+                  value={newTemplate.name}
+                  onChange={(e) => setNewTemplate({...newTemplate, name: e.target.value})}
+                  placeholder="Enter template name" 
+                />
               </div>
               
               <div className="space-y-2">
+                <Label>Business Type</Label>
+                <Select
+                  value={newTemplate.category}
+                  onValueChange={(value) => setNewTemplate({...newTemplate, category: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select business type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="business">Business</SelectItem>
+                    <SelectItem value="retail">Retail</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Document Type</Label>
+                <Select
+                  value={newTemplate.type}
+                  onValueChange={(value) => setNewTemplate({...newTemplate, type: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select document type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="invoice">Invoice</SelectItem>
+                    <SelectItem value="quote">Quote</SelectItem>
+                    <SelectItem value="po">Purchase Order</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label>Base Template</Label>
-                <Select>
+                <Select
+                  value={newTemplate.baseTemplate}
+                  onValueChange={(value) => setNewTemplate({...newTemplate, baseTemplate: value})}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select base template" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="blank">Blank</SelectItem>
-                    <SelectItem value="default">Default Invoice</SelectItem>
-                    <SelectItem value="minimal">Minimal Invoice</SelectItem>
+                    <SelectItem value="default-business">Default Business Invoice</SelectItem>
+                    <SelectItem value="default-retail">Default Retail Invoice</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <Button>Create Template</Button>
+              <Button onClick={handleCreateTemplate}>Create Template</Button>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="customize" className="space-y-4">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label>Template to Customize</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <Button>Open Template Editor</Button>
             </div>
           </TabsContent>
         </Tabs>
