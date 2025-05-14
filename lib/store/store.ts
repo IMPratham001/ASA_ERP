@@ -119,6 +119,9 @@ interface State {
   orders: Order[];
   transactions: Transaction[];
   activityLogs: ActivityLog[];
+  isLoading: boolean;
+  error: string | null;
+
   setUser: (user: User | null) => void;
   addStore: (store: Store) => void;
   updateStore: (id: string, store: Partial<Store>) => void;
@@ -131,6 +134,8 @@ interface State {
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
   addTransaction: (transaction: Transaction) => void;
   logActivity: (log: ActivityLog) => void;
+  setLoading: (status: boolean) => void;
+  setError: (error: string | null) => void;
   hasPermission: (module: string, permission: Permission) => boolean;
 }
 
@@ -145,60 +150,109 @@ export const useStore = create<State>()(
       orders: [],
       transactions: [],
       activityLogs: [],
-      hasPermission: (module: string, permission: string) => {
-        const user = get().user;
-        if (!user?.moduleAccess) return false;
-        try {
-          const moduleAccess = user.moduleAccess.find((m) => m.module === module);
-          return moduleAccess?.permissions?.includes(permission as Permission) ?? false;
-        } catch (error) {
-          console.error("Permission check error:", error);
-          return false;
+      isLoading: false,
+      error: null,
+
+      setLoading: (status) => set({ isLoading: status }),
+      setError: (error) => set({ error }),
+
+      setUser: (user) => set({ user }),
+
+      addStore: (store) => {
+        set((state) => ({ stores: [...state.stores, store] }));
+        get().logActivity({
+          id: Math.random().toString(),
+          userId: get().user?.id || '',
+          action: 'create',
+          module: 'store',
+          details: `Created store: ${store.name}`,
+          ipAddress: '',
+          timestamp: new Date().toISOString(),
+        });
+      },
+
+      updateStore: (id, store) => {
+        set((state) => ({
+          stores: state.stores.map((s) => s.id === id ? { ...s, ...store } : s),
+        }));
+      },
+
+      setCurrentStore: (store) => {
+        set({ currentStore: store });
+        if (store) {
+          get().logActivity({
+            id: Math.random().toString(),
+            userId: get().user?.id || '',
+            action: 'switch',
+            module: 'store',
+            details: `Switched to store: ${store.name}`,
+            ipAddress: '',
+            timestamp: new Date().toISOString(),
+          });
         }
       },
-      setUser: (user) => set({ user }),
-      addStore: (store) =>
-        set((state) => ({ stores: [...state.stores, store] })),
-      updateStore: (id, store) =>
-        set((state) => ({
-          stores: state.stores.map((s) =>
-            s.id === id ? { ...s, ...store } : s
-          ),
-        })),
-      setCurrentStore: (store) => set({ currentStore: store }),
+
       setStores: (stores) => set({ stores }),
-      addProduct: (product) =>
-        set((state) => ({ products: [...state.products, product] })),
-      updateProduct: (id, product) =>
+
+      addProduct: (product) => {
+        set((state) => ({ products: [...state.products, product] }));
+        get().logActivity({
+          id: Math.random().toString(),
+          userId: get().user?.id || '',
+          action: 'create',
+          module: 'product',
+          details: `Added product: ${product.name}`,
+          ipAddress: '',
+          timestamp: new Date().toISOString(),
+        });
+      },
+
+      updateProduct: (id, product) => {
         set((state) => ({
-          products: state.products.map((p) =>
-            p.id === id ? { ...p, ...product } : p
-          ),
-        })),
-      updateInventory: (item) =>
+          products: state.products.map((p) => p.id === id ? { ...p, ...product } : p),
+        }));
+      },
+
+      updateInventory: (item) => {
         set((state) => ({
-          inventory: [
-            ...state.inventory.filter((i) => i.id !== item.id),
-            item,
-          ],
-        })),
-      addOrder: (order) =>
-        set((state) => ({ orders: [...state.orders, order] })),
-      updateOrderStatus: (orderId, status) =>
+          inventory: [...state.inventory.filter((i) => i.id !== item.id), item],
+        }));
+        get().logActivity({
+          id: Math.random().toString(),
+          userId: get().user?.id || '',
+          action: 'update',
+          module: 'inventory',
+          details: `Updated inventory item: ${item.id}`,
+          ipAddress: '',
+          timestamp: new Date().toISOString(),
+        });
+      },
+
+      addOrder: (order) => {
+        set((state) => ({ orders: [...state.orders, order] }));
+      },
+
+      updateOrderStatus: (orderId, status) => {
         set((state) => ({
           orders: state.orders.map((order) =>
             order.id === orderId ? { ...order, status } : order
           ),
-        })),
-      addTransaction: (transaction) =>
+        }));
+      },
+
+      addTransaction: (transaction) => {
         set((state) => ({
           transactions: [...state.transactions, transaction],
-        })),
-      logActivity: (log) =>
+        }));
+      },
+
+      logActivity: (log) => {
         set((state) => ({
           activityLogs: [...state.activityLogs, log],
-        })),
-      hasPermission: (module: string, permission: string) => {
+        }));
+      },
+
+      hasPermission: (module: string, permission: Permission) => {
         const user = get().user;
         if (!user?.moduleAccess) return false;
         try {

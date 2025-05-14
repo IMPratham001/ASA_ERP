@@ -1,6 +1,7 @@
+
 "use client";
 
-import { CaretSortIcon } from "@radix-ui/react-icons";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,9 +10,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useStore } from "@/lib/store/store";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export function StoreSelector() {
-  const { stores, currentStore, setCurrentStore } = useStore();
+  const { stores, currentStore, setCurrentStore, isLoading } = useStore();
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <DropdownMenu>
@@ -26,8 +32,12 @@ export function StoreSelector() {
           <DropdownMenuItem
             key={store.id}
             onSelect={() => setCurrentStore(store)}
+            className="justify-between"
           >
             {store.name}
+            {currentStore?.id === store.id && (
+              <CheckIcon className="h-4 w-4" />
+            )}
           </DropdownMenuItem>
         ))}
         {stores.length === 0 && (
