@@ -17,6 +17,26 @@ export default function AuthPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        router.push('/dashboard');
+      } else {
+        setError('Invalid credentials');
+      }
+    } catch (err) {
+      setError('Login failed. Please try again.');
+    }
     setError("");
 
     // Demo login - replace with actual authentication

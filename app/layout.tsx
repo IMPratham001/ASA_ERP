@@ -18,6 +18,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Remove "use client" directive from layout
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>

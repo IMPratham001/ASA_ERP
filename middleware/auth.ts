@@ -2,9 +2,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+const publicPaths = ['/auth', '/api/auth'];
+
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('token');
-  const isPublicPath = request.nextUrl.pathname === '/auth';
+  const isPublicPath = publicPaths.some(path => request.nextUrl.pathname.startsWith(path));
 
   if (!token && !isPublicPath) {
     return NextResponse.redirect(new URL('/auth', request.url));
