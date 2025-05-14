@@ -1,5 +1,3 @@
-"use client";
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -31,6 +29,7 @@ export type Store = {
   isMainBranch: boolean;
   status: 'active' | 'inactive';
   createdAt: string;
+  currency: string;
 };
 
 export type Product = {
@@ -111,9 +110,10 @@ export type ActivityLog = {
   timestamp: string;
 };
 
-type State = {
+interface State {
   user: User | null;
   stores: Store[];
+  currentStore: Store | null;
   products: Product[];
   inventory: InventoryItem[];
   orders: Order[];
@@ -122,6 +122,8 @@ type State = {
   setUser: (user: User | null) => void;
   addStore: (store: Store) => void;
   updateStore: (id: string, store: Partial<Store>) => void;
+  setCurrentStore: (store: Store | null) => void;
+  setStores: (stores: Store[]) => void;
   addProduct: (product: Product) => void;
   updateProduct: (id: string, product: Partial<Product>) => void;
   updateInventory: (item: InventoryItem) => void;
@@ -130,13 +132,14 @@ type State = {
   addTransaction: (transaction: Transaction) => void;
   logActivity: (log: ActivityLog) => void;
   hasPermission: (module: string, permission: Permission) => boolean;
-};
+}
 
 export const useStore = create<State>()(
   persist(
     (set, get) => ({
       user: null,
       stores: [],
+      currentStore: null,
       products: [],
       inventory: [],
       orders: [],
@@ -151,6 +154,8 @@ export const useStore = create<State>()(
             s.id === id ? { ...s, ...store } : s
           ),
         })),
+      setCurrentStore: (store) => set({ currentStore: store }),
+      setStores: (stores) => set({ stores }),
       addProduct: (product) =>
         set((state) => ({ products: [...state.products, product] })),
       updateProduct: (id, product) =>

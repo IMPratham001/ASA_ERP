@@ -1,7 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Check, ChevronsUpDown, PlusCircle } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,25 +24,23 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { PlusCircle } from "lucide-react";
 
-const customers = [
-  {
-    id: "1",
-    name: "John Doe",
-    phone: "+91 98765 43210",
-    email: "john@example.com",
-    gstin: "29ABCDE1234F1Z5",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    phone: "+91 98765 43211",
-    email: "jane@example.com",
-    gstin: "29FGHIJ5678K2Z5",
-  },
-];
+interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  gstin: string;
+}
 
-export function CustomerSelect({ value, onChange }) {
+interface CustomerSelectProps {
+  customers?: Customer[];
+  onSelect: (customerId: string) => void;
+  selectedId?: string;
+}
+
+export function CustomerSelect({ customers = [], onSelect, selectedId }: CustomerSelectProps) {
   const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newCustomer, setNewCustomer] = useState({
@@ -51,13 +49,15 @@ export function CustomerSelect({ value, onChange }) {
     email: "",
     gstin: "",
   });
+  const selectedCustomer = customers.find(c => c.id === selectedId);
 
-  const handleAddCustomer = () => {
+    const handleAddCustomer = () => {
     // Will be integrated with API later
     console.log("New customer:", newCustomer);
     setDialogOpen(false);
     setNewCustomer({ name: "", phone: "", email: "", gstin: "" });
   };
+
 
   return (
     <>
@@ -69,13 +69,11 @@ export function CustomerSelect({ value, onChange }) {
             aria-expanded={open}
             className="w-full justify-between"
           >
-            {value
-              ? customers.find((customer) => customer.id === value)?.name
-              : "Select customer..."}
+            {selectedCustomer?.name ?? "Select customer..."}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[400px] p-0">
+        <PopoverContent className="w-full p-0">
           <Command>
             <CommandInput placeholder="Search customers..." />
             <CommandEmpty>
@@ -95,30 +93,24 @@ export function CustomerSelect({ value, onChange }) {
                   key={customer.id}
                   value={customer.id}
                   onSelect={() => {
-                    onChange(customer.id);
+                    onSelect(customer.id);
                     setOpen(false);
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === customer.id ? "opacity-100" : "opacity-0"
+                      selectedId === customer.id ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  <div>
-                    <p>{customer.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {customer.phone}
-                    </p>
-                  </div>
+                  {customer.name}
                 </CommandItem>
               ))}
             </CommandGroup>
           </Command>
         </PopoverContent>
       </Popover>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent aria-describedby="customer-form-description">
           <DialogHeader>
             <DialogTitle>Add New Customer</DialogTitle>

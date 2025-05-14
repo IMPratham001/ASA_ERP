@@ -1,66 +1,49 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-const defaultData = [
-  { month: "Jan", sales: 0 },
-  { month: "Feb", sales: 0 },
-  { month: "Mar", sales: 0 },
-  { month: "Apr", sales: 0 },
-  { month: "May", sales: 0 },
-  { month: "Jun", sales: 0 },
+const data = [
+  { name: "Jan", total: 1234 },
+  { name: "Feb", total: 2341 },
+  { name: "Mar", total: 3423 },
+  { name: "Apr", total: 2321 },
+  { name: "May", total: 3789 },
+  { name: "Jun", total: 2987 },
 ];
 
 export function Overview() {
-  const [data, setData] = useState(defaultData);
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-    // Fetch actual data here
-  }, []);
-
-  if (!isClient) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Overview</CardTitle>
+        <CardTitle>Revenue Overview</CardTitle>
+        <CardDescription>Monthly revenue breakdown</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="h-[200px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="month"
-                stroke="#888888"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                stroke="#888888"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `$${value}`}
-              />
-              <Tooltip />
-              <Area
-                type="monotone"
-                dataKey="sales"
-                stroke="#8884d8"
-                fill="#8884d8"
-                fillOpacity={0.2}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
+      <CardContent className="pl-2">
+        <ResponsiveContainer width="100%" height={350}>
+          <BarChart data={data}>
+            <XAxis
+              dataKey="name"
+              stroke="#888888"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+            />
+            <YAxis
+              stroke="#888888"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(value) => `$${value}`}
+            />
+            <Bar 
+              dataKey="total"
+              fill="currentColor"
+              radius={[4, 4, 0, 0]}
+              className="fill-primary"
+            />
+          </BarChart>
+        </ResponsiveContainer>
       </CardContent>
     </Card>
   );
