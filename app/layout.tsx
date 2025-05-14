@@ -1,15 +1,12 @@
 
-import "./globals.css";
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
-import { MainNav } from "@/components/layouts/main-nav";
 import { ClientProviders } from "@/components/client-providers";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "ASA ERP",
   description: "Modern ERP system for business management",
 };
@@ -20,22 +17,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body className={inter.className}>
-        <ClientProviders>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <div className="min-h-screen flex flex-col">
-              <MainNav />
-              <main className="flex-1 p-8 pt-6">{children}</main>
-            </div>
-            <Toaster />
-          </ThemeProvider>
-        </ClientProviders>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ClientProviders>{children}</ClientProviders>
+        </ThemeProvider>
       </body>
     </html>
   );

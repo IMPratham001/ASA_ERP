@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useStore } from "@/lib/store/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Plus, Search } from "lucide-react";
 
 export default function InventoryPage() {
-  const { products, inventory, addProduct, updateInventory, isLoading, currentStore } = useStore();
+  const { products = [], inventory = [], addProduct, updateInventory, isLoading, currentStore } = useStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -75,7 +75,7 @@ export default function InventoryPage() {
     });
   };
 
-  const filteredProducts = products.filter(product => 
+  const filteredProducts = (products || []).filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.sku.toLowerCase().includes(searchTerm.toLowerCase())
   );
