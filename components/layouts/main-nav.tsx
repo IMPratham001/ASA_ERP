@@ -25,7 +25,7 @@ import {
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 // Fix: Import the store properly - update the import path if needed
-import { useAuthStore } from "@/lib/store";
+import { useStore } from "@/lib/store/store";
 import { Separator } from "@/components/ui/separator";
 
 const getNavItems = (role: string) => {
