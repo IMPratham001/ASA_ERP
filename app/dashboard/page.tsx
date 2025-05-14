@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Overview } from "@/components/features/dashboard/overview";
 import { RecentSales } from "@/components/features/dashboard/recent-sales";
@@ -6,7 +7,7 @@ import {
   CircleDollarSign,
   Package,
   ShoppingCart,
-  Users
+  Users,
 } from "lucide-react";
 
 export default function DashboardPage() {

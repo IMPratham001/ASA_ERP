@@ -1,9 +1,8 @@
 
 "use client";
 
-import { useKeyboardShortcuts } from "@/lib/shortcuts";
+import { ReactNode } from "react";
 
-export function ClientProviders() {
-  useKeyboardShortcuts();
-  return null;
+export function ClientProviders({ children }: { children: ReactNode }) {
+  return <>{children}</>;
 }
