@@ -90,7 +90,7 @@ const routes = [
   },
 ];
 
-export function MainNav() {
+export function Sidebar() {
   const pathname = usePathname();
   const [expandedSettings, setExpandedSettings] = React.useState(
     pathname.includes("/settings"),
