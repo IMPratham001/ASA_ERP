@@ -1,6 +1,4 @@
-
 "use client";
-
 import * as React from "react";
 import { useStore } from "@/lib/store/store";
 import { Check, ChevronsUpDown, Store, MapPin } from "lucide-react";
@@ -23,7 +21,11 @@ export function StoreSwitcher() {
   const [open, setOpen] = React.useState(false);
   const { user, stores } = useStore();
 
-  const groupedStores = stores.reduce((acc, store) => {
+  // Guard against undefined stores
+  const storesList = stores || [];
+
+  // Safe grouping with null check
+  const groupedStores = storesList.reduce((acc, store) => {
     if (!acc[store.region]) {
       acc[store.region] = [];
     }
@@ -31,16 +33,28 @@ export function StoreSwitcher() {
     return acc;
   }, {});
 
-  if (!user?.permissions.canSwitchStores) {
-    const assignedStore = stores.find((store) => store.id === user?.storeId);
+  // Check if user exists and has permissions before accessing canSwitchStores
+  const canSwitchStores =
+    user && user.permissions && user.permissions.canSwitchStores;
+
+  if (!canSwitchStores) {
+    const assignedStore = storesList.find(
+      (store) => store.id === user?.storeId,
+    );
     return (
       <div className="flex items-center gap-2 px-4 py-2 border rounded-lg">
         <Store className="w-4 h-4" />
-        <span className="text-sm font-medium">{assignedStore?.name}</span>
-        <MapPin className="w-4 h-4 text-muted-foreground" />
-        <span className="text-xs text-muted-foreground">
-          {assignedStore?.region}
+        <span className="text-sm font-medium">
+          {assignedStore?.name || "No store assigned"}
         </span>
+        {assignedStore && (
+          <>
+            <MapPin className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">
+              {assignedStore.region}
+            </span>
+          </>
+        )}
       </div>
     );
   }
@@ -57,7 +71,8 @@ export function StoreSwitcher() {
           <Store className="w-4 h-4 mr-2" />
           <span className="truncate">
             {user?.storeId
-              ? stores.find((store) => store.id === user.storeId)?.name
+              ? storesList.find((store) => store.id === user.storeId)?.name ||
+                "Unknown store"
               : "Select store..."}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -81,7 +96,7 @@ export function StoreSwitcher() {
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      user?.storeId === store.id ? "opacity-100" : "opacity-0"
+                      user?.storeId === store.id ? "opacity-100" : "opacity-0",
                     )}
                   />
                   <div className="flex flex-col">
