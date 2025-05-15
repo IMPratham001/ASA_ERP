@@ -1,4 +1,3 @@
-
 "use client";
 import React from "react";
 import Link from "next/link";
@@ -17,6 +16,7 @@ import {
   PlusCircle,
   User,
   Lock,
+  LogOut,
 } from "lucide-react";
 
 const routes = [
@@ -180,15 +180,25 @@ export function Sidebar() {
           })}
         </nav>
 
-        <div className="mt-10 pt-6 border-t border-slate-200">
-          <Link
-            href="/create-invoice"
-            className="flex items-center gap-x-2 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2.5 rounded-lg transition-colors w-full justify-center"
-          >
-            <PlusCircle className="h-4 w-4" />
-            Create New Invoice
-          </Link>
-        </div>
+        <div className="mt-auto p-6 pt-6 border-t border-slate-200 space-y-4">
+            <Link
+              href="/create-invoice"
+              className="flex items-center gap-x-2 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2.5 rounded-lg transition-colors w-full justify-center"
+            >
+              <PlusCircle className="h-4 w-4" />
+              Create New Invoice
+            </Link>
+            <button
+              onClick={() => {
+                document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+                window.location.href = '/auth';
+              }}
+              className="flex items-center gap-x-2 text-sm font-medium bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg transition-colors w-full justify-center"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
+          </div>
       </div>
     </div>
   );
