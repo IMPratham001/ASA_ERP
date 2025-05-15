@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -23,43 +24,41 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
-      // Demo login - in production, implement proper authentication
-      if (email === "admin@example.com" && password === "admin") {
-        setUser({
-          id: "1",
-          email,
-          name: "Super Admin",
-          role: "super_admin",
-          storeId: null,
-          moduleAccess: [
-            { module: "dashboard", permissions: ["view"] },
-            { module: "inventory", permissions: ["view", "create", "edit", "delete"] },
-            { module: "orders", permissions: ["view", "create", "edit", "delete"] },
-            { module: "users", permissions: ["view", "create", "edit", "delete"] },
-          ],
-          lastLogin: new Date().toISOString(),
-        });
-        router.push("/dashboard");
-      } else if (email === "manager@example.com" && password === "manager") {
-        setUser({
-          id: "2",
-          email,
-          name: "Store Manager",
-          role: "manager",
-          storeId: "1",
-          moduleAccess: [
-            { module: "dashboard", permissions: ["view"] },
-            { module: "inventory", permissions: ["view", "edit"] },
-            { module: "orders", permissions: ["view", "create", "edit"] },
-          ],
-          lastLogin: new Date().toISOString(),
-        });
-        router.push("/dashboard");
-      } else {
-        setError("Invalid email or password");
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
       }
-    } catch (err) {
-      setError("An error occurred during login");
+
+      if (data.requires2FA) {
+        // Handle 2FA flow - redirect to 2FA page
+        router.push('/auth/2fa');
+        return;
+      }
+
+      // Store tokens in localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('refreshToken', data.refreshToken);
+
+      // Fetch user data and set in store
+      setUser({
+        id: data.userId,
+        email: data.email,
+        name: data.name,
+        role: data.role,
+        permissions: data.permissions,
+        lastLogin: new Date().toISOString(),
+      });
+
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err.message || "An error occurred during login");
     } finally {
       setIsLoading(false);
     }
@@ -112,11 +111,6 @@ export default function AuthPage() {
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            <p>Demo Accounts:</p>
-            <p>Super Admin: admin@example.com / admin</p>
-            <p>Store Manager: manager@example.com / manager</p>
-          </div>
         </CardContent>
       </Card>
     </div>
