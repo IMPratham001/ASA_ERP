@@ -1,31 +1,51 @@
 
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { verify } from "jsonwebtoken";
 
-// Define public paths that don't require authentication
-const publicPaths = ['/auth/login'];
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+
+// Add paths that don't require authentication
+const publicPaths = ["/auth/login"];
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('token');
-  const path = request.nextUrl.pathname;
-
-  // Allow access to public paths
-  if (publicPaths.includes(path)) {
+  const { pathname } = request.nextUrl;
+  
+  // Allow public paths
+  if (publicPaths.some(path => pathname.startsWith(path))) {
     return NextResponse.next();
   }
 
-  // Redirect to login if no token is present
-  if (!token && !path.startsWith('/auth/login')) {
-    const loginUrl = new URL('/auth/login', request.url);
-    loginUrl.searchParams.set('from', path);
+  // Check for authentication token
+  const token = request.cookies.get("token")?.value;
+
+  if (!token) {
+    const loginUrl = new URL("/auth/login", request.url);
+    loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  try {
+    // Verify JWT token
+    verify(token, JWT_SECRET);
+    return NextResponse.next();
+  } catch (error) {
+    // Invalid token, redirect to login
+    const loginUrl = new URL("/auth/login", request.url);
+    loginUrl.searchParams.set("from", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 }
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    /*
+     * Match all request paths except:
+     * 1. /api/auth/* (authentication routes)
+     * 2. /_next/* (Next.js internals)
+     * 3. /static/* (static files)
+     * 4. /favicon.ico, /robots.txt (public files)
+     */
+    "/((?!api/auth|_next/static|_next/image|favicon.ico).*)",
   ],
 };

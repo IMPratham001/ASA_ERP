@@ -1,37 +1,67 @@
-import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/prisma';
-import { generateToken } from '@/lib/auth/tokens';
+
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { sign } from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
-    const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || user.status !== 'active') {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    // Demo authentication logic
+    let isValid = false;
+    let userData = null;
+
+    if (email === "admin@example.com" && password === "admin") {
+      isValid = true;
+      userData = {
+        id: "1",
+        email,
+        name: "Super Admin",
+        role: "admin"
+      };
+    } else if (email === "manager@example.com" && password === "manager") {
+      isValid = true;
+      userData = {
+        id: "2",
+        email,
+        name: "Store Manager",
+        role: "manager"
+      };
     }
 
-    const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      return NextResponse.json(
+        { error: "Invalid credentials" },
+        { status: 401 }
+      );
     }
 
-    const { token } = await generateToken(user.id);
+    // Generate JWT token
+    const token = sign(userData, JWT_SECRET, { expiresIn: "7d" });
 
-    const response = NextResponse.json({ success: true });
+    // Create response
+    const response = NextResponse.json(
+      { success: true },
+      { status: 200 }
+    );
 
-    response.cookies.set("token", token, {
+    // Set cookie
+    cookies().set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60, // 7 days
       path: "/"
     });
 
     return response;
   } catch (error) {
-    console.error('Login error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Login error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useStore } from "@/lib/store/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,14 +17,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectPath = searchParams.get("from") || "/";
-
-  useEffect(() => {
-    if (window.location.pathname !== "/auth/login") {
-      router.replace("/auth/login" + window.location.search);
-    }
-  }, [router]);
-  const setUser = useStore((state) => state.setUser);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -37,48 +28,21 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      if (email === "admin@example.com" && password === "admin") {
-        setUser({
-          id: "1",
-          email,
-          name: "Super Admin",
-          role: "super_admin",
-          storeId: null,
-          moduleAccess: [
-            { module: "dashboard", permissions: ["view"] },
-            {
-              module: "inventory",
-              permissions: ["view", "create", "edit", "delete"],
-            },
-            {
-              module: "orders",
-              permissions: ["view", "create", "edit", "delete"],
-            },
-            {
-              module: "users",
-              permissions: ["view", "create", "edit", "delete"],
-            },
-          ],
-          lastLogin: new Date().toISOString(),
-        });
-        router.push(redirectPath);
-      } else if (email === "manager@example.com" && password === "manager") {
-        setUser({
-          id: "2",
-          email,
-          name: "Store Manager",
-          role: "manager",
-          storeId: "1",
-          moduleAccess: [
-            { module: "dashboard", permissions: ["view"] },
-            { module: "inventory", permissions: ["view", "edit"] },
-            { module: "orders", permissions: ["view", "create", "edit"] },
-          ],
-          lastLogin: new Date().toISOString(),
-        });
-        router.push(redirectPath);
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const from = searchParams.get("from") || "/dashboard";
+        router.push(from);
       } else {
-        setError("Invalid email or password");
+        setError(data.error || "Invalid credentials");
       }
     } catch (err) {
       setError("An error occurred during login");
@@ -132,8 +96,8 @@ export default function LoginPage() {
           </form>
           <div className="mt-4 text-center text-sm text-muted-foreground">
             <p>Demo Accounts:</p>
-            <p>Super Admin: admin@example.com / admin</p>
-            <p>Store Manager: manager@example.com / manager</p>
+            <p>Admin: admin@example.com / admin</p>
+            <p>Manager: manager@example.com / manager</p>
           </div>
         </CardContent>
       </Card>
