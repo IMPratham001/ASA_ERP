@@ -76,7 +76,9 @@ export default function DashboardPage() {
             <CardTitle>Overview</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
-            <Overview />
+            <div data-tour="overview">
+          <Overview />
+        </div>
           </CardContent>
         </Card>
         <Card className="col-span-3">
@@ -84,7 +86,9 @@ export default function DashboardPage() {
             <CardTitle>Recent Sales</CardTitle>
           </CardHeader>
           <CardContent>
-            <RecentSales />
+            <div data-tour="recent-sales">
+              <RecentSales />
+            </div>
           </CardContent>
         </Card>
       </div>

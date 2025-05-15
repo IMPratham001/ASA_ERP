@@ -104,7 +104,7 @@ export function MainNav() {
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 flex-1">
           <Link href="/dashboard" className="flex items-center space-x-2">
             <span className="font-bold text-xl">ERP System</span>
           </Link>
