@@ -1,6 +1,7 @@
 'use client';
 
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { memo } from 'react';
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const data = [
@@ -12,7 +13,19 @@ const data = [
   { name: "Jun", total: 2987 },
 ];
 
-export function Overview() {
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background border rounded-lg p-2 shadow-lg">
+        <p className="text-sm font-medium">{label}</p>
+        <p className="text-sm text-primary">${payload[0].value}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
+export const Overview = memo(function Overview() {
   return (
     <Card>
       <CardHeader>
@@ -36,6 +49,7 @@ export function Overview() {
               axisLine={false}
               tickFormatter={(value) => `$${value}`}
             />
+            <Tooltip content={<CustomTooltip />} />
             <Bar 
               dataKey="total"
               fill="currentColor"
@@ -47,4 +61,4 @@ export function Overview() {
       </CardContent>
     </Card>
   );
-}
+});

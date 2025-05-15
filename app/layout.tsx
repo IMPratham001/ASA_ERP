@@ -29,7 +29,6 @@ export default function RootLayout({
           <div className="min-h-screen bg-background">
             <MainNav />
             <main className="container mx-auto px-4 py-6">{children}</main>
-            <Tour />
           </div>
           <Toaster />
         </ThemeProvider>

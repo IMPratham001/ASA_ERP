@@ -92,13 +92,14 @@ export function MainNav() {
   const router = useRouter();
   const { user, setUser, hasPermission } = useStore();
 
-  const handleLogout = () => {
+  const handleLogout = React.useCallback(() => {
     setUser(null);
     router.push("/auth");
-  };
+  }, [setUser, router]);
 
-  const filteredRoutes = routes.filter((route) =>
-    hasPermission(route.module, "view")
+  const filteredRoutes = React.useMemo(() => 
+    routes.filter((route) => hasPermission(route.module, "view")),
+    [hasPermission]
   );
 
   return (
