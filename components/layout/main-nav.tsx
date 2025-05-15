@@ -103,7 +103,7 @@ export function Sidebar() {
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-2">
             <FileText className="h-6 w-6 text-white" />
           </div>
-          <span className="font-bold text-xl text-slate-800">ERP Suite</span>
+          <span className="font-bold text-xl text-slate-800">ASA-ERP</span>
         </div>
 
         <nav className="space-y-1.5">

@@ -8,8 +8,8 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ERP Suite",
-  description: "Modern ERP system",
+  title: "ASA-ERP",
+  description: "Advanced ERP System",
 };
 
 export default function RootLayout({

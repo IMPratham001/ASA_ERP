@@ -1,49 +1,46 @@
 
 export type Role = 
-  | 'brand_owner' 
-  | 'super_manager' 
-  | 'store_manager' 
-  | 'department_head' 
-  | 'accountant' 
-  | 'inventory_manager' 
-  | 'sales_staff' 
-  | 'hr_staff'
-  | 'temp_staff';
+  | 'owner'
+  | 'admin'
+  | 'manager' 
+  | 'accountant'
+  | 'inventory_manager'
+  | 'sales_staff'
+  | 'employee';
 
-export type Permission = 'view' | 'create' | 'edit' | 'delete';
+export type Permission = 
+  | 'view' 
+  | 'create' 
+  | 'edit' 
+  | 'delete' 
+  | 'manage_users'
+  | 'manage_roles'
+  | 'manage_permissions'
+  | 'view_reports'
+  | 'manage_inventory'
+  | 'manage_sales'
+  | 'manage_finance'
+  | 'manage_settings';
 
-export type ModulePermission = {
+export type ModuleAccess = {
   module: string;
   permissions: Permission[];
+  departmentId?: string;
   storeId?: string;
-  validUntil?: Date;
-  ipRestrictions?: string[];
-  requires2FA: boolean;
 };
 
 export type UserPermissions = {
-  canManageStores: boolean;
-  canViewAllStores: boolean;
-  canTransferInventory: boolean;
-  canViewFinancials: boolean;
-  canManageStaff: boolean;
+  canManageUsers: boolean;
   canManageRoles: boolean;
-  canAccessEcommerce: boolean;
+  canManagePermissions: boolean;
+  canViewReports: boolean;
   canManageInventory: boolean;
+  canManageSales: boolean;
+  canManageFinance: boolean;
+  canManageSettings: boolean;
   storeAccess: string[];
   departmentAccess: string[];
-};
-
-export type Store = {
-  id: string;
-  name: string;
-  parentStoreId?: string;
-  managerId: string;
-  superManagerId?: string;
-  region: string;
-  status: 'active' | 'inactive';
-  inventoryAlertRoles: string[];
-  ipWhitelist?: string[];
+  moduleAccess: ModuleAccess[];
 };
 
 export type User = {
@@ -51,12 +48,9 @@ export type User = {
   email: string;
   name: string;
   role: Role;
-  storeId: string | null;
+  storeId?: string;
+  departmentId?: string;
   permissions: UserPermissions;
-  moduleAccess: ModulePermission[];
-  requires2FA: boolean;
-  temporaryAccess?: {
-    validUntil: Date;
-    permissions: ModulePermission[];
-  };
+  isActive: boolean;
+  lastLogin?: Date;
 };
