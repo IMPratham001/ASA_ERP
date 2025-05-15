@@ -1,156 +1,89 @@
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
+` tags. I'll pay close attention to indentation and structure, and I'll make sure to include all necessary parts of the original code that were not explicitly modified in the edited snippet.
+```
+<replit_final_file>
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
 model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
-  name         String
-  role         String
-  storeId      String?
-  moduleAccess Json[]
-  lastLogin    DateTime      @default(now())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  invoices     Invoice[]
-  approvals    Approval[]
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String
+  role            String
+  storeId         String?
+  permissions     Json
+  moduleAccess    Json[]
+  requires2FA     Boolean   @default(false)
+  temporaryAccess Json?
+  stores          Store[]   @relation("StoreManagers")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model Store {
-  id            String    @id @default(cuid())
-  name          String
-  address       String?
-  phone         String?
-  region        String?
-  currency      String    @default("USD")
-  isMainBranch  Boolean   @default(false)
-  status        String    @default("active")
-  taxSettings   Json?
-  invoicePrefix String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  products      Product[]
-  invoices      Invoice[]
+  id                String   @id @default(cuid())
+  name              String
+  region            String
+  status            String   @default("active")
+  managers          User[]   @relation("StoreManagers")
+  parentStoreId     String?
+  parentStore       Store?   @relation("StoreHierarchy", fields: [parentStoreId], references: [id])
+  childStores       Store[]  @relation("StoreHierarchy")
+  customers         Customer[]
+  invoices          Invoice[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
-model Product {
-  id          String        @id @default(cuid())
-  name        String
-  sku         String        @unique
-  price       Float
-  storeId     String
-  store       Store         @relation(fields: [storeId], references: [id])
-  inventory   Inventory[]
-  invoiceItems InvoiceItem[]
-}
-
-model Inventory {
-  id        String   @id @default(cuid())
-  productId String
-  product   Product  @relation(fields: [productId], references: [id])
-  quantity  Int
-  location  String
-  type      String   @default("physical") // physical, digital, etc.
-  updatedAt DateTime @updatedAt
-}
-
-model Client {
-  id            String          @id @default(cuid())
-  name          String
-  email         String?
-  phone         String?
-  taxId         String?
-  creditLimit   Float?
-  currency      String          @default("USD")
-  billingAddress String?
-  status        String          @default("active")
-  invoices      Invoice[]
-  recurringBills RecurringBill[]
+model Customer {
+  id              String    @id @default(cuid())
+  name            String
+  email           String?
+  phone           String?
+  billingAddress  String?
+  shippingAddress String?
+  taxId           String?
+  currency        String    @default("USD")
+  storeId         String
+  store           Store     @relation(fields: [storeId], references: [id])
+  invoices        Invoice[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model Invoice {
-  id            String        @id @default(cuid())
-  number        String        @unique
-  type          String        // retail, wholesale, tax
-  storeId       String
-  store         Store         @relation(fields: [storeId], references: [id])
-  clientId      String
-  client        Client        @relation(fields: [clientId], references: [id])
-  userId        String
-  user          User          @relation(fields: [userId], references: [id])
-  status        String        @default("draft")
-  currency      String
-  subtotal      Float
-  tax           Float
-  total         Float
-  dueDate       DateTime
-  items         InvoiceItem[]
-  payments      Payment[]
-  approvals     Approval[]
-  customFields  Json?
-  templateId    String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-}
-
-model InvoiceItem {
-  id          String   @id @default(cuid())
-  invoiceId   String
-  invoice     Invoice  @relation(fields: [invoiceId], references: [id])
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id])
-  quantity    Int
-  price       Float
-  discount    Float    @default(0)
-  tax         Float    @default(0)
-}
-
-model Payment {
-  id          String   @id @default(cuid())
-  invoiceId   String
-  invoice     Invoice  @relation(fields: [invoiceId], references: [id])
-  amount      Float
-  method      String
-  status      String
-  gatewayRef  String?
-  createdAt   DateTime @default(now())
-}
-
-model RecurringBill {
-  id          String   @id @default(cuid())
-  clientId    String
-  client      Client   @relation(fields: [clientId], references: [id])
-  frequency   String   // monthly, quarterly, yearly
-  nextDueDate DateTime
-  template    Json
-  status      String   @default("active")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Approval {
-  id         String   @id @default(cuid())
-  invoiceId  String
-  invoice    Invoice  @relation(fields: [invoiceId], references: [id])
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  status     String   @default("pending")
-  comment    String?
-  createdAt  DateTime @default(now())
+  id              String    @id @default(cuid())
+  number          String    @unique
+  customerId      String
+  customer        Customer  @relation(fields: [customerId], references: [id])
+  storeId         String
+  store           Store     @relation(fields: [storeId], references: [id])
+  items           Json[]    // Array of line items
+  subtotal        Float
+  tax             Float
+  total           Float
+  currency        String
+  status          String    @default("draft")
+  dueDate         DateTime?
+  notes           String?
+  termsConditions String?
+  template        String    @default("default")
+  customFields    Json?
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model InvoiceTemplate {
-  id        String   @id @default(cuid())
-  name      String
-  type      String   // retail, wholesale, tax
-  layout    Json
-  isDefault Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  layout      Json
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
