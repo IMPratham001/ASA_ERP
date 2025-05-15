@@ -13,7 +13,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectPath = searchParams.get('from') || '/dashboard';
+  const redirectPath = searchParams.get('from') || '/';
+  
+  useEffect(() => {
+    if (window.location.pathname !== '/auth/login') {
+      router.replace('/auth/login' + window.location.search);
+    }
+  }, []);
   const setUser = useStore((state) => state.setUser);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

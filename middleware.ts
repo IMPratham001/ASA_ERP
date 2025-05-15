@@ -15,7 +15,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Redirect to login if no token is present
-  if (!token) {
+  if (!token && !path.startsWith('/auth/login')) {
     const loginUrl = new URL('/auth/login', request.url);
     loginUrl.searchParams.set('from', path);
     return NextResponse.redirect(loginUrl);

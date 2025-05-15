@@ -19,15 +19,7 @@ export async function POST(req: Request) {
 
     const { token } = await generateToken(user.id);
 
-    const response = NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        roles: user.roles
-      }
-    });
+    const response = NextResponse.json({ success: true });
 
     response.cookies.set("token", token, {
       httpOnly: true,
@@ -38,7 +30,6 @@ export async function POST(req: Request) {
     });
 
     return response;
-
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
