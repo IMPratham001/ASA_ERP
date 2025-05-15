@@ -1,16 +1,15 @@
+` tags. I'll pay close attention to indentation, structure, and completeness.
+
+```
+<replit_final_file>
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -28,44 +27,29 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Login failed");
+        throw new Error(data.error || 'Login failed');
       }
 
-      if (data.requires2FA) {
-        // Handle 2FA flow - redirect to 2FA page
-        router.push("/auth/2fa");
-        return;
-      }
-
-      // Store tokens in localStorage
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("refreshToken", data.refreshToken);
-
-      // Fetch user data and set in store
       setUser({
-        id: data.userId,
-        email: data.email,
-        name: data.name,
-        role: data.role,
-        permissions: data.permissions,
-        lastLogin: new Date().toISOString(),
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        roles: data.user.roles,
       });
 
       router.push("/dashboard");
     } catch (err) {
-      console.error(err);
-      setError(
-        err instanceof Error ? err.message : "An error occurred during login",
-      );
+      console.error("Login error:", err);
+      setError(err instanceof Error ? err.message : "An error occurred during login");
     } finally {
       setIsLoading(false);
     }
@@ -110,7 +94,11 @@ export default function AuthPage() {
                 disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+            >
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
