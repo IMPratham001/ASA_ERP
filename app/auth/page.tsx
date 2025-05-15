@@ -1,71 +1,86 @@
-
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useStore } from "@/lib/store/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useStore } from "@/lib/store/store";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function AuthPage() {
   const router = useRouter();
+  const setUser = useStore((state) => state.setUser);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const setUser = useStore((state) => state.setUser);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    try {
-      const response = await fetch('/api/auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+    setError("");
+    setIsLoading(true);
 
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-        router.push('/dashboard');
+    try {
+      // Demo login - in production, implement proper authentication
+      if (email === "admin@example.com" && password === "admin") {
+        setUser({
+          id: "1",
+          email,
+          name: "Super Admin",
+          role: "super_admin",
+          storeId: null,
+          moduleAccess: [
+            { module: "dashboard", permissions: ["view"] },
+            { module: "inventory", permissions: ["view", "create", "edit", "delete"] },
+            { module: "orders", permissions: ["view", "create", "edit", "delete"] },
+            { module: "users", permissions: ["view", "create", "edit", "delete"] },
+          ],
+          lastLogin: new Date().toISOString(),
+        });
+        router.push("/dashboard");
+      } else if (email === "manager@example.com" && password === "manager") {
+        setUser({
+          id: "2",
+          email,
+          name: "Store Manager",
+          role: "manager",
+          storeId: "1",
+          moduleAccess: [
+            { module: "dashboard", permissions: ["view"] },
+            { module: "inventory", permissions: ["view", "edit"] },
+            { module: "orders", permissions: ["view", "create", "edit"] },
+          ],
+          lastLogin: new Date().toISOString(),
+        });
+        router.push("/dashboard");
       } else {
-        setError('Invalid credentials');
+        setError("Invalid email or password");
       }
     } catch (err) {
-      setError('Login failed. Please try again.');
-    }
-    setError("");
-
-    // Demo login - replace with actual authentication
-    const demoUsers = {
-      "owner@demo.com": { role: "owner", name: "John Owner" },
-      "sales@demo.com": { role: "sales", name: "Jane Sales" },
-      "accountant@demo.com": { role: "accountant", name: "Mike Account" },
-    };
-
-    const user = demoUsers[email as keyof typeof demoUsers];
-
-    if (user && password.length > 0) {
-      setUser({
-        email,
-        ...user
-      });
-      router.push("/dashboard");
-    } else {
-      setError("Invalid credentials");
+      setError("An error occurred during login");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Card className="w-[400px]">
-        <CardHeader>
-          <CardTitle>Login to ASA ERP</CardTitle>
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-[400px]">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
+          <CardDescription>
+            Enter your credentials to access your account
+          </CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Input
@@ -74,20 +89,34 @@ export default function AuthPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="w-full"
+                disabled={isLoading}
               />
+            </div>
+            <div className="space-y-2">
               <Input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="w-full"
+                disabled={isLoading}
               />
             </div>
-            {error && <p className="text-sm text-red-500">{error}</p>}
-            <Button type="submit" className="w-full">
-              Login
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
+          <div className="mt-4 text-center text-sm text-muted-foreground">
+            <p>Demo Accounts:</p>
+            <p>Super Admin: admin@example.com / admin</p>
+            <p>Store Manager: manager@example.com / manager</p>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -30,7 +29,7 @@ import {
 
 const accountTypes: AccountType[] = [
   "asset",
-  "liability", 
+  "liability",
   "equity",
   "revenue",
   "expense",
