@@ -185,22 +185,45 @@ export const useStore = create<State>()(
         })),
       logActivity: (log) =>
         set((state) => ({
-          activityLogs: [...state.activityLogs, log],
+          activityLogs: [
+            {
+              ...log,
+              timestamp: new Date().toISOString(),
+              id: crypto.randomUUID()
+            },
+            ...state.activityLogs
+          ].slice(0, 1000), // Limit log history
         })),
       hasPermission: (module: string, permission: string) => {
         const user = get().user;
         if (!user?.moduleAccess) return false;
+        
+        // Super admin has all permissions
+        if (user.role === 'super_admin') return true;
+        
         try {
-          const moduleAccess = user.moduleAccess.find((m) => m.module === module);
-          return moduleAccess?.permissions?.includes(permission) || false;
+          const moduleAccess = user.moduleAccess.find(
+            (m) => m.module === module || m.module === '*'
+          );
+          return moduleAccess?.permissions?.includes(permission) || 
+                 moduleAccess?.permissions?.includes('*') || 
+                 false;
         } catch (error) {
           console.error("Permission check error:", error);
           return false;
         }
       },
+      clearErrors: () => set({ error: null }),
+      reset: () => set((state) => ({
+        ...state,
+        transactions: [],
+        activityLogs: [],
+        error: null
+      }))
     }),
     {
       name: 'erp-store',
+      storage: createJSONStorage(() => sessionStorage)
     }
   )
 );
