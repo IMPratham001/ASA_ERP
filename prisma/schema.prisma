@@ -1,59 +1,98 @@
-` tags. I'll pay close attention to indentation and structure, and I'll make sure to include all necessary parts of the original code that were not explicitly modified in the edited snippet.
-```
-<replit_final_file>
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  name            String
-  role            String
-  storeId         String?
-  permissions     Json
-  moduleAccess    Json[]
-  requires2FA     Boolean   @default(false)
-  temporaryAccess Json?
-  stores          Store[]   @relation("StoreManagers")
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id                String           @id @default(cuid())
+  email             String           @unique
+  name              String
+  role              Role            @relation(fields: [roleId], references: [id])
+  roleId            String
+  storeId           String?
+  requires2FA       Boolean         @default(false)
+  temporaryAccess   Json?
+  stores            Store[]         @relation("StoreManagers")
+  auditLogs         AuditLog[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model Role {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  permissions Permission[]
+  users       User[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Permission {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  roles     Role[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Store {
-  id                String   @id @default(cuid())
-  name              String
-  region            String
-  status            String   @default("active")
-  managers          User[]   @relation("StoreManagers")
-  parentStoreId     String?
-  parentStore       Store?   @relation("StoreHierarchy", fields: [parentStoreId], references: [id])
-  childStores       Store[]  @relation("StoreHierarchy")
-  customers         Customer[]
-  invoices          Invoice[]
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id              String           @id @default(cuid())
+  name            String
+  region          String
+  status          String          @default("active")
+  managers        User[]          @relation("StoreManagers")
+  parentStoreId   String?
+  parentStore     Store?          @relation("StoreHierarchy", fields: [parentStoreId], references: [id])
+  childStores     Store[]         @relation("StoreHierarchy")
+  customers       Customer[]
+  invoices        Invoice[]
+  taxRules        TaxRule[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model Customer {
-  id              String    @id @default(cuid())
+  id              String              @id @default(cuid())
   name            String
   email           String?
   phone           String?
   billingAddress  String?
   shippingAddress String?
   taxId           String?
-  currency        String    @default("USD")
+  currency        String             @default("USD")
   storeId         String
-  store           Store     @relation(fields: [storeId], references: [id])
+  store           Store              @relation(fields: [storeId], references: [id])
+  customFields    CustomFieldValue[]
   invoices        Invoice[]
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+model CustomField {
+  id           String             @id @default(cuid())
+  name         String
+  type         String             @default("text") // text, number, date, select
+  entityType   String             // Customer, Invoice, etc.
+  options      Json?              // For select type fields
+  values       CustomFieldValue[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+model CustomFieldValue {
+  id           String      @id @default(cuid())
+  fieldId      String
+  field        CustomField @relation(fields: [fieldId], references: [id])
+  customerId   String
+  customer     Customer    @relation(fields: [customerId], references: [id])
+  value        String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }
 
 model Invoice {
@@ -75,8 +114,34 @@ model Invoice {
   template        String    @default("default")
   customFields    Json?
   metadata        Json?
+  taxSnapshot     Json      // Stores tax rates at time of creation
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+}
+
+model TaxRule {
+  id        String   @id @default(cuid())
+  name      String
+  rate      Float
+  type      String   // GST, VAT, etc.
+  storeId   String?
+  store     Store?   @relation(fields: [storeId], references: [id])
+  isGlobal  Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  action      String
+  entityType  String
+  entityId    String
+  changedFrom Json?
+  changedTo   Json?
+  createdAt   DateTime @default(now())
 }
 
 model InvoiceTemplate {
