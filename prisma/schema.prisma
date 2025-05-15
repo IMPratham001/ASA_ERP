@@ -24,12 +24,12 @@ model User {
   sessions          Session[]
   loginHistory      LoginHistory[]
   storeId           String?
-  requires2FA       Boolean         @default(false)
+  requires2FA       Boolean          @default(false)
   temporaryAccess   Json?
-  stores            Store[]         @relation("StoreManagers")
+  stores            Store[]          @relation("StoreManagers")
   auditLogs         AuditLog[]
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 }
 
 model Role {
@@ -85,9 +85,9 @@ model Customer {
 model CustomField {
   id           String             @id @default(cuid())
   name         String
-  type         String             @default("text") // text, number, date, select
-  entityType   String             // Customer, Invoice, etc.
-  options      Json?              // For select type fields
+  type         String             @default("text")
+  entityType   String
+  options      Json?
   values       CustomFieldValue[]
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
@@ -111,7 +111,7 @@ model Invoice {
   customer        Customer  @relation(fields: [customerId], references: [id])
   storeId         String
   store           Store     @relation(fields: [storeId], references: [id])
-  items           Json[]    // Array of line items
+  items           Json[]
   subtotal        Float
   tax             Float
   total           Float
@@ -123,7 +123,7 @@ model Invoice {
   template        String    @default("default")
   customFields    Json?
   metadata        Json?
-  taxSnapshot     Json      // Stores tax rates at time of creation
+  taxSnapshot     Json
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
@@ -132,7 +132,7 @@ model TaxRule {
   id        String   @id @default(cuid())
   name      String
   rate      Float
-  type      String   // GST, VAT, etc.
+  type      String
   storeId   String?
   store     Store?   @relation(fields: [storeId], references: [id])
   isGlobal  Boolean  @default(false)
@@ -147,36 +147,34 @@ model AuditLog {
   user        User     @relation(fields: [userId], references: [id])
   action      String
   entityType  String
-
-
-model Session {
-  id            String      @id @default(cuid())
-  user          User        @relation(fields: [userId], references: [id])
-  userId        String
-  token         String      @unique
-  refreshToken  String      @unique
-  expiresAt     DateTime
-  ipAddress     String
-  userAgent     String
-  isValid       Boolean     @default(true)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-}
-
-model LoginHistory {
-  id          String      @id @default(cuid())
-  user        User        @relation(fields: [userId], references: [id])
-  userId      String
-  timestamp   DateTime    @default(now())
-  ipAddress   String
-  userAgent   String
-  success     Boolean
-}
-
   entityId    String
   changedFrom Json?
   changedTo   Json?
   createdAt   DateTime @default(now())
+}
+
+model Session {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  token         String   @unique
+  refreshToken  String   @unique
+  expiresAt     DateTime
+  ipAddress     String
+  userAgent     String
+  isValid       Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model LoginHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  timestamp   DateTime @default(now())
+  ipAddress   String
+  userAgent   String
+  success     Boolean
 }
 
 model InvoiceTemplate {
