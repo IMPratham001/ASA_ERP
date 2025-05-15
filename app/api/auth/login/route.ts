@@ -1,65 +1,43 @@
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import * as bcrypt from "bcrypt";
 
-import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/prisma';
-import { generateToken } from '@/lib/auth/tokens';
-import { authenticator } from 'otplib';
-
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const { email, password, code } = await req.json();
-    const user = await prisma.user.findUnique({ where: { email } });
+    const body = await request.json();
+    const { email, password } = body;
 
-    if (!user || user.status !== 'active') {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-    }
-
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-    }
-
-    if (user.twoFactorEnabled) {
-      if (!code) {
-        return NextResponse.json({ requires2FA: true }, { status: 200 });
-      }
-      
-      const isValidCode = authenticator.verify({
-        token: code,
-        secret: user.twoFactorSecret!
-      });
-
-      if (!isValidCode) {
-        return NextResponse.json({ error: 'Invalid 2FA code' }, { status: 401 });
-      }
-    }
-
-    const { token, refreshToken, expiresAt } = await generateToken(user.id);
-    
-    // Create session
-    await prisma.session.create({
-      data: {
-        userId: user.id,
-        token,
-        refreshToken,
-        expiresAt,
-        ipAddress: req.headers.get('x-forwarded-for') || 'unknown',
-        userAgent: req.headers.get('user-agent') || 'unknown',
-      }
+    const user = await prisma.user.findUnique({
+      where: { email }
     });
 
-    // Log login
-    await prisma.loginHistory.create({
-      data: {
-        userId: user.id,
-        ipAddress: req.headers.get('x-forwarded-for') || 'unknown',
-        userAgent: req.headers.get('user-agent') || 'unknown',
-        success: true
-      }
+    if (!user || !await bcrypt.compare(password, user.password)) {
+      return NextResponse.json(
+        { error: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
+
+    const token = crypto.randomUUID();
+
+    cookies().set('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/'
     });
 
-    return NextResponse.json({ token, refreshToken });
+    return NextResponse.json({
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    });
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

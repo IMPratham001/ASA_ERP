@@ -1,4 +1,3 @@
-
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -6,6 +5,7 @@ import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { Sidebar } from "@/components/layout/main-nav";
 
 const inter = Inter({ subsets: ["latin"] });
 
