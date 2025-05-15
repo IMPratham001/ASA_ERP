@@ -19,11 +19,7 @@ export async function POST(request: Request) {
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
       include: {
-        roles: {
-          include: {
-            permissions: true
-          }
-        }
+        roles: true
       }
     });
 
@@ -43,26 +39,17 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create session
-    const session = await prisma.session.create({
-      data: {
+    const token = sign(
+      { 
         userId: user.id,
-        token: sign({ userId: user.id }, process.env.NEXTAUTH_SECRET || "your-secret-key"),
-        refreshToken: sign({ userId: user.id }, process.env.NEXTAUTH_SECRET || "your-secret-key"),
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-        ipAddress: request.headers.get("x-forwarded-for") || "unknown",
-        userAgent: request.headers.get("user-agent") || "unknown",
-      }
-    });
+        email: user.email,
+        roles: user.roles 
+      },
+      process.env.JWT_SECRET || 'default-secret-key',
+      { expiresIn: '7d' }
+    );
 
-    // Update last login
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLogin: new Date() }
-    });
-
-    const cookieStore = cookies();
-    cookieStore.set("token", session.token, {
+    cookies().set('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -78,6 +65,7 @@ export async function POST(request: Request) {
         roles: user.roles,
       }
     });
+
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(

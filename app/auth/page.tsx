@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -41,18 +42,16 @@ export default function AuthPage() {
         throw new Error(data.error || "Login failed");
       }
 
-      setUser({
-        id: data.user.id,
-        email: data.user.email,
-        name: data.user.name,
-        roles: data.user.roles,
-      });
-
-      router.push("/dashboard");
+      if (data.success) {
+        setUser(data.user);
+        router.push("/dashboard");
+      } else {
+        setError(data.error || "Login failed");
+      }
     } catch (err) {
       console.error("Login error:", err);
       setError(
-        err instanceof Error ? err.message : "An error occurred during login",
+        err instanceof Error ? err.message : "An error occurred during login"
       );
     } finally {
       setIsLoading(false);
@@ -70,7 +69,7 @@ export default function AuthPage() {
         </CardHeader>
         <CardContent>
           {error && (
-            <Alert className="mb-4" variant="destructive">
+            <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
