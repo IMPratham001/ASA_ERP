@@ -1,13 +1,26 @@
 
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function ProfilePage() {
+  const [profile, setProfile] = useState({
+    fullName: 'PRATHAM SONI',
+    displayName: 'PRATHAM',
+    email: 'sonipratham415@gmail.com',
+    gender: 'Male',
+    country: 'India',
+    state: 'Gujarat',
+    language: 'English - United States',
+    timezone: '(GMT +05:30) India Standard Time (Asia/Kolkata)'
+  });
+
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold tracking-tight">Profile</h2>
@@ -17,43 +30,65 @@ export default function ProfilePage() {
           <CardTitle>Personal Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex items-center space-x-4">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src="" />
+              <AvatarFallback>{profile.displayName[0]}</AvatarFallback>
+            </Avatar>
+            <Button>Upload Picture</Button>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Full Name</Label>
-              <Input placeholder="Enter your full name" />
+              <Input value={profile.fullName} onChange={(e) => setProfile({...profile, fullName: e.target.value})} />
             </div>
+            
             <div className="space-y-2">
               <Label>Display Name</Label>
-              <Input placeholder="Enter display name" />
+              <Input value={profile.displayName} onChange={(e) => setProfile({...profile, displayName: e.target.value})} />
             </div>
+
             <div className="space-y-2">
               <Label>Gender</Label>
-              <Select>
+              <Select value={profile.gender} onValueChange={(value) => setProfile({...profile, gender: value})}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select gender" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="Male">Male</SelectItem>
+                  <SelectItem value="Female">Female</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label>Country/Region</Label>
+              <Input value={profile.country} readOnly />
+            </div>
+
+            <div className="space-y-2">
+              <Label>State</Label>
+              <Input value={profile.state} readOnly />
+            </div>
+
             <div className="space-y-2">
               <Label>Language</Label>
-              <Select>
+              <Select value={profile.language} onValueChange={(value) => setProfile({...profile, language: value})}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select language" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="en">English - United States</SelectItem>
-                  <SelectItem value="es">Spanish</SelectItem>
-                  <SelectItem value="fr">French</SelectItem>
+                  <SelectItem value="English - United States">English - United States</SelectItem>
+                  <SelectItem value="Spanish">Spanish</SelectItem>
+                  <SelectItem value="French">French</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-          <Button className="mt-4">Save Changes</Button>
+
+          <Button>Save Changes</Button>
         </CardContent>
       </Card>
 
@@ -61,15 +96,15 @@ export default function ProfilePage() {
         <CardHeader>
           <CardTitle>Email Addresses</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between py-2 border-b">
+        <CardContent>
+          <div className="flex items-center justify-between border-b py-4">
             <div>
-              <p className="font-medium">Primary Email</p>
-              <p className="text-sm text-muted-foreground">example@email.com</p>
+              <p className="font-medium">{profile.email}</p>
+              <p className="text-sm text-muted-foreground">Primary Email</p>
             </div>
             <Button variant="outline" size="sm">Verify</Button>
           </div>
-          <Button>Add Email Address</Button>
+          <Button className="mt-4">Add Email Address</Button>
         </CardContent>
       </Card>
     </div>

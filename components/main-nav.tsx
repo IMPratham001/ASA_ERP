@@ -84,6 +84,24 @@ const routes = [
     icon: BarChart2,
     href: '/reports',
     color: 'text-red-700'
+  },
+  {
+    label: 'Settings',
+    icon: Settings,
+    href: '/settings',
+    color: 'text-gray-700'
+  },
+  {
+    label: 'Security',
+    icon: Lock,
+    href: '/settings/security',
+    color: 'text-green-700'
+  },
+  {
+    label: 'Profile',
+    icon: User,
+    href: '/settings/profile',
+    color: 'text-blue-700'
   }
 ];
 

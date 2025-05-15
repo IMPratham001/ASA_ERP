@@ -29,12 +29,24 @@ export default function RootLayout({
         >
           <MainNav />
           <main className="main-content">
-            <div className="header">
+            <div className="header flex items-center justify-between">
               <input
                 type="search"
                 placeholder="Search..."
                 className="w-80 px-4 py-2 rounded-md bg-muted text-muted-foreground"
               />
+              <div className="flex items-center space-x-4">
+                <Button variant="ghost" size="icon">
+                  <Bell className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon">
+                  <Settings className="h-5 w-5" />
+                </Button>
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="" />
+                  <AvatarFallback>PS</AvatarFallback>
+                </Avatar>
+              </div>
             </div>
             {children}
           </main>
