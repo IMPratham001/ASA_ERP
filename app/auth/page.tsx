@@ -1,12 +1,16 @@
-
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -24,27 +28,27 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+        throw new Error(data.error || "Login failed");
       }
 
       if (data.requires2FA) {
         // Handle 2FA flow - redirect to 2FA page
-        router.push('/auth/2fa');
+        router.push("/auth/2fa");
         return;
       }
 
       // Store tokens in localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('refreshToken', data.refreshToken);
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("refreshToken", data.refreshToken);
 
       // Fetch user data and set in store
       setUser({
@@ -57,8 +61,11 @@ export default function AuthPage() {
       });
 
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "An error occurred during login");
+    } catch (err) {
+      console.error(err);
+      setError(
+        err instanceof Error ? err.message : "An error occurred during login",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +73,7 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-[400px]">
+      <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
           <CardDescription>
@@ -75,7 +82,7 @@ export default function AuthPage() {
         </CardHeader>
         <CardContent>
           {error && (
-            <Alert variant="destructive" className="mb-4">
+            <Alert className="mb-4" variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
@@ -103,11 +110,7 @@ export default function AuthPage() {
                 disabled={isLoading}
               />
             </div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
