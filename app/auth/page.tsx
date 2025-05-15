@@ -35,22 +35,10 @@ export default function AuthPage() {
 
       // Check if response is OK before trying to parse JSON
       if (!response.ok) {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          // It's JSON, so we can parse it
-          const errorData = await response.json();
-          throw new Error(
-            errorData.error ||
-              `Error ${response.status}: ${response.statusText}`,
-          );
-        } else {
-          // Not JSON, might be HTML error page
-          const textResponse = await response.text();
-          console.error("Non-JSON response:", textResponse);
-          throw new Error(
-            `Server returned ${response.status}: ${response.statusText}`,
-          );
-        }
+        const error = await response.json().catch(() => null);
+        throw new Error(
+          error?.error || `Error ${response.status}: ${response.statusText}`
+        );
       }
 
       const data = await response.json();
