@@ -1,13 +1,12 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { hasPermission } from './lib/auth/permissions';
 
 const publicPaths = ['/auth/login', '/auth/register'];
 
 export function middleware(request: NextRequest) {
-  const user = request.cookies.get('user');
   const path = request.nextUrl.pathname;
+  const token = request.cookies.get('token');
 
   // Allow public paths
   if (publicPaths.includes(path)) {
@@ -15,16 +14,8 @@ export function middleware(request: NextRequest) {
   }
 
   // Check if user is authenticated
-  if (!user) {
+  if (!token) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
-  }
-
-  // Parse user data
-  const userData = JSON.parse(user.value);
-
-  // Check permissions based on path
-  if (path.startsWith('/settings') && !hasPermission(userData, 'settings', 'view')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return NextResponse.next();
@@ -32,7 +23,13 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/api/:path*',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

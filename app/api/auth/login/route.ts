@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
@@ -23,7 +22,7 @@ export async function POST(req: Request) {
       if (!code) {
         return NextResponse.json({ requires2FA: true }, { status: 200 });
       }
-      
+
       const isValidCode = authenticator.verify({
         token: code,
         secret: user.twoFactorSecret!
@@ -35,7 +34,7 @@ export async function POST(req: Request) {
     }
 
     const { token, refreshToken, expiresAt } = await generateToken(user.id);
-    
+
     // Create session
     await prisma.session.create({
       data: {
@@ -58,7 +57,26 @@ export async function POST(req: Request) {
       }
     });
 
-    return NextResponse.json({ token, refreshToken });
+    const response = NextResponse.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        roles: user.roles
+      }
+    });
+
+    // Set the token in cookies
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 // 7 days
+      path: "/"
+    });
+
+    return response;
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
