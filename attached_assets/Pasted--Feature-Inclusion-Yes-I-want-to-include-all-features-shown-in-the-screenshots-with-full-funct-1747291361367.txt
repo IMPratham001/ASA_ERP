@@ -1,0 +1,70 @@
+. Feature Inclusion
+✔️ Yes, I want to include all features shown in the screenshots, with full functional parity and production-readiness. These features are critical for the ASA ERP system and should be implemented as core modules:
+
+Customer Management: Including detailed customer profiles with contact information, transaction history, payment terms, and communication logs.
+
+Item/Product Catalog: Full item master with support for SKUs, item images, categories, pricing tiers, stock levels, and tax settings.
+
+Invoice Creation: Dynamic invoice builder with support for line items, quantity, unit pricing, automatic tax/discount calculations, subtotals, and grand total.
+
+Tax & Discount Engine: Rule-based taxation (GST, VAT, etc.), support for inclusive/exclusive tax formats, flat and percentage-based discounts.
+
+Terms & Conditions Customization: Editable T&C fields for quotes, invoices, and payments; with templating and multi-language support if possible.
+
+Multi-Currency Support: Real-time exchange rates, multi-currency billing and reporting, currency-specific rounding rules.
+
+Customer Portal: A secure self-service portal where clients can view quotes, download invoices, make payments, and track order status.
+
+2. UI/UX Design Direction
+✔️ Yes, we will retain the same modern UI layout and structure shown in the reference screenshots:
+
+Dark sidebar with icon-based navigation
+
+Light content area for enhanced readability and focus
+
+UI components should be responsive, accessible (WCAG AA compliant), and offer a consistent experience across desktop and mobile
+
+We may enhance the UI slightly with animations, loading states, and alert toasts — but the base layout, color scheme, and structure should remain consistent.
+
+3. Sidebar Navigation Sections (Modules to Include)
+✔️ Yes, the following sidebar sections should be implemented as first-class modules:
+
+Home / Dashboard: Central KPIs, charts, pending actions, and financial summaries
+
+Customers: Full customer management, advanced search, filters, contact details, payment history
+
+Items: Inventory catalog with categories, pricing, and tax settings
+
+Invoices: Create, view, edit, send, and track invoices with templates
+
+Payments Received: Track payments, match against invoices, generate receipts
+
+Expenses: Record business expenses, vendor details, category tagging
+
+Time Tracking: Manual and timer-based tracking for billable hours
+
+Reports: Financial, tax, sales, and time-based reports with filters and export options
+
+❌ We will exclude: "Quotes", "Delivery Challans", and "Advanced Billing" for now, but the system should be scalable to add them in future phases.
+
+4. Invoice Customization Requirements
+✔️ Yes, we require full invoice customization capabilities, including:
+
+Custom Templates: Multiple invoice design layouts (basic, modern, minimalist), switchable per customer or invoice type
+
+Company Branding: Upload company logos, letterheads, and brand colors
+
+Terms & Conditions Editor: Rich text editor with saved templates
+
+Custom Fields: Add/remove fields like "PO Number", "Reference", "Custom Notes", etc., with optional visibility and positioning controls
+
+5. Product/Item Management Requirements
+✔️ Yes, item management should be robust and scalable, with the following features:
+
+Item Categories: Organize products/services by categories and subcategories
+
+Unit Prices: Multiple pricing strategies (fixed, tiered, cost+markup)
+
+Stock Tracking: Basic inventory management (opening stock, current stock, reorder alerts, etc.)
+
+Tax Rates Per Item: Define default tax rates per item (e.g., GST 18%, VAT 5%), including HSN/SAC codes if needed

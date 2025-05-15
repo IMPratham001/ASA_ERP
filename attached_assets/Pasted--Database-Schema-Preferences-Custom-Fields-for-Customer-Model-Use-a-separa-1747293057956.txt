@@ -1,0 +1,146 @@
+## 📦 **Database Schema Preferences**
+
+### ✅ Custom Fields for Customer Model:
+
+* **Use a separate `CustomField` and `CustomFieldValue` table** with relationships.
+* This ensures **queryability**, **indexing**, **validation**, and works across **PostgreSQL, Prisma, and Laravel Eloquent**.
+* Avoid JSON unless it's for raw logs or very dynamic, non-queryable fields.
+
+> ✅ **Structure**:
+
+```sql
+CustomField: id, name, type (text, dropdown, checkbox), entity_type (Customer, Invoice, etc.)
+CustomFieldValue: id, field_id, customer_id, value
+```
+
+---
+
+### ✅ RBAC Permissions:
+
+* Use **predefined roles (Admin, Manager, Sales, Finance, etc.)** with the **ability to configure permissions** per role later.
+* Use a **Role-Permission-User** relationship model (industry standard).
+* Make it **dynamic** (stored in DB, not hardcoded) so you can allow full RBAC customization in future.
+
+> Suggestion: Integrate **Laravel’s `spatie/laravel-permission`** or custom Prisma Role system with fine-grained control.
+
+---
+
+### ✅ Audit Logging:
+
+* Use a **centralized `AuditLogs` table** for tracking all RBAC and system setting changes.
+* Track: `user_id`, `action`, `changed_from`, `changed_to`, `entity_type`, `entity_id`, `timestamp`.
+
+> Future benefit: This will help with **compliance**, **debugging**, and **security forensics**.
+
+---
+
+## 💸 **Tax Configuration**
+
+### ✅ Historical Tax Rates:
+
+* **Yes**, store historical tax rates linked to each invoice or transaction.
+* Each Invoice must **store the exact tax configuration** used when it was generated.
+
+### ✅ Tax Rules:
+
+* **Yes**, configurable at both:
+
+  * **Global level** (for default rules)
+  * **Per-store level** (in multi-store setup)
+
+> This allows maximum flexibility and region-specific tax rules (like GST, VAT, etc.)
+
+### ✅ Auto Lookup Based on Location:
+
+* Yes, integrate **location-based tax lookup**, either via:
+
+  * GeoIP + internal DB,
+  * Or 3rd-party services like **TaxJar** (optional, scalable later).
+
+---
+
+## ⚙️ **Implementation Questions**
+
+### ✅ Real-Time Updates & Caching:
+
+* Use **Redis** for both:
+
+  * **Caching frequently accessed data**
+  * **WebSocket pub/sub for real-time updates**
+
+> Laravel already supports Redis well (queue + broadcasting). Use `laravel-echo-server` + `socket.io`.
+
+---
+
+### ✅ File Storage (Signatures, Logos, etc.):
+
+* Use **AWS S3 (or DigitalOcean Spaces)** — scalable, secure, persistent.
+* For dev/staging, fallback to **local storage** using Laravel’s abstraction.
+
+---
+
+### ✅ Queue System:
+
+* Absolutely yes. Use **Laravel Queues + Redis** (or Prisma Job Queue).
+* Queue exports, PDF generations, email jobs, etc., to **keep UI fast**.
+
+---
+
+## 🎨 **UI/UX Preferences**
+
+### ✅ Dark/Light Mode:
+
+* Yes, implement **dynamic theme switching**.
+* Use **Tailwind + DaisyUI or ShadCN** — tailwind-based UI kits with built-in support.
+
+### ✅ WYSIWYG Editor for Templates:
+
+* Yes, especially for:
+
+  * Terms & conditions
+  * Invoice custom content
+  * Customer emails
+
+> Use **TipTap** or **Quill.js** — both are lightweight and powerful.
+
+### ✅ Preview Mode for Invoices:
+
+* Yes, allow real-time preview while editing or creating templates/invoices.
+
+> Just like Canva-style preview modal with dynamic rendering.
+
+---
+
+## 🔌 **Integration Questions**
+
+### ✅ Payment Gateway:
+
+* Start with **Razorpay or Stripe** depending on geography:
+
+  * India: **Razorpay**
+  * Global: **Stripe**
+
+> Later support PayPal, Cashfree, etc. via modular payment providers table.
+
+---
+
+### ✅ Accounting Software Export:
+
+* Yes, support exports in:
+
+  * **Tally JSON format**
+  * **QuickBooks CSV**
+  * **Standard XML or JSON schema**
+	**pdf***
+> This helps future integrations and bulk data migration.
+
+---
+
+### ✅ REST API Authentication:
+
+* Support **both JWT and API Keys**:
+
+  * **JWT** for internal/admin and user dashboards
+  * **API Keys** for external integrations, partners, or mobile apps
+
+> Use Laravel Sanctum or Passport for JWT; custom table for API keys.
