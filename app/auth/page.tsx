@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useStore } from "@/lib/store/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function AuthPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get('redirect') || '/dashboard';
   const setUser = useStore((state) => state.setUser);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +41,7 @@ export default function AuthPage() {
           ],
           lastLogin: new Date().toISOString(),
         });
-        router.push("/dashboard");
+        router.push(redirectPath);
       } else if (email === "manager@example.com" && password === "manager") {
         setUser({
           id: "2",
@@ -54,7 +56,7 @@ export default function AuthPage() {
           ],
           lastLogin: new Date().toISOString(),
         });
-        router.push("/dashboard");
+        router.push(redirectPath);
       } else {
         setError("Invalid email or password");
       }

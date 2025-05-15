@@ -2,20 +2,23 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const publicPaths = ['/auth/login', '/auth/register'];
+// Define public paths that don't require authentication
+const publicPaths = ['/auth/login'];
 
 export function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
   const token = request.cookies.get('token');
+  const path = request.nextUrl.pathname;
 
-  // Allow public paths
+  // Allow access to public paths
   if (publicPaths.includes(path)) {
     return NextResponse.next();
   }
 
-  // Check if user is authenticated
+  // Redirect to login if no token is present
   if (!token) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
+    const loginUrl = new URL('/auth/login', request.url);
+    loginUrl.searchParams.set('from', path);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
@@ -23,13 +26,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
