@@ -1,25 +1,30 @@
-
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useStore } from "@/lib/store/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectPath = searchParams.get('from') || '/';
-  
+  const redirectPath = searchParams.get("from") || "/";
+
   useEffect(() => {
-    if (window.location.pathname !== '/auth/login') {
-      router.replace('/auth/login' + window.location.search);
+    if (window.location.pathname !== "/auth/login") {
+      router.replace("/auth/login" + window.location.search);
     }
-  }, []);
+  }, [router]);
   const setUser = useStore((state) => state.setUser);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,9 +46,18 @@ export default function LoginPage() {
           storeId: null,
           moduleAccess: [
             { module: "dashboard", permissions: ["view"] },
-            { module: "inventory", permissions: ["view", "create", "edit", "delete"] },
-            { module: "orders", permissions: ["view", "create", "edit", "delete"] },
-            { module: "users", permissions: ["view", "create", "edit", "delete"] },
+            {
+              module: "inventory",
+              permissions: ["view", "create", "edit", "delete"],
+            },
+            {
+              module: "orders",
+              permissions: ["view", "create", "edit", "delete"],
+            },
+            {
+              module: "users",
+              permissions: ["view", "create", "edit", "delete"],
+            },
           ],
           lastLogin: new Date().toISOString(),
         });
@@ -112,11 +126,7 @@ export default function LoginPage() {
                 disabled={isLoading}
               />
             </div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
