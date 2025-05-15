@@ -4,7 +4,13 @@ import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { AlertCircle, User, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -27,11 +33,27 @@ export default function AuthPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-
+      // Check if response is OK before trying to parse JSON
       if (!response.ok) {
-        throw new Error(data.error || "Login failed");
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          // It's JSON, so we can parse it
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error ||
+              `Error ${response.status}: ${response.statusText}`,
+          );
+        } else {
+          // Not JSON, might be HTML error page
+          const textResponse = await response.text();
+          console.error("Non-JSON response:", textResponse);
+          throw new Error(
+            `Server returned ${response.status}: ${response.statusText}`,
+          );
+        }
       }
+
+      const data = await response.json();
 
       if (data.success) {
         useStore.getState().setUser(data.user);
@@ -42,7 +64,7 @@ export default function AuthPage() {
     } catch (err) {
       console.error("Login error:", err);
       setError(
-        err instanceof Error ? err.message : "An error occurred during login"
+        err instanceof Error ? err.message : "An error occurred during login",
       );
     } finally {
       setIsLoading(false);
