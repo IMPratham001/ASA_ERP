@@ -1,12 +1,9 @@
-
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { Sidebar } from "@/components/layout/main-nav";
+import { MainNav } from "@/components/layout/main-nav";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,18 +17,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = cookies();
-  const token = cookieStore.get('token');
-  const isAuthPage = children.props?.childProp?.segment === 'auth';
-
-  if (!token && !isAuthPage) {
-    redirect('/auth');
-  }
-
-  if (token && isAuthPage) {
-    redirect('/dashboard');
-  }
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -41,14 +26,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {!isAuthPage ? (
-            <div className="flex min-h-screen">
-              <Sidebar />
-              <main className="flex-1 p-8">{children}</main>
-            </div>
-          ) : (
-            children
-          )}
+          <div className="flex min-h-screen">
+            <MainNav />
+            <main className="flex-1 p-8">{children}</main>
+          </div>
           <Toaster />
         </ThemeProvider>
       </body>

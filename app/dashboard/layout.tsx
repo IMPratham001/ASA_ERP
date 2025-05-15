@@ -1,7 +1,4 @@
 
-import React from "react";
-import { Sidebar } from "@/components/layout/main-nav";
-
 export default function DashboardLayout({
   children,
 }: {
