@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,8 @@ import {
   PlusCircle,
   User,
   Lock,
+  Menu,
+  X,
 } from "lucide-react";
 
 const routes = [
@@ -89,108 +91,150 @@ const routes = [
   },
 ];
 
-export function MainNav() {
+export function Sidebar({ className }) {
   const pathname = usePathname();
-  const [expandedSettings, setExpandedSettings] = React.useState(
+  const [expandedSettings, setExpandedSettings] = useState(
     pathname.includes("/settings"),
   );
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Close mobile sidebar when route changes
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
 
   return (
-    <div className="side-nav bg-white border-r border-slate-200 h-screen">
-      <div className="p-6">
-        <div className="flex items-center gap-2 mb-10">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-2">
-            <FileText className="h-6 w-6 text-white" />
-          </div>
-          <span className="font-bold text-xl text-slate-800">ERP Suite</span>
-        </div>
+    <>
+      {/* Mobile Toggle Button - Fixed position for always visibility */}
+      <div className="fixed top-4 left-4 z-40 md:hidden">
+        <button
+          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          className="p-2 rounded-lg bg-white border border-slate-200 shadow-sm"
+          aria-label="Toggle sidebar"
+        >
+          {isMobileOpen ? (
+            <X className="h-5 w-5 text-slate-700" />
+          ) : (
+            <Menu className="h-5 w-5 text-slate-700" />
+          )}
+        </button>
+      </div>
 
-        <nav className="space-y-1.5">
-          {routes.map((route) => {
-            // Check if route has subitems
-            if (route.subItems) {
-              return (
-                <div key={route.href} className="space-y-1">
-                  <button
-                    onClick={() => setExpandedSettings(!expandedSettings)}
+      {/* Overlay for mobile */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/30 z-30 md:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        className={cn(
+          "fixed inset-y-0 left-0 z-30 w-64 transform transition-transform duration-200 ease-in-out bg-white border-r border-slate-200 h-full",
+          isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+          className,
+        )}
+      >
+        <div className="flex flex-col h-full">
+          <div className="p-6">
+            <div className="flex items-center gap-2 mb-10">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-2">
+                <FileText className="h-6 w-6 text-white" />
+              </div>
+              <span className="font-bold text-xl text-slate-800">
+                ERP Suite
+              </span>
+            </div>
+
+            <nav className="space-y-1.5">
+              {routes.map((route) => {
+                // Check if route has subitems
+                if (route.subItems) {
+                  return (
+                    <div key={route.href} className="space-y-1">
+                      <button
+                        onClick={() => setExpandedSettings(!expandedSettings)}
+                        className={cn(
+                          "w-full flex items-center justify-between gap-x-2 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors",
+                          pathname.includes(route.href)
+                            ? "bg-slate-100 text-slate-900"
+                            : "hover:bg-slate-50 text-slate-700",
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <route.icon className={cn("h-5 w-5", route.color)} />
+                          {route.label}
+                        </div>
+                        <ChevronDown
+                          className={cn(
+                            "h-4 w-4 text-slate-500 transition-transform",
+                            expandedSettings ? "rotate-180" : "",
+                          )}
+                        />
+                      </button>
+
+                      {expandedSettings && (
+                        <div className="pl-4 space-y-1 pt-1">
+                          {route.subItems.map((subItem) => (
+                            <Link
+                              key={subItem.href}
+                              href={subItem.href}
+                              className={cn(
+                                "flex items-center gap-x-3 text-sm font-medium px-4 py-2 rounded-lg transition-colors",
+                                pathname === subItem.href
+                                  ? "bg-slate-100 text-slate-900"
+                                  : "hover:bg-slate-50 text-slate-600",
+                              )}
+                            >
+                              <subItem.icon
+                                className={cn("h-4 w-4", subItem.color)}
+                              />
+                              {subItem.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                // Regular route without subitems
+                return (
+                  <Link
+                    key={route.href}
+                    href={route.href}
                     className={cn(
-                      "w-full flex items-center justify-between gap-x-2 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors",
-                      pathname.includes(route.href)
+                      "flex items-center gap-x-3 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors",
+                      pathname === route.href
                         ? "bg-slate-100 text-slate-900"
                         : "hover:bg-slate-50 text-slate-700",
                     )}
                   >
-                    <div className="flex items-center gap-3">
-                      <route.icon className={cn("h-5 w-5", route.color)} />
-                      {route.label}
-                    </div>
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 text-slate-500 transition-transform",
-                        expandedSettings ? "rotate-180" : "",
-                      )}
-                    />
-                  </button>
+                    <route.icon className={cn("h-5 w-5", route.color)} />
+                    {route.label}
+                    {route.badge && (
+                      <span className="ml-auto bg-blue-600 text-xs text-white rounded-full h-5 w-5 flex items-center justify-center">
+                        {route.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
 
-                  {expandedSettings && (
-                    <div className="pl-4 space-y-1 pt-1">
-                      {route.subItems.map((subItem) => (
-                        <Link
-                          key={subItem.href}
-                          href={subItem.href}
-                          className={cn(
-                            "flex items-center gap-x-3 text-sm font-medium px-4 py-2 rounded-lg transition-colors",
-                            pathname === subItem.href
-                              ? "bg-slate-100 text-slate-900"
-                              : "hover:bg-slate-50 text-slate-600",
-                          )}
-                        >
-                          <subItem.icon
-                            className={cn("h-4 w-4", subItem.color)}
-                          />
-                          {subItem.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            // Regular route without subitems
-            return (
-              <Link
-                key={route.href}
-                href={route.href}
-                className={cn(
-                  "flex items-center gap-x-3 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors",
-                  pathname === route.href
-                    ? "bg-slate-100 text-slate-900"
-                    : "hover:bg-slate-50 text-slate-700",
-                )}
-              >
-                <route.icon className={cn("h-5 w-5", route.color)} />
-                {route.label}
-                {route.badge && (
-                  <span className="ml-auto bg-blue-600 text-xs text-white rounded-full h-5 w-5 flex items-center justify-center">
-                    {route.badge}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="mt-10 pt-6 border-t border-slate-200">
-          <Link
-            href="/create-invoice"
-            className="flex items-center gap-x-2 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2.5 rounded-lg transition-colors w-full justify-center"
-          >
-            <PlusCircle className="h-4 w-4" />
-            Create New Invoice
-          </Link>
+          <div className="mt-auto p-6 pt-6 border-t border-slate-200">
+            <Link
+              href="/create-invoice"
+              className="flex items-center gap-x-2 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2.5 rounded-lg transition-colors w-full justify-center"
+            >
+              <PlusCircle className="h-4 w-4" />
+              Create New Invoice
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
