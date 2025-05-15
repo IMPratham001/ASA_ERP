@@ -1,18 +1,29 @@
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { hasPermission } from './lib/auth/permissions';
+
+const publicPaths = ['/auth/login', '/auth/register'];
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('token');
+  const user = request.cookies.get('user');
   const path = request.nextUrl.pathname;
-  const isAuthPage = path === '/auth';
 
-  // Redirect to auth page if no token and not already on auth page
-  if (!token && !isAuthPage) {
-    return NextResponse.redirect(new URL('/auth', request.url));
+  // Allow public paths
+  if (publicPaths.includes(path)) {
+    return NextResponse.next();
   }
 
-  // Redirect to dashboard if has token and on auth page
-  if (token && isAuthPage) {
+  // Check if user is authenticated
+  if (!user) {
+    return NextResponse.redirect(new URL('/auth/login', request.url));
+  }
+
+  // Parse user data
+  const userData = JSON.parse(user.value);
+
+  // Check permissions based on path
+  if (path.startsWith('/settings') && !hasPermission(userData, 'settings', 'view')) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
@@ -20,5 +31,8 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)']
+  matcher: [
+    '/api/:path*',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
 };
