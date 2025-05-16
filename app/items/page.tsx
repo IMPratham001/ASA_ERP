@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -28,17 +27,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
-  MoreVertical, 
-  Upload, 
+import {
+  MoreVertical,
+  Upload,
   Download,
   Plus,
   Search,
-  Filter
+  Filter,
 } from "lucide-react";
 
 export default function ItemsPage() {
-  const { products, fetchProducts, addProduct, updateProduct, deleteProduct } = useStore();
+  const {
+    products = [],
+    fetchProducts = () => {},
+    addProduct,
+    updateProduct,
+    deleteProduct,
+  } = useStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [editItem, setEditItem] = useState(null);
   const [newItem, setNewItem] = useState(null);
@@ -50,19 +55,23 @@ export default function ItemsPage() {
 
   const handleImport = async (file) => {
     const formData = new FormData();
-    formData.append('file', file);
-    await useStore.getState().importData('products', file);
+    formData.append("file", file);
+    await useStore.getState().importData("products", file);
     fetchProducts();
   };
 
   const handleExport = async (format) => {
-    await useStore.getState().exportData('products', format);
+    await useStore.getState().exportData("products", format);
   };
+
+  if (!products) {
+    return <div>Loading...</div>; // Or some other loading state
+  }
 
   const filteredItems = products.filter(
     (item) =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.sku.toLowerCase().includes(searchTerm.toLowerCase())
+      item.sku.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -76,7 +85,9 @@ export default function ItemsPage() {
             className="hidden"
             onChange={(e) => handleImport(e.target.files[0])}
           />
-          <Button onClick={() => document.getElementById('import-file').click()}>
+          <Button
+            onClick={() => document.getElementById("import-file").click()}
+          >
             <Upload className="w-4 h-4 mr-2" />
             Import
           </Button>
@@ -88,18 +99,20 @@ export default function ItemsPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleExport('csv')}>
+              <DropdownMenuItem onClick={() => handleExport("csv")}>
                 CSV
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('json')}>
+              <DropdownMenuItem onClick={() => handleExport("json")}>
                 JSON
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => {
-            setNewItem({});
-            setIsDialogOpen(true);
-          }}>
+          <Button
+            onClick={() => {
+              setNewItem({});
+              setIsDialogOpen(true);
+            }}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Item
           </Button>
@@ -150,7 +163,7 @@ export default function ItemsPage() {
                         <DropdownMenuItem onClick={() => setEditItem(item)}>
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => deleteProduct(item.id)}
                           className="text-red-600"
                         >
@@ -166,25 +179,28 @@ export default function ItemsPage() {
         </CardContent>
       </Card>
 
-      <Dialog open={isDialogOpen || !!editItem} onOpenChange={() => {
-        setIsDialogOpen(false);
-        setEditItem(null);
-        setNewItem(null);
-      }}>
+      <Dialog
+        open={isDialogOpen || !!editItem}
+        onOpenChange={() => {
+          setIsDialogOpen(false);
+          setEditItem(null);
+          setNewItem(null);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editItem ? 'Edit Item' : 'Add New Item'}</DialogTitle>
+            <DialogTitle>{editItem ? "Edit Item" : "Add New Item"}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label>Name</Label>
               <Input
-                value={(editItem?.name || newItem?.name) ?? ''}
+                value={(editItem?.name || newItem?.name) ?? ""}
                 onChange={(e) => {
                   if (editItem) {
-                    setEditItem({...editItem, name: e.target.value});
+                    setEditItem({ ...editItem, name: e.target.value });
                   } else {
-                    setNewItem({...newItem, name: e.target.value});
+                    setNewItem({ ...newItem, name: e.target.value });
                   }
                 }}
               />
@@ -192,12 +208,12 @@ export default function ItemsPage() {
             <div className="grid gap-2">
               <Label>SKU</Label>
               <Input
-                value={(editItem?.sku || newItem?.sku) ?? ''}
+                value={(editItem?.sku || newItem?.sku) ?? ""}
                 onChange={(e) => {
                   if (editItem) {
-                    setEditItem({...editItem, sku: e.target.value});
+                    setEditItem({ ...editItem, sku: e.target.value });
                   } else {
-                    setNewItem({...newItem, sku: e.target.value});
+                    setNewItem({ ...newItem, sku: e.target.value });
                   }
                 }}
               />
@@ -206,40 +222,45 @@ export default function ItemsPage() {
               <Label>Price</Label>
               <Input
                 type="number"
-                value={(editItem?.price || newItem?.price) ?? ''}
+                value={(editItem?.price || newItem?.price) ?? ""}
                 onChange={(e) => {
                   if (editItem) {
-                    setEditItem({...editItem, price: e.target.value});
+                    setEditItem({ ...editItem, price: e.target.value });
                   } else {
-                    setNewItem({...newItem, price: e.target.value});
+                    setNewItem({ ...newItem, price: e.target.value });
                   }
                 }}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setIsDialogOpen(false);
-              setEditItem(null);
-              setNewItem(null);
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDialogOpen(false);
+                setEditItem(null);
+                setNewItem(null);
+              }}
+            >
               Cancel
             </Button>
-            <Button onClick={() => {
-              if (editItem?.id) {
-                updateProduct(editItem.id, editItem);
-              } else {
-                addProduct({
-                  name: newItem.name,
-                  sku: newItem.sku,
-                  price: parseFloat(newItem.price),
-                });
-              }
-              setIsDialogOpen(false);
-              setEditItem(null);
-              setNewItem(null);
-            }}>
-              {editItem ? 'Update' : 'Add'} Item
+            <Button
+              onClick={() => {
+                if (editItem?.id) {
+                  updateProduct(editItem.id, editItem);
+                } else {
+                  addProduct({
+                    name: newItem.name,
+                    sku: newItem.sku,
+                    price: parseFloat(newItem.price),
+                  });
+                }
+                setIsDialogOpen(false);
+                setEditItem(null);
+                setNewItem(null);
+              }}
+            >
+              {editItem ? "Update" : "Add"} Item
             </Button>
           </DialogFooter>
         </DialogContent>

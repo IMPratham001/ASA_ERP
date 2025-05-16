@@ -55,7 +55,12 @@ import {
 } from "lucide-react";
 
 export default function InventoryPage() {
-  const { inventory, products, updateInventory, addInventoryItem } = useStore();
+  const {
+    inventory = [],
+    products = [],
+    updateInventory,
+    addInventoryItem,
+  } = useStore();
 
   // State variables
   const [searchTerm, setSearchTerm] = useState("");
@@ -75,7 +80,7 @@ export default function InventoryPage() {
 
   // Unique locations for filtering
   const locations = useMemo(() => {
-    const uniqueLocations = new Set((inventory || []).map((item) => item.location));
+    const uniqueLocations = new Set(inventory.map((item) => item.location));
     return ["all", ...Array.from(uniqueLocations)];
   }, [inventory]);
 
@@ -210,6 +215,10 @@ export default function InventoryPage() {
       );
     }
   };
+
+  if (!inventory || !products) {
+    return <div>Loading...</div>; // Or some other loading state
+  }
 
   return (
     <div className="flex flex-col gap-6 p-6">
