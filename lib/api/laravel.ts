@@ -46,11 +46,50 @@ export const auth = {
 };
 
 export const inventory = {
-  getAll: async () => (await api.get('/inventory')).data,
-  update: async (id: string, data: any) => (await api.put(`/inventory/${id}`, data)).data,
-  create: async (data: any) => (await api.post('/inventory', data)).data,
-  delete: async (id: string) => await api.delete(`/inventory/${id}`),
-  getLowStock: async () => (await api.get('/inventory/low-stock')).data,
+  getAll: async () => {
+    try {
+      const response = await api.get('/inventory');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching inventory:', error);
+      throw error;
+    }
+  },
+  create: async (data: any) => {
+    try {
+      const response = await api.post('/inventory', data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating inventory item:', error);
+      throw error;
+    }
+  },
+  update: async (id: string, data: any) => {
+    try {
+      const response = await api.put(`/inventory/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating inventory:', error);
+      throw error;
+    }
+  },
+  delete: async (id: string) => {
+    try {
+      await api.delete(`/inventory/${id}`);
+    } catch (error) {
+      console.error('Error deleting inventory item:', error);
+      throw error;
+    }
+  },
+  getLowStock: async () => {
+    try {
+      const response = await api.get('/inventory/low-stock');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching low stock:', error);
+      throw error;
+    }
+  },
 };
 
 // Customer Management

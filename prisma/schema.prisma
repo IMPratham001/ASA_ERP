@@ -43,6 +43,11 @@ model Inventory {
   minQuantity Int       @default(0)
   location    String
   lastUpdated DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+
+  @@index([quantity])
+  @@index([location])
+  @@index([lastUpdated])
 }
 
 model Customer {
