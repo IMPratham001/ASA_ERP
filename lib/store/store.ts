@@ -52,8 +52,17 @@ export const useStore = create<StoreState>((set, get) => ({
   fetchProducts: async () => {
     try {
       set({ loading: true });
-      const response = await api.productsApi.getAll();
-      set({ products: response.data, loading: false });
+      const [productsRes, inventoryRes] = await Promise.all([
+        api.productsApi.getAll(),
+        api.inventory.getAll()
+      ]);
+      
+      const products = productsRes.data.map(product => ({
+        ...product,
+        inventory: inventoryRes.data.find(inv => inv.productId === product.id)
+      }));
+      
+      set({ products, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
     }

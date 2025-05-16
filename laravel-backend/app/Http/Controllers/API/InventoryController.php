@@ -11,6 +11,56 @@ use Illuminate\Validation\ValidationException;
 
 class InventoryController extends Controller
 {
+    public function import(Request $request)
+    {
+        try {
+            $file = $request->file('file');
+            $data = json_decode(file_get_contents($file), true);
+            
+            foreach ($data as $item) {
+                Inventory::updateOrCreate(
+                    ['productId' => $item['productId']],
+                    $item
+                );
+            }
+            
+            return response()->json(['message' => 'Import successful']);
+        } catch (\Exception $e) {
+            Log::error('Import error: ' . $e->getMessage());
+            return response()->json(['error' => 'Import failed'], 500);
+        }
+    }
+
+    public function export($format)
+    {
+        try {
+            $inventory = Inventory::with('product')->get();
+            
+            switch ($format) {
+                case 'json':
+                    return response()->json($inventory);
+                case 'csv':
+                    $headers = [
+                        'Content-Type' => 'text/csv',
+                        'Content-Disposition' => 'attachment; filename="inventory.csv"'
+                    ];
+                    $callback = function() use ($inventory) {
+                        $file = fopen('php://output', 'w');
+                        fputcsv($file, ['ID', 'Product ID', 'Quantity', 'Location', 'Last Updated']);
+                        foreach ($inventory as $item) {
+                            fputcsv($file, [$item->id, $item->productId, $item->quantity, $item->location, $item->lastUpdated]);
+                        }
+                        fclose($file);
+                    };
+                    return response()->stream($callback, 200, $headers);
+                default:
+                    return response()->json(['error' => 'Unsupported format'], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error('Export error: ' . $e->getMessage());
+            return response()->json(['error' => 'Export failed'], 500);
+        }
+    }
     public function index()
     {
         try {
