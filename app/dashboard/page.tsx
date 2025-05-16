@@ -25,7 +25,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Overview } from "@/components/dashboard/overview";
-import "@/styles/components/dashboard.css";
 import { RecentSales } from "@/components/dashboard/recent-sales";
 import { Line, Doughnut, Bar } from "react-chartjs-2";
 import {

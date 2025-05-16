@@ -1,11 +1,3 @@
-` tags.
-
-```text
-The code changes the classname to customer-select-container in the CustomerSelect component.
-```
-
-```
-<replit_final_file>
 'use client';
 
 import { Check, ChevronsUpDown } from "lucide-react";
