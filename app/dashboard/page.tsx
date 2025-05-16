@@ -52,7 +52,34 @@ ChartJS.register(
   Legend,
 );
 
+import { useEffect } from 'react';
+import api from '@/lib/api/laravel';
+
 export default function DashboardPage() {
+  const [dashboardData, setDashboardData] = useState({
+    revenue: 0,
+    customers: 0,
+    orders: 0,
+    inventory: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await api.get('/dashboard/stats');
+        setDashboardData(response.data);
+        setIsLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
   // State for notifications
   const [notifications, setNotifications] = useState([
     {
