@@ -3,7 +3,7 @@
 import { memo } from 'react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import styles from './overview.module.css'; // Import the CSS module
+import styles from '@/components/dashboard/overview.module.css';
 
 const data = [
   { name: "Jan", total: 1234 },

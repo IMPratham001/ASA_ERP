@@ -1,0 +1,13 @@
+
+.overviewCard {
+  margin-bottom: 1.5rem;
+}
+
+.overviewTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.overviewDescription {
+  color: var(--muted-foreground);
+}
