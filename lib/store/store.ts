@@ -36,10 +36,15 @@ export const useStore = create<StoreState>((set, get) => ({
     try {
       set({ loading: true, error: null });
       const data = await api.customers.getAll();
-      set({ customers: data });
+      if (Array.isArray(data)) {
+        set({ customers: data });
+      } else {
+        console.error('Invalid response format:', data);
+        set({ error: 'Invalid response format from server' });
+      }
     } catch (error: any) {
-      set({ error: error.message });
-      throw error;
+      console.error('API Error:', error);
+      set({ error: error.message || 'Failed to fetch customers' });
     } finally {
       set({ loading: false });
     }

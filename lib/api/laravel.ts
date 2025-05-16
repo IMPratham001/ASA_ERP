@@ -1,15 +1,18 @@
+
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
-  }
+  },
+  withCredentials: true,
+  timeout: 10000
 });
 
 api.interceptors.response.use(
-  response => response,
+  response => response.data,
   error => {
     console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error);
@@ -19,15 +22,15 @@ api.interceptors.response.use(
 export const customers = {
   getAll: async () => {
     const response = await api.get('/customers');
-    return response.data;
+    return response;
   },
   create: async (data: any) => {
     const response = await api.post('/customers', data);
-    return response.data;
+    return response;
   },
   update: async (id: string, data: any) => {
     const response = await api.put(`/customers/${id}`, data);
-    return response.data;
+    return response;
   },
   delete: async (id: string) => {
     await api.delete(`/customers/${id}`);
@@ -37,15 +40,15 @@ export const customers = {
 export const inventory = {
   getAll: async () => {
     const response = await api.get('/inventory');
-    return response.data;
+    return response;
   },
   create: async (data: any) => {
     const response = await api.post('/inventory', data);
-    return response.data;
+    return response;
   },
   update: async (id: string, data: any) => {
     const response = await api.put(`/inventory/${id}`, data);
-    return response.data;
+    return response;
   },
   delete: async (id: string) => {
     await api.delete(`/inventory/${id}`);
@@ -55,15 +58,15 @@ export const inventory = {
 export const products = {
   getAll: async () => {
     const response = await api.get('/products');
-    return response.data;
+    return response;
   },
   create: async (data: any) => {
     const response = await api.post('/products', data);
-    return response.data;
+    return response;
   },
   update: async (id: string, data: any) => {
     const response = await api.put(`/products/${id}`, data);
-    return response.data;
+    return response;
   },
   delete: async (id: string) => {
     await api.delete(`/products/${id}`);
