@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -39,7 +38,9 @@ export default function StoresPage() {
     status: "active",
   });
 
-  const regions = Array.from(new Set(stores.map(store => store.region)));
+  const regions = Array.from(
+    new Set((stores || []).map((store) => store.region)),
+  );
 
   const handleAddStore = () => {
     addStore({
