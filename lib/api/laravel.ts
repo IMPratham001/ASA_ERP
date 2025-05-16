@@ -1,30 +1,15 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'X-Requested-With': 'XMLHttpRequest'
+    'Accept': 'application/json'
   },
   withCredentials: true,
   timeout: 10000
 });
 
-// Add error handling
-api.interceptors.response.use(
-  response => response.data,
-  error => {
-    console.error('API Error:', {
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message
-    });
-    throw error;
-  }
-);
-
-// Add response interceptor for error handling
 api.interceptors.response.use(
   response => response.data,
   error => {
@@ -34,20 +19,18 @@ api.interceptors.response.use(
       errors: error.response?.data?.errors,
       timestamp: new Date().toISOString()
     };
-    
     console.error('API Error:', errorResponse);
-    
-    // Handling specific error cases
-    if (error.response?.status === 401) {
+
+     // Handling specific error cases
+     if (error.response?.status === 401) {
       // Handle authentication errors
       window.location.href = '/auth/login';
     }
-    
+
     return Promise.reject(errorResponse);
   }
 );
 
-// Add request interceptor for auth
 api.interceptors.request.use(
   config => {
     const token = localStorage.getItem('token');
@@ -61,11 +44,11 @@ api.interceptors.request.use(
   }
 );
 
-export const customers = {
+export const customerAPI = {
   getAll: () => api.get('/customers'),
   create: (data: any) => api.post('/customers', data),
-  update: (id: string, data: any) => api.put(`/customers/${id}`, data),
-  delete: (id: string) => api.delete(`/customers/${id}`)
+  update: (id: number, data: any) => api.put(`/customers/${id}`, data),
+  delete: (id: number) => api.delete(`/customers/${id}`),
 };
 
 export const inventory = {
