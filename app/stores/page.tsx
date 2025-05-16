@@ -62,14 +62,10 @@ export default function StoresPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Store Management</h2>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Store
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+        <Button onClick={() => window.location.href = '/stores/create'}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Store
+        </Button>
             <DialogHeader>
               <DialogTitle>Add New Store</DialogTitle>
             </DialogHeader>
