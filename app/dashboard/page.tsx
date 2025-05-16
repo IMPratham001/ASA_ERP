@@ -1,32 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Line, Bar, Doughnut, Radar } from 'react-chartjs-2';
 import {
-  BarChart,
-  Activity,
-  DollarSign,
-  Users,
-  ShoppingCart,
-  Package,
-  Bell,
-  Calendar,
-  AlertTriangle,
-  Layers,
-  TrendingUp,
-  Plus,
-  Search,
-  Filter,
-  MoreHorizontal,
-  X,
-  Check,
-  FileText,
-  ChevronUp,
-  ChevronDown,
+  BarChart, Activity, DollarSign, Users, ShoppingCart,
+  Package, TrendingUp, ArrowUpRight, ArrowDownRight,
+  Calendar, Filter, Search, Building2, Target, Bell, Layers, MoreHorizontal, X, Check, FileText, ChevronUp, ChevronDown
 } from "lucide-react";
+import { useStore } from "@/lib/store/store";
 import { Overview } from "@/components/dashboard/overview";
 import { RecentSales } from "@/components/dashboard/recent-sales";
-import { Line, Doughnut, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -51,9 +36,6 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
-
-import { useEffect } from 'react';
-import api from '@/lib/api/laravel';
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState({
@@ -282,9 +264,53 @@ export default function DashboardPage() {
     },
   ];
 
+  const revenueData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [
+      {
+        label: 'Revenue',
+        data: [65000, 75000, 85000, 95000, 110000, 125000],
+        borderColor: 'rgb(99, 102, 241)',
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        fill: true
+      },
+      {
+        label: 'Expenses',
+        data: [45000, 52000, 59000, 63000, 70000, 78000],
+        borderColor: 'rgb(239, 68, 68)',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        fill: true
+      }
+    ]
+  };
+
+  const marketMetrics = {
+    labels: ['Market Share', 'Customer Satisfaction', 'Brand Value', 'Innovation Index', 'Operational Efficiency'],
+    datasets: [{
+      label: 'Company Performance',
+      data: [85, 92, 88, 95, 90],
+      backgroundColor: 'rgba(147, 51, 234, 0.2)',
+      borderColor: 'rgb(147, 51, 234)',
+    }]
+  };
+
+  const departmentPerformance = {
+    labels: ['Sales', 'Marketing', 'Operations', 'R&D', 'Customer Service'],
+    datasets: [{
+      data: [30, 25, 20, 15, 10],
+      backgroundColor: [
+        'rgba(59, 130, 246, 0.8)',
+        'rgba(16, 185, 129, 0.8)',
+        'rgba(249, 115, 22, 0.8)',
+        'rgba(139, 92, 246, 0.8)',
+        'rgba(236, 72, 153, 0.8)'
+      ]
+    }]
+  };
+
   return (
-    <div className="flex flex-col gap-6 pb-8">
-      {/* Dashboard Header */}
+    <div className="space-y-6">
+      {/* Keep existing header */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <div className="flex items-center gap-3">
@@ -303,8 +329,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Quick Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {quickStats.map((stat, index) => (
           <Card
             key={index}
@@ -332,106 +357,55 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Main Charts Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Revenue Line Chart */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Revenue Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Overview />
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="financial">Financial</TabsTrigger>
+          <TabsTrigger value="operational">Operational</TabsTrigger>
+          <TabsTrigger value="market">Market Analysis</TabsTrigger>
+        </TabsList>
 
-        {/* Category Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Sales by Category</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Doughnut data={categoryData} options={{ responsive: true }} />
-          </CardContent>
-        </Card>
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue vs Expenses</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Line data={revenueData} options={{ responsive: true }} />
+              </CardContent>
+            </Card>
 
-        {/* Daily Sales Bar Chart */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Daily Sales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Bar data={dailySalesData} options={{ responsive: true }} />
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Department Performance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Doughnut data={departmentPerformance} options={{ responsive: true }} />
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
-        {/* Recent Sales */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Sales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RecentSales />
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="financial" className="space-y-4">
+          {/* Add financial metrics and charts */}
+        </TabsContent>
 
-      {/* Additional Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Products</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {topProducts.slice(0, 3).map((product, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between py-2"
-              >
-                <div className="flex items-center gap-2">
-                  <Package className="h-4 w-4" />
-                  <span>{product.name}</span>
-                </div>
-                <span className="font-medium">{product.revenue}</span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+        <TabsContent value="operational" className="space-y-4">
+          {/* Add operational metrics and charts */}
+        </TabsContent>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Inventory Alerts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {lowStockItems.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between py-2"
-              >
-                <span>{item.name}</span>
-                <span className="text-red-500 font-medium">
-                  {item.stock} left
-                </span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {notifications.slice(0, 3).map((notification, index) => (
-              <div key={index} className="py-2">
-                <p className="text-sm">{notification.text}</p>
-                <p className="text-xs text-muted-foreground">
-                  {notification.time}
-                </p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="market" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Market Performance Metrics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Radar data={marketMetrics} options={{ responsive: true }} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
