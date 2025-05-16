@@ -84,7 +84,46 @@ export const products = {
   },
 };
 
+export const customers = {
+  getAll: async () => {
+    try {
+      const response = await api.get('/customers');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      throw error;
+    }
+  },
+  create: async (data: any) => {
+    try {
+      const response = await api.post('/customers', data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating customer:', error);
+      throw error;
+    }
+  },
+  update: async (id: string, data: any) => {
+    try {
+      const response = await api.put(`/customers/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating customer:', error);
+      throw error;
+    }
+  },
+  delete: async (id: string) => {
+    try {
+      await api.delete(`/customers/${id}`);
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+      throw error;
+    }
+  },
+};
+
 export default {
   inventory,
   products,
+  customers,
 };
