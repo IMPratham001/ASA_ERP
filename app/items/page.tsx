@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 
 export default function ItemsPage() {
-  const { products, fetchProducts, updateProduct, deleteProduct } = useStore();
+  const { products, fetchProducts, addProduct, updateProduct, deleteProduct } = useStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [editItem, setEditItem] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -205,7 +205,11 @@ export default function ItemsPage() {
               if (editItem?.id) {
                 updateProduct(editItem.id, editItem);
               } else {
-                // Add new product
+                addProduct({
+                name: editItem.name,
+                sku: editItem.sku,
+                price: parseFloat(editItem.price),
+              });
               }
               setIsDialogOpen(false);
               setEditItem(null);

@@ -65,10 +65,32 @@ export const useStore = create<StoreState>((set, get) => ({
     }
   },
 
-  updateProduct: async (id, data) => {
+  addProduct: async (data: any) => {
+    try {
+      set({ loading: true });
+      await api.products.create(data);
+      await get().fetchProducts();
+      set({ loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  updateProduct: async (id: string, data: any) => {
     try {
       set({ loading: true });
       await api.products.update(id, data);
+      await get().fetchProducts();
+      set({ loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  deleteProduct: async (id: string) => {
+    try {
+      set({ loading: true });
+      await api.products.delete(id);
       await get().fetchProducts();
       set({ loading: false });
     } catch (error: any) {
