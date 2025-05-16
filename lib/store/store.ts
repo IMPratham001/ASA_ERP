@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 export type Role = 'super_admin' | 'admin' | 'manager' | 'accountant' | 'inventory' | 'sales';
 
@@ -132,6 +132,8 @@ interface State {
   addTransaction: (transaction: Transaction) => void;
   logActivity: (log: ActivityLog) => void;
   hasPermission: (module: string, permission: Permission) => boolean;
+  clearErrors: () => void;
+  reset: () => void;
 }
 
 export const useStore = create<State>()(
@@ -192,13 +194,12 @@ export const useStore = create<State>()(
               id: crypto.randomUUID()
             },
             ...state.activityLogs
-          ].slice(0, 1000), // Limit log history
+          ].slice(0, 1000),
         })),
       hasPermission: (module: string, permission: string) => {
         const user = get().user;
         if (!user?.moduleAccess) return false;
         
-        // Super admin has all permissions
         if (user.role === 'super_admin') return true;
         
         try {
@@ -223,7 +224,8 @@ export const useStore = create<State>()(
     }),
     {
       name: 'erp-store',
-      storage: createJSONStorage(() => sessionStorage)
+      storage: createJSONStorage(() => sessionStorage),
+      version: 1
     }
   )
 );
