@@ -20,18 +20,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-background antialiased`}>
+      <body className={inter.className}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <div className="relative min-h-screen flex">
+          <div className="flex min-h-screen bg-background">
             <Sidebar />
-            <main className="flex-1 h-screen overflow-y-auto p-8 pt-4">
-              {children}
-            </main>
+            <div className="flex-1 ml-[280px]">
+              <main className="h-screen overflow-y-auto p-8">
+                {children}
+              </main>
+            </div>
           </div>
           <Toaster />
         </ThemeProvider>

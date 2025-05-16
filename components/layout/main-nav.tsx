@@ -327,8 +327,8 @@ export function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed h-screen z-50 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 transition-all duration-300 ease-in-out overflow-hidden",
-          isCollapsed ? "w-20" : "w-72",
+          "fixed top-0 left-0 h-screen z-50 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 transition-all duration-300 ease-in-out overflow-hidden",
+          isCollapsed ? "w-20" : "w-[280px]",
           isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         )}
       >
