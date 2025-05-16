@@ -1,34 +1,41 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { DatePickerWithRange } from "@/components/ui/date-range-picker";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { 
-  Download, 
-  FileSpreadsheet, 
-  FileText,
-  Filter,
-  Calendar,
-  RefreshCw,
-  TrendingUp,
-  PieChart,
-  BarChart as BarChartIcon,
-  Table as TableIcon,
-  ChevronDown,
-  ArrowUpRight,
-  ArrowDownRight,
-  Globe,
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import {
   DollarSign,
   Users,
-  Box
+  TrendingUp,
+  BarChart,
+  PieChart,
+  ArrowUpRight,
+  ArrowDownRight,
+  FileSpreadsheet,
+  FileText,
+  RefreshCw,
+  Building2,
+  ShoppingCart,
+  UserCheck,
+  Target,
+  Clock,
 } from "lucide-react";
-import { Bar, Line, Pie, Radar, Scatter } from "react-chartjs-2";
+import { Line, Bar, Radar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -75,15 +82,23 @@ export default function ReportsPage() {
       expenses: { current: 8900000, previous: 7600000, trend: "+17.1%" },
       margins: { current: "28.5%", previous: "28.8%", trend: "-0.3%" }
     },
-    operational: {
-      efficiency: { current: "92.3%", previous: "89.1%", trend: "+3.2%" },
-      productivity: { current: 856, previous: 798, trend: "+7.3%" },
-      utilization: { current: "87.2%", previous: "84.5%", trend: "+2.7%" }
+    employees: {
+      totalEmployees: { current: 156, previous: 142, trend: "+9.8%" },
+      averagePerformance: { current: "92.3%", previous: "89.1%", trend: "+3.2%" },
+      topPerformers: { current: 23, previous: 18, trend: "+27.7%" },
+      productivity: { current: 856, previous: 798, trend: "+7.3%" }
     },
-    market: {
-      marketShare: { current: "23.5%", previous: "21.2%", trend: "+2.3%" },
-      customerSatisfaction: { current: 4.6, previous: 4.4, trend: "+0.2" },
-      brandValue: { current: "A+", previous: "A", trend: "↑" }
+    stores: {
+      physicalStores: {
+        revenue: { current: 8900000, previous: 7600000, trend: "+17.1%" },
+        footfall: { current: 45600, previous: 42300, trend: "+7.8%" },
+        conversion: { current: "23.5%", previous: "21.2%", trend: "+2.3%" }
+      },
+      onlineStore: {
+        revenue: { current: 6350000, previous: 5200000, trend: "+22.1%" },
+        visitors: { current: 156000, previous: 134000, trend: "+16.4%" },
+        conversion: { current: "3.2%", previous: "2.8%", trend: "+0.4%" }
+      }
     }
   });
 
@@ -156,7 +171,11 @@ export default function ReportsPage() {
         <div className="flex justify-between items-start">
           <div>
             <p className="text-sm font-medium text-gray-500">{title}</p>
-            <h3 className="text-2xl font-bold mt-2">{data.current}</h3>
+            <h3 className="text-2xl font-bold mt-2">
+              {typeof data.current === 'number' && data.current > 1000 
+                ? `₹${(data.current/1000000).toFixed(2)}M` 
+                : data.current}
+            </h3>
             <div className={`flex items-center mt-1 ${
               data.trend.startsWith('+') ? 'text-green-600' : 'text-red-600'
             }`}>
@@ -168,7 +187,6 @@ export default function ReportsPage() {
             {icon}
           </div>
         </div>
-        <p className="text-sm text-gray-500 mt-2">vs Previous: {data.previous}</p>
       </CardContent>
     </Card>
   );
@@ -178,7 +196,7 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {renderMetricCard("Revenue", metrics.financial.revenue, <DollarSign className="h-6 w-6 text-blue-600" />)}
         {renderMetricCard("Profit", metrics.financial.profit, <TrendingUp className="h-6 w-6 text-green-600" />)}
-        {renderMetricCard("Expenses", metrics.financial.expenses, <BarChartIcon className="h-6 w-6 text-red-600" />)}
+        {renderMetricCard("Expenses", metrics.financial.expenses, <BarChart className="h-6 w-6 text-red-600" />)}
         {renderMetricCard("Profit Margins", metrics.financial.margins, <PieChart className="h-6 w-6 text-purple-600" />)}
       </div>
 
@@ -266,40 +284,58 @@ export default function ReportsPage() {
     </div>
   );
 
-  const renderOperationalDashboard = () => (
+  const renderEmployeePerformance = () => (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {renderMetricCard("Efficiency", metrics.operational.efficiency, <TrendingUp className="h-6 w-6 text-green-600" />)}
-        {renderMetricCard("Productivity", metrics.operational.productivity, <Users className="h-6 w-6 text-blue-600" />)}
-        {renderMetricCard("Resource Utilization", metrics.operational.utilization, <Box className="h-6 w-6 text-purple-600" />)}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {renderMetricCard("Total Employees", metrics.employees.totalEmployees, <Users className="h-6 w-6 text-blue-600" />)}
+        {renderMetricCard("Avg Performance", metrics.employees.averagePerformance, <Target className="h-6 w-6 text-green-600" />)}
+        {renderMetricCard("Top Performers", metrics.employees.topPerformers, <UserCheck className="h-6 w-6 text-purple-600" />)}
+        {renderMetricCard("Productivity", metrics.employees.productivity, <Clock className="h-6 w-6 text-orange-600" />)}
       </div>
 
-      {reportData?.departmental && (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Departmental Performance</CardTitle>
-            <CardDescription>Efficiency vs Utilization</CardDescription>
+            <CardTitle>Employee Performance Distribution</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[400px]">
+            <Bar 
+              data={{
+                labels: ['90-100%', '80-90%', '70-80%', '60-70%', 'Below 60%'],
+                datasets: [{
+                  label: 'Employees',
+                  data: [23, 45, 56, 24, 8],
+                  backgroundColor: [
+                    'rgba(34, 197, 94, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(234, 179, 8, 0.8)',
+                    'rgba(249, 115, 22, 0.8)',
+                    'rgba(239, 68, 68, 0.8)'
+                  ]
+                }]
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+              }}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Department Performance</CardTitle>
           </CardHeader>
           <CardContent className="h-[400px]">
             <Radar
               data={{
-                labels: reportData.departmental.labels,
-                datasets: [
-                  {
-                    label: 'Efficiency',
-                    data: reportData.departmental.efficiency,
-                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                    borderColor: 'rgb(59, 130, 246)',
-                    pointBackgroundColor: 'rgb(59, 130, 246)'
-                  },
-                  {
-                    label: 'Utilization',
-                    data: reportData.departmental.utilization,
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    borderColor: 'rgb(16, 185, 129)',
-                    pointBackgroundColor: 'rgb(16, 185, 129)'
-                  }
-                ]
+                labels: ['Sales', 'Marketing', 'Operations', 'IT', 'Finance', 'HR'],
+                datasets: [{
+                  label: 'Performance',
+                  data: [95, 88, 92, 87, 90, 85],
+                  backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                  borderColor: 'rgb(59, 130, 246)',
+                }]
               }}
               options={{
                 responsive: true,
@@ -314,89 +350,85 @@ export default function ReportsPage() {
             />
           </CardContent>
         </Card>
-      )}
+      </div>
     </div>
   );
 
-  const renderMarketDashboard = () => (
+  const renderStoreAnalysis = () => (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {renderMetricCard("Market Share", metrics.market.marketShare, <Globe className="h-6 w-6 text-blue-600" />)}
-        {renderMetricCard("Customer Satisfaction", metrics.market.customerSatisfaction, <Users className="h-6 w-6 text-green-600" />)}
-        {renderMetricCard("Brand Rating", metrics.market.brandValue, <TrendingUp className="h-6 w-6 text-purple-600" />)}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Physical Stores</h3>
+          <div className="grid grid-cols-1 gap-4">
+            {renderMetricCard("Store Revenue", metrics.stores.physicalStores.revenue, <DollarSign className="h-6 w-6 text-blue-600" />)}
+            {renderMetricCard("Footfall", metrics.stores.physicalStores.footfall, <Users className="h-6 w-6 text-green-600" />)}
+            {renderMetricCard("Conversion Rate", metrics.stores.physicalStores.conversion, <Target className="h-6 w-6 text-purple-600" />)}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Online Store</h3>
+          <div className="grid grid-cols-1 gap-4">
+            {renderMetricCard("Online Revenue", metrics.stores.onlineStore.revenue, <ShoppingCart className="h-6 w-6 text-blue-600" />)}
+            {renderMetricCard("Visitors", metrics.stores.onlineStore.visitors, <Users className="h-6 w-6 text-green-600" />)}
+            {renderMetricCard("Conversion Rate", metrics.stores.onlineStore.conversion, <Target className="h-6 w-6 text-purple-600" />)}
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {reportData?.regions && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Regional Performance</CardTitle>
-              <CardDescription>Market share and growth by region</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Bar
-                data={{
-                  labels: reportData.regions.labels,
-                  datasets: [
-                    {
-                      label: 'Market Share (%)',
-                      data: reportData.regions.market_share,
-                      backgroundColor: 'rgba(59, 130, 246, 0.8)'
-                    },
-                    {
-                      label: 'Growth (%)',
-                      data: reportData.regions.growth,
-                      backgroundColor: 'rgba(16, 185, 129, 0.8)'
-                    }
+        <Card>
+          <CardHeader>
+            <CardTitle>Revenue Distribution</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[400px]">
+            <Pie
+              data={{
+                labels: ['Physical Stores', 'Online Store'],
+                datasets: [{
+                  data: [8900000, 6350000],
+                  backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(34, 197, 94, 0.8)'
                   ]
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: { position: 'top' }
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true
-                    }
-                  }
-                }}
-              />
-            </CardContent>
-          </Card>
-        )}
+                }]
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+              }}
+            />
+          </CardContent>
+        </Card>
 
-        {reportData?.competitors && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Competitive Analysis</CardTitle>
-              <CardDescription>Market share distribution</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Pie
-                data={{
-                  labels: reportData.competitors.labels,
-                  datasets: [{
-                    data: reportData.competitors.data,
-                    backgroundColor: [
-                      'rgba(59, 130, 246, 0.8)',
-                      'rgba(16, 185, 129, 0.8)',
-                      'rgba(249, 115, 22, 0.8)',
-                      'rgba(139, 92, 246, 0.8)',
-                      'rgba(107, 114, 128, 0.8)'
-                    ]
-                  }]
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: { position: 'right' }
+        <Card>
+          <CardHeader>
+            <CardTitle>Store Performance Trends</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[400px]">
+            <Line
+              data={{
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                  {
+                    label: 'Physical Stores',
+                    data: [1.2, 1.3, 1.4, 1.5, 1.6, 1.7].map(x => x * 1000000),
+                    borderColor: 'rgb(59, 130, 246)',
+                  },
+                  {
+                    label: 'Online Store',
+                    data: [0.8, 0.9, 1.1, 1.2, 1.3, 1.4].map(x => x * 1000000),
+                    borderColor: 'rgb(34, 197, 94)',
                   }
-                }}
-              />
-            </CardContent>
-          </Card>
-        )}
+                ]
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+              }}
+            />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
@@ -411,19 +443,11 @@ export default function ReportsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => exportReport('xlsx')}
-            disabled={isLoading}
-          >
+          <Button variant="outline" onClick={() => exportReport('xlsx')} disabled={isLoading}>
             <FileSpreadsheet className="w-4 h-4 mr-2" />
             Export Excel
           </Button>
-          <Button 
-            variant="outline"
-            onClick={() => exportReport('pdf')}
-            disabled={isLoading}
-          >
+          <Button variant="outline" onClick={() => exportReport('pdf')} disabled={isLoading}>
             <FileText className="w-4 h-4 mr-2" />
             Export PDF
           </Button>
@@ -431,54 +455,27 @@ export default function ReportsPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Report Configuration</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-            <div className="lg:col-span-2">
-              <DatePickerWithRange value={dateRange} onChange={setDateRange} />
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row gap-4 justify-between">
+            <DateRangePicker value={dateRange} onChange={setDateRange}/>
+            <div className="flex gap-2">
+              <Select value={filterRegion} onValueChange={setFilterRegion}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="All Regions" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Regions</SelectItem>
+                  <SelectItem value="north">North</SelectItem>
+                  <SelectItem value="south">South</SelectItem>
+                  <SelectItem value="east">East</SelectItem>
+                  <SelectItem value="west">West</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" onClick={fetchAdvancedReportData} disabled={isLoading}>
+                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
             </div>
-            <Select value={reportType} onValueChange={setReportType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Report Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="financial">Financial Analytics</SelectItem>
-                <SelectItem value="operational">Operational Metrics</SelectItem>
-                <SelectItem value="market">Market Analysis</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={filterRegion} onValueChange={setFilterRegion}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Region" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Regions</SelectItem>
-                <SelectItem value="north">North</SelectItem>
-                <SelectItem value="south">South</SelectItem>
-                <SelectItem value="east">East</SelectItem>
-                <SelectItem value="west">West</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={comparisonPeriod} onValueChange={setComparisonPeriod}>
-              <SelectTrigger>
-                <SelectValue placeholder="Comparison Period" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="previous_year">Previous Year</SelectItem>
-                <SelectItem value="previous_quarter">Previous Quarter</SelectItem>
-                <SelectItem value="previous_month">Previous Month</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button 
-              variant="outline" 
-              onClick={fetchAdvancedReportData}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
           </div>
         </CardContent>
       </Card>
@@ -486,20 +483,20 @@ export default function ReportsPage() {
       <Tabs value={reportType} onValueChange={setReportType}>
         <TabsList>
           <TabsTrigger value="financial">Financial</TabsTrigger>
-          <TabsTrigger value="operational">Operational</TabsTrigger>
-          <TabsTrigger value="market">Market</TabsTrigger>
+          <TabsTrigger value="employees">Employees</TabsTrigger>
+          <TabsTrigger value="stores">Stores</TabsTrigger>
         </TabsList>
 
         <TabsContent value="financial">
           {renderFinancialDashboard()}
         </TabsContent>
 
-        <TabsContent value="operational">
-          {renderOperationalDashboard()}
+        <TabsContent value="employees">
+          {renderEmployeePerformance()}
         </TabsContent>
 
-        <TabsContent value="market">
-          {renderMarketDashboard()}
+        <TabsContent value="stores">
+          {renderStoreAnalysis()}
         </TabsContent>
       </Tabs>
     </div>
