@@ -30,6 +30,31 @@ export default function LoginPage() {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Set user in store
+        setUser(data.user);
+        
+        // Redirect to saved path or dashboard
+        const redirectTo = searchParams.get('from') || '/dashboard';
+        router.push(redirectTo);
+      } else {
+        setError(data.error || "Invalid credentials");
+      }
+    } catch (err) {
+      setError("An error occurred during login");
+    } finally {
+      setIsLoading(false);
+    }
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
