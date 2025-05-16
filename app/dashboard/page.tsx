@@ -57,10 +57,15 @@ import api from '@/lib/api/laravel';
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState({
-    revenue: 0,
-    customers: 0,
-    orders: 0,
-    inventory: 0
+    overview: {
+      totalRevenue: 0,
+      customers: 0,
+      orders: 0,
+      inventory: 0
+    },
+    recentSales: [],
+    monthlyRevenue: {},
+    topProducts: []
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -69,8 +74,10 @@ export default function DashboardPage() {
     const fetchDashboardData = async () => {
       try {
         const response = await api.get('/dashboard/stats');
-        setDashboardData(response.data);
-        setIsLoading(false);
+        if (response.status === 'success') {
+          setDashboardData(response.data);
+          setIsLoading(false);
+        }
       } catch (err) {
         setError(err.message);
         setIsLoading(false);
@@ -78,6 +85,9 @@ export default function DashboardPage() {
     };
 
     fetchDashboardData();
+    // Refresh data every 5 minutes
+    const interval = setInterval(fetchDashboardData, 300000);
+    return () => clearInterval(interval);
   }, []);
 
   // State for notifications
