@@ -190,9 +190,9 @@ export function Sidebar() {
   // State management
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [expandedSettings, setExpandedSettings] = useState(
-    pathname.includes("/settings"),
-  );
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
+    settings: pathname.includes("/settings"),
+  });
   const [selectedStore, setSelectedStore] = useState(stores[0]);
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -272,6 +272,14 @@ export function Sidebar() {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
+  // Toggle expanded state for an item
+  const toggleExpanded = (label: string) => {
+    setExpandedItems((prev) => ({
+      ...prev,
+      [label.toLowerCase()]: !prev[label.toLowerCase()],
+    }));
+  };
+
   return (
     <>
       {/* Mobile Menu Button */}
@@ -302,94 +310,106 @@ export function Sidebar() {
       >
         <div className="h-full flex flex-col">
           {/* Sidebar Header */}
-          <div
-            className={cn(
-              "p-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-700",
-              isCollapsed && "justify-center",
-            )}
-          >
-            {!isCollapsed && (
-              <div className="flex-1">
-                {/* Store Switcher */}
-                <div className="relative">
-                  <button
-                    onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)}
-                    className="flex items-center gap-2 w-full p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    <div
-                      className="flex-shrink-0 h-8 w-8 rounded-md flex items-center justify-center"
-                      style={{ backgroundColor: selectedStore.themeColor }}
-                    >
-                      <Store className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex-1 truncate">
-                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                        {selectedStore.name}
-                      </p>
-                    </div>
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 text-slate-500 transition-transform",
-                        isStoreDropdownOpen && "rotate-180",
-                      )}
-                    />
-                  </button>
-
-                  {/* Store Dropdown */}
-                  {isStoreDropdownOpen && (
-                    <div className="absolute top-full left-0 w-full mt-1 z-50 bg-white dark:bg-slate-800 rounded-md shadow-lg border border-slate-200 dark:border-slate-700 py-1">
-                      {stores.map((store) => (
-                        <button
-                          key={store.id}
-                          onClick={() => handleStoreChange(store)}
-                          className="flex items-center gap-2 w-full p-2 hover:bg-slate-100 dark:hover:bg-slate-700"
-                        >
-                          <div
-                            className="flex-shrink-0 h-6 w-6 rounded-md flex items-center justify-center"
-                            style={{ backgroundColor: store.themeColor }}
-                          >
-                            <Store className="h-4 w-4 text-white" />
-                          </div>
-                          <span className="flex-1 text-sm text-slate-700 dark:text-slate-200">
-                            {store.name}
-                          </span>
-                          {selectedStore.id === store.id && (
-                            <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {isCollapsed ? (
-              <Tooltip content="Expand sidebar">
+          <div className="p-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-700">
+            <div className="flex-1">
+              {/* Store Switcher */}
+              <div className="relative">
                 <button
-                  onClick={toggleCollapsed}
-                  className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
-                  aria-label="Expand sidebar"
+                  onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)}
+                  className={cn(
+                    "flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors",
+                    isCollapsed ? "justify-center w-full" : "w-full",
+                  )}
                 >
-                  <ChevronRight className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+                  <div
+                    className="flex-shrink-0 h-8 w-8 rounded-md flex items-center justify-center"
+                    style={{ backgroundColor: selectedStore.themeColor }}
+                  >
+                    <Store className="h-5 w-5 text-white" />
+                  </div>
+                  {!isCollapsed && (
+                    <>
+                      <div className="flex-1 truncate">
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                          {selectedStore.name}
+                        </p>
+                      </div>
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 text-slate-500 transition-transform",
+                          isStoreDropdownOpen && "rotate-180",
+                        )}
+                      />
+                    </>
+                  )}
                 </button>
-              </Tooltip>
-            ) : (
-              <button
-                onClick={toggleCollapsed}
-                className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
-                aria-label="Collapse sidebar"
-              >
+
+                {/* Store Dropdown */}
+                {isStoreDropdownOpen && (
+                  <div
+                    className={cn(
+                      "absolute mt-1 z-50 bg-white dark:bg-slate-800 rounded-md shadow-lg border border-slate-200 dark:border-slate-700 py-1",
+                      isCollapsed
+                        ? "left-full ml-1 top-0"
+                        : "top-full left-0 w-full",
+                    )}
+                  >
+                    {stores.map((store) => (
+                      <button
+                        key={store.id}
+                        onClick={() => handleStoreChange(store)}
+                        className={cn(
+                          "flex items-center gap-2 p-2 hover:bg-slate-100 dark:hover:bg-slate-700",
+                          isCollapsed ? "w-48" : "w-full",
+                        )}
+                      >
+                        <div
+                          className="flex-shrink-0 h-6 w-6 rounded-md flex items-center justify-center"
+                          style={{ backgroundColor: store.themeColor }}
+                        >
+                          <Store className="h-4 w-4 text-white" />
+                        </div>
+                        <span className="flex-1 text-sm text-slate-700 dark:text-slate-200">
+                          {store.name}
+                        </span>
+                        {selectedStore.id === store.id && (
+                          <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={toggleCollapsed}
+              className="p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isCollapsed ? (
+                <ChevronRight className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+              ) : (
                 <ChevronLeft className="h-5 w-5 text-slate-500 dark:text-slate-400" />
-              </button>
-            )}
+              )}
+            </button>
           </div>
 
           {/* Sidebar Search */}
-          {!isCollapsed && (
-            <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <div
+            className={cn(
+              "p-4 border-b border-slate-200 dark:border-slate-700",
+              isCollapsed && "px-2",
+            )}
+          >
+            <div className="relative">
+              <Search
+                className={cn(
+                  "absolute top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400",
+                  isCollapsed ? "left-1/2 -translate-x-1/2" : "left-3",
+                )}
+              />
+              {!isCollapsed && (
                 <input
                   type="text"
                   placeholder="Search..."
@@ -397,9 +417,9 @@ export function Sidebar() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 rounded-md text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-              </div>
+              )}
             </div>
-          )}
+          </div>
 
           {/* Sidebar Navigation */}
           <nav className="flex-1 overflow-y-auto p-4 space-y-1">
@@ -409,16 +429,15 @@ export function Sidebar() {
 
               const isActive = isRouteActive(route.href);
               const hasActiveSubItem = hasActiveChild(route);
+              const isExpanded = expandedItems[route.label.toLowerCase()];
 
               if (route.subItems) {
                 return (
                   <div key={route.href} className="space-y-1">
                     <button
-                      onClick={() =>
-                        !isCollapsed && setExpandedSettings(!expandedSettings)
-                      }
+                      onClick={() => toggleExpanded(route.label)}
                       className={cn(
-                        "w-full flex items-center justify-between gap-x-2 text-sm font-medium px-3 py-2 rounded-lg transition-colors",
+                        "w-full flex items-center gap-x-2 text-sm font-medium px-3 py-2 rounded-lg transition-colors",
                         isActive || hasActiveSubItem
                           ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
                           : "hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300",
@@ -444,15 +463,24 @@ export function Sidebar() {
                           <ChevronDown
                             className={cn(
                               "h-4 w-4 text-slate-500 transition-transform",
-                              expandedSettings ? "rotate-180" : "",
+                              isExpanded ? "rotate-180" : "",
                             )}
                           />
                         </>
                       )}
                     </button>
 
-                    {!isCollapsed && expandedSettings && (
-                      <div className="pl-4 space-y-1 pt-1">
+                    {/* Display submenu items when expanded or when hovered in collapsed mode */}
+                    {((isExpanded && !isCollapsed) ||
+                      (isCollapsed && (isActive || hasActiveSubItem))) && (
+                      <div
+                        className={cn(
+                          "space-y-1 pt-1",
+                          isCollapsed
+                            ? "absolute left-full ml-2 bg-white dark:bg-slate-800 p-2 rounded-md shadow-lg border border-slate-200 dark:border-slate-700 min-w-48 top-auto z-50"
+                            : "pl-4",
+                        )}
+                      >
                         {route.subItems.map((subItem) => {
                           // Skip subitems user doesn't have permission for
                           if (!hasPermission(subItem.permissions)) return null;
@@ -492,7 +520,7 @@ export function Sidebar() {
                     isActive
                       ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
                       : "hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300",
-                    isCollapsed && "justify-center",
+                    isCollapsed && "justify-center relative",
                   )}
                 >
                   {isCollapsed ? (
@@ -530,11 +558,35 @@ export function Sidebar() {
             })}
           </nav>
 
+          {/* Quick Action Button - Visible in both modes */}
+          <div
+            className={cn("px-4 py-2", isCollapsed && "flex justify-center")}
+          >
+            {isCollapsed ? (
+              <Tooltip content="Create New Invoice">
+                <Link
+                  href="/create-invoice"
+                  className="flex items-center justify-center text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-2 rounded-lg transition-colors w-10 h-10"
+                >
+                  <PlusCircle className="h-5 w-5" />
+                </Link>
+              </Tooltip>
+            ) : (
+              <Link
+                href="/create-invoice"
+                className="flex items-center gap-x-2 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 py-2 rounded-lg transition-colors w-full justify-center"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Create New Invoice
+              </Link>
+            )}
+          </div>
+
           {/* Sidebar Footer */}
           <div
             className={cn(
               "p-4 border-t border-slate-200 dark:border-slate-700 mt-auto",
-              isCollapsed ? "flex justify-center" : "",
+              isCollapsed ? "flex flex-col items-center" : "",
             )}
           >
             {/* Theme Toggle Button */}
@@ -572,35 +624,24 @@ export function Sidebar() {
               </button>
             </div>
 
-            {/* Quick Action Button */}
-            {!isCollapsed && (
-              <Link
-                href="/create-invoice"
-                className="flex items-center gap-x-2 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 py-2 rounded-lg transition-colors w-full justify-center mb-4"
-              >
-                <PlusCircle className="h-4 w-4" />
-                Create New Invoice
-              </Link>
-            )}
-
             {/* User Profile Section */}
             <div
               className={cn(
                 "flex items-center gap-3",
-                isCollapsed && "justify-center",
+                isCollapsed && "justify-center flex-col",
               )}
             >
-              {isCollapsed ? (
-                <Tooltip content={user.name}>
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-medium">
-                    {user.name.charAt(0)}
-                  </div>
-                </Tooltip>
-              ) : (
+              <div
+                className={cn(
+                  "flex-shrink-0 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-medium",
+                  isCollapsed ? "h-8 w-8" : "h-10 w-10",
+                )}
+              >
+                {user.name.charAt(0)}
+              </div>
+
+              {!isCollapsed && (
                 <>
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-medium">
-                    {user.name.charAt(0)}
-                  </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-slate-900 dark:text-white">
                       {user.name}
@@ -616,6 +657,17 @@ export function Sidebar() {
                     <LogOut className="h-4 w-4 text-slate-500" />
                   </button>
                 </>
+              )}
+
+              {isCollapsed && (
+                <Tooltip content="Logout">
+                  <button
+                    className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 mt-2"
+                    aria-label="Logout"
+                  >
+                    <LogOut className="h-4 w-4 text-slate-500" />
+                  </button>
+                </Tooltip>
               )}
             </div>
           </div>
