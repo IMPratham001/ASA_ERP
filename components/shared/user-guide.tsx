@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Book, ChevronRight } from "lucide-react";
 
-export default function UserGuide() {
+export function UserGuide() {
   const [isOpen, setIsOpen] = useState(false);
 
   const guides = [
