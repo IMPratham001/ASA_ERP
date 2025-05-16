@@ -24,7 +24,6 @@ import {
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
-import { CardHeader, CardContent, Card } from "@/components/ui/card";
 import { Overview } from "@/components/dashboard/overview";
 import { RecentSales } from "@/components/dashboard/recent-sales";
 import { Line, Doughnut, Bar } from "react-chartjs-2";
@@ -50,7 +49,7 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 export default function DashboardPage() {
@@ -192,54 +191,58 @@ export default function DashboardPage() {
 
   // Doughnut chart data
   const categoryData = {
-    labels: ['Electronics', 'Clothing', 'Food', 'Books', 'Others'],
-    datasets: [{
-      data: [35, 25, 20, 15, 5],
-      backgroundColor: [
-        'rgba(54, 162, 235, 0.8)',
-        'rgba(255, 99, 132, 0.8)',
-        'rgba(255, 206, 86, 0.8)',
-        'rgba(75, 192, 192, 0.8)',
-        'rgba(153, 102, 255, 0.8)',
-      ],
-    }],
+    labels: ["Electronics", "Clothing", "Food", "Books", "Others"],
+    datasets: [
+      {
+        data: [35, 25, 20, 15, 5],
+        backgroundColor: [
+          "rgba(54, 162, 235, 0.8)",
+          "rgba(255, 99, 132, 0.8)",
+          "rgba(255, 206, 86, 0.8)",
+          "rgba(75, 192, 192, 0.8)",
+          "rgba(153, 102, 255, 0.8)",
+        ],
+      },
+    ],
   };
 
   // Bar chart data for daily sales
   const dailySalesData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [{
-      label: 'Sales',
-      data: [65, 59, 80, 81, 56, 55, 40],
-      backgroundColor: 'rgba(54, 162, 235, 0.5)',
-    }],
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    datasets: [
+      {
+        label: "Sales",
+        data: [65, 59, 80, 81, 56, 55, 40],
+        backgroundColor: "rgba(54, 162, 235, 0.5)",
+      },
+    ],
   };
 
   const quickStats = [
-    { 
+    {
       label: "Revenue Growth",
       value: "+12.5%",
       trend: "up",
-      description: "vs last month"
+      description: "vs last month",
     },
     {
       label: "Customer Retention",
       value: "94.2%",
       trend: "up",
-      description: "retention rate"
+      description: "retention rate",
     },
     {
       label: "Cart Abandonment",
       value: "21.8%",
       trend: "down",
-      description: "decreased by 3%"
+      description: "decreased by 3%",
     },
     {
       label: "Avg Order Value",
       value: "$142.35",
       trend: "up",
-      description: "+5.8% increase"
-    }
+      description: "+5.8% increase",
+    },
   ];
 
   return (
@@ -266,16 +269,27 @@ export default function DashboardPage() {
       {/* Quick Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {quickStats.map((stat, index) => (
-          <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
+          <Card
+            key={index}
+            className="overflow-hidden hover:shadow-lg transition-shadow"
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="text-sm font-medium">{stat.label}</div>
-              <div className={`rounded-full p-2 ${stat.trend === 'up' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                {stat.trend === 'up' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              <div
+                className={`rounded-full p-2 ${stat.trend === "up" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}
+              >
+                {stat.trend === "up" ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
               </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {stat.description}
+              </p>
             </CardContent>
           </Card>
         ))}
@@ -332,7 +346,10 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {topProducts.slice(0, 3).map((product, index) => (
-              <div key={index} className="flex items-center justify-between py-2">
+              <div
+                key={index}
+                className="flex items-center justify-between py-2"
+              >
                 <div className="flex items-center gap-2">
                   <Package className="h-4 w-4" />
                   <span>{product.name}</span>
@@ -349,9 +366,14 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {lowStockItems.map((item, index) => (
-              <div key={index} className="flex items-center justify-between py-2">
+              <div
+                key={index}
+                className="flex items-center justify-between py-2"
+              >
                 <span>{item.name}</span>
-                <span className="text-red-500 font-medium">{item.stock} left</span>
+                <span className="text-red-500 font-medium">
+                  {item.stock} left
+                </span>
               </div>
             ))}
           </CardContent>
@@ -365,7 +387,9 @@ export default function DashboardPage() {
             {notifications.slice(0, 3).map((notification, index) => (
               <div key={index} className="py-2">
                 <p className="text-sm">{notification.text}</p>
-                <p className="text-xs text-muted-foreground">{notification.time}</p>
+                <p className="text-xs text-muted-foreground">
+                  {notification.time}
+                </p>
               </div>
             ))}
           </CardContent>

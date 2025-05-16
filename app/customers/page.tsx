@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -28,31 +27,42 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
-  MoreVertical, 
+import {
+  MoreVertical,
   Plus,
   Search,
   Download,
   Mail,
   Phone,
-  MapPin
+  MapPin,
 } from "lucide-react";
 
 export default function CustomersPage() {
-  const { customers, fetchCustomers, addCustomer, updateCustomer, deleteCustomer } = useStore();
+  const {
+    customers,
+    fetchCustomers,
+    addCustomer,
+    updateCustomer,
+    deleteCustomer,
+  } = useStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [editCustomer, setEditCustomer] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
-    fetchCustomers();
+    if (typeof fetchCustomers === "function") {
+      fetchCustomers();
+    } else {
+      console.error("fetchCustomers is not a function");
+    }
   }, [fetchCustomers]);
 
-  const filteredCustomers = customers?.filter(
-    (customer) =>
-      customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredCustomers =
+    customers?.filter(
+      (customer) =>
+        customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.email?.toLowerCase().includes(searchTerm.toLowerCase()),
+    ) || [];
 
   return (
     <div className="flex flex-col gap-4 p-6">
@@ -114,11 +124,13 @@ export default function CustomersPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      customer.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        customer.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
                       {customer.status}
                     </span>
                   </TableCell>
@@ -130,10 +142,12 @@ export default function CustomersPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => setEditCustomer(customer)}>
+                        <DropdownMenuItem
+                          onClick={() => setEditCustomer(customer)}
+                        >
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => deleteCustomer(customer.id)}
                           className="text-red-600"
                         >
@@ -149,62 +163,80 @@ export default function CustomersPage() {
         </CardContent>
       </Card>
 
-      <Dialog open={isDialogOpen || !!editCustomer} onOpenChange={() => {
-        setIsDialogOpen(false);
-        setEditCustomer(null);
-      }}>
+      <Dialog
+        open={isDialogOpen || !!editCustomer}
+        onOpenChange={() => {
+          setIsDialogOpen(false);
+          setEditCustomer(null);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editCustomer ? 'Edit Customer' : 'Add New Customer'}</DialogTitle>
+            <DialogTitle>
+              {editCustomer ? "Edit Customer" : "Add New Customer"}
+            </DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label>Name</Label>
               <Input
-                value={editCustomer?.name || ''}
-                onChange={(e) => setEditCustomer({...editCustomer, name: e.target.value})}
+                value={editCustomer?.name || ""}
+                onChange={(e) =>
+                  setEditCustomer({ ...editCustomer, name: e.target.value })
+                }
               />
             </div>
             <div className="grid gap-2">
               <Label>Email</Label>
               <Input
                 type="email"
-                value={editCustomer?.email || ''}
-                onChange={(e) => setEditCustomer({...editCustomer, email: e.target.value})}
+                value={editCustomer?.email || ""}
+                onChange={(e) =>
+                  setEditCustomer({ ...editCustomer, email: e.target.value })
+                }
               />
             </div>
             <div className="grid gap-2">
               <Label>Phone</Label>
               <Input
-                value={editCustomer?.phone || ''}
-                onChange={(e) => setEditCustomer({...editCustomer, phone: e.target.value})}
+                value={editCustomer?.phone || ""}
+                onChange={(e) =>
+                  setEditCustomer({ ...editCustomer, phone: e.target.value })
+                }
               />
             </div>
             <div className="grid gap-2">
               <Label>Address</Label>
               <Input
-                value={editCustomer?.address || ''}
-                onChange={(e) => setEditCustomer({...editCustomer, address: e.target.value})}
+                value={editCustomer?.address || ""}
+                onChange={(e) =>
+                  setEditCustomer({ ...editCustomer, address: e.target.value })
+                }
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setIsDialogOpen(false);
-              setEditCustomer(null);
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDialogOpen(false);
+                setEditCustomer(null);
+              }}
+            >
               Cancel
             </Button>
-            <Button onClick={() => {
-              if (editCustomer?.id) {
-                updateCustomer(editCustomer.id, editCustomer);
-              } else {
-                addCustomer(editCustomer);
-              }
-              setIsDialogOpen(false);
-              setEditCustomer(null);
-            }}>
-              {editCustomer ? 'Update' : 'Add'} Customer
+            <Button
+              onClick={() => {
+                if (editCustomer?.id) {
+                  updateCustomer(editCustomer.id, editCustomer);
+                } else {
+                  addCustomer(editCustomer);
+                }
+                setIsDialogOpen(false);
+                setEditCustomer(null);
+              }}
+            >
+              {editCustomer ? "Update" : "Add"} Customer
             </Button>
           </DialogFooter>
         </DialogContent>
