@@ -2,21 +2,33 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { 
   Download, 
   FileSpreadsheet, 
   FileText,
   Filter,
   Calendar,
-  RefreshCw 
+  RefreshCw,
+  TrendingUp,
+  PieChart,
+  BarChart as BarChartIcon,
+  Table as TableIcon,
+  ChevronDown,
+  ArrowUpRight,
+  ArrowDownRight,
+  Globe,
+  DollarSign,
+  Users,
+  Box
 } from "lucide-react";
-import { Bar, Line, Pie } from "react-chartjs-2";
+import { Bar, Line, Pie, Radar, Scatter } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -25,9 +37,11 @@ import {
   LineElement,
   BarElement,
   ArcElement,
+  RadialLinearScale,
   Title,
   Tooltip,
   Legend,
+  Filler
 } from "chart.js";
 
 ChartJS.register(
@@ -37,211 +51,365 @@ ChartJS.register(
   LineElement,
   BarElement,
   ArcElement,
+  RadialLinearScale,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 export default function ReportsPage() {
   const [dateRange, setDateRange] = useState({ from: null, to: null });
-  const [reportType, setReportType] = useState("sales");
-  const [reportView, setReportView] = useState("chart");
-  const [filterStore, setFilterStore] = useState("all");
+  const [reportType, setReportType] = useState("financial");
+  const [reportView, setReportView] = useState("dashboard");
+  const [filterRegion, setFilterRegion] = useState("all");
+  const [filterDepartment, setFilterDepartment] = useState("all");
+  const [comparisonPeriod, setComparisonPeriod] = useState("previous_year");
   const [reportData, setReportData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [summaryStats, setSummaryStats] = useState({
-    totalSales: 0,
-    averageOrder: 0,
-    totalOrders: 0,
-    topProducts: []
+
+  const [metrics, setMetrics] = useState({
+    financial: {
+      revenue: { current: 15250000, previous: 12800000, trend: "+19.1%" },
+      profit: { current: 4350000, previous: 3680000, trend: "+18.2%" },
+      expenses: { current: 8900000, previous: 7600000, trend: "+17.1%" },
+      margins: { current: "28.5%", previous: "28.8%", trend: "-0.3%" }
+    },
+    operational: {
+      efficiency: { current: "92.3%", previous: "89.1%", trend: "+3.2%" },
+      productivity: { current: 856, previous: 798, trend: "+7.3%" },
+      utilization: { current: "87.2%", previous: "84.5%", trend: "+2.7%" }
+    },
+    market: {
+      marketShare: { current: "23.5%", previous: "21.2%", trend: "+2.3%" },
+      customerSatisfaction: { current: 4.6, previous: 4.4, trend: "+0.2" },
+      brandValue: { current: "A+", previous: "A", trend: "↑" }
+    }
   });
 
-  const fetchReportData = async () => {
+  const generateAdvancedReportData = () => {
+    // Simulated data generation for different report types
+    const data = {
+      financial: {
+        revenue: {
+          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+          current: [1.2, 1.3, 1.4, 1.3, 1.5, 1.6, 1.4, 1.3, 1.5, 1.6, 1.7, 1.8].map(x => x * 1000000),
+          previous: [1.1, 1.2, 1.3, 1.2, 1.4, 1.5, 1.3, 1.2, 1.4, 1.5, 1.6, 1.7].map(x => x * 1000000)
+        },
+        profitMargins: {
+          labels: ["Q1", "Q2", "Q3", "Q4"],
+          data: [28.5, 29.1, 27.8, 28.9]
+        },
+        expenses: {
+          labels: ["Operations", "Marketing", "R&D", "Admin", "Sales", "IT"],
+          data: [35, 20, 15, 10, 12, 8]
+        }
+      },
+      operational: {
+        productivity: {
+          labels: Array.from({length: 12}, (_, i) => `Week ${i+1}`),
+          data: Array.from({length: 12}, () => 75 + Math.random() * 20)
+        },
+        departmental: {
+          labels: ["Sales", "Operations", "IT", "HR", "Finance", "R&D"],
+          efficiency: [92, 88, 95, 85, 90, 87],
+          utilization: [88, 85, 92, 80, 87, 84]
+        }
+      },
+      market: {
+        regions: {
+          labels: ["North", "South", "East", "West", "Central"],
+          market_share: [25, 22, 20, 18, 15],
+          growth: [8, 5, 6, 4, 7]
+        },
+        competitors: {
+          labels: ["Our Company", "Competitor A", "Competitor B", "Competitor C", "Others"],
+          data: [23.5, 20.1, 18.4, 15.8, 22.2]
+        }
+      }
+    };
+    return data[reportType];
+  };
+
+  const fetchAdvancedReportData = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call with actual data structure
-      const response = await generateReportData(reportType, dateRange, filterStore);
+      // Simulate API call with advanced data
+      const response = await new Promise(resolve => 
+        setTimeout(() => resolve(generateAdvancedReportData()), 1000)
+      );
       setReportData(response);
-      setSummaryStats({
-        totalSales: 125000,
-        averageOrder: 250,
-        totalOrders: 500,
-        topProducts: [
-          { name: "Product A", sales: 150 },
-          { name: "Product B", sales: 120 },
-          { name: "Product C", sales: 90 }
-        ]
-      });
     } catch (error) {
-      console.error("Error fetching report data:", error);
+      console.error("Error fetching advanced report data:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchReportData();
-  }, [reportType, dateRange, filterStore]);
+    fetchAdvancedReportData();
+  }, [reportType, dateRange, filterRegion, filterDepartment, comparisonPeriod]);
 
-  const generateReportData = (type, range, store) => {
-    const baseData = {
-      sales: {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-        datasets: [{
-          label: "Sales",
-          data: [12000, 19000, 15000, 17000, 22000, 25000],
-          backgroundColor: "rgba(75, 192, 192, 0.2)",
-          borderColor: "rgba(75, 192, 192, 1)",
-        }]
-      },
-      inventory: {
-        labels: ["In Stock", "Low Stock", "Out of Stock"],
-        datasets: [{
-          label: "Inventory Status",
-          data: [65, 20, 15],
-          backgroundColor: [
-            "rgba(75, 192, 192, 0.5)",
-            "rgba(255, 206, 86, 0.5)",
-            "rgba(255, 99, 132, 0.5)",
-          ],
-        }]
-      },
-      staff: {
-        labels: ["Sales", "Support", "Management", "IT"],
-        datasets: [{
-          label: "Staff Distribution",
-          data: [30, 15, 10, 5],
-          backgroundColor: [
-            "rgba(255, 99, 132, 0.5)",
-            "rgba(54, 162, 235, 0.5)",
-            "rgba(255, 206, 86, 0.5)",
-            "rgba(75, 192, 192, 0.5)",
-          ],
-        }]
-      },
-      financial: {
-        labels: ["Revenue", "Expenses", "Profit", "Tax"],
-        datasets: [{
-          label: "Financial Overview",
-          data: [50000, 30000, 20000, 5000],
-          backgroundColor: [
-            "rgba(75, 192, 192, 0.5)",
-            "rgba(255, 99, 132, 0.5)",
-            "rgba(54, 162, 235, 0.5)",
-            "rgba(255, 206, 86, 0.5)",
-          ],
-        }]
-      }
-    };
-    return baseData[type];
-  };
+  const renderMetricCard = (title, data, icon) => (
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <p className="text-sm font-medium text-gray-500">{title}</p>
+            <h3 className="text-2xl font-bold mt-2">{data.current}</h3>
+            <div className={`flex items-center mt-1 ${
+              data.trend.startsWith('+') ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {data.trend.startsWith('+') ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+              <span className="text-sm">{data.trend}</span>
+            </div>
+          </div>
+          <div className="p-2 bg-gray-100 rounded-full">
+            {icon}
+          </div>
+        </div>
+        <p className="text-sm text-gray-500 mt-2">vs Previous: {data.previous}</p>
+      </CardContent>
+    </Card>
+  );
 
-  const exportReport = async (format) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/reports/export', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: reportType,
-          format,
-          dateRange,
-          store: filterStore,
-          data: reportData
-        }),
-      });
-      
-      if (!response.ok) throw new Error('Export failed');
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `report-${reportType}-${new Date().toISOString()}.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Export failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const renderTableView = () => {
-    if (!reportData?.datasets?.[0]?.data) return null;
-    return (
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="border p-2">Label</th>
-              <th className="border p-2">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reportData.labels.map((label, index) => (
-              <tr key={index}>
-                <td className="border p-2">{label}</td>
-                <td className="border p-2">{reportData.datasets[0].data[index]}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
-
-  const renderSummaryView = () => {
-    return (
+  const renderFinancialDashboard = () => (
+    <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {renderMetricCard("Revenue", metrics.financial.revenue, <DollarSign className="h-6 w-6 text-blue-600" />)}
+        {renderMetricCard("Profit", metrics.financial.profit, <TrendingUp className="h-6 w-6 text-green-600" />)}
+        {renderMetricCard("Expenses", metrics.financial.expenses, <BarChartIcon className="h-6 w-6 text-red-600" />)}
+        {renderMetricCard("Profit Margins", metrics.financial.margins, <PieChart className="h-6 w-6 text-purple-600" />)}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <CardContent className="p-4">
-            <div className="text-xl font-bold">Total Sales</div>
-            <div className="text-3xl font-bold text-green-600">
-              ${summaryStats.totalSales.toLocaleString()}
-            </div>
+          <CardHeader>
+            <CardTitle>Revenue Trends</CardTitle>
+            <CardDescription>Monthly revenue comparison</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {reportData?.revenue && (
+              <Line
+                data={{
+                  labels: reportData.revenue.labels,
+                  datasets: [
+                    {
+                      label: 'Current Period',
+                      data: reportData.revenue.current,
+                      borderColor: 'rgb(59, 130, 246)',
+                      backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                      fill: true
+                    },
+                    {
+                      label: 'Previous Period',
+                      data: reportData.revenue.previous,
+                      borderColor: 'rgb(107, 114, 128)',
+                      backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                      fill: true
+                    }
+                  ]
+                }}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { position: 'top' },
+                    title: { display: false }
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      ticks: {
+                        callback: value => `$${(value/1000000).toFixed(1)}M`
+                      }
+                    }
+                  }
+                }}
+              />
+            )}
           </CardContent>
         </Card>
+
         <Card>
-          <CardContent className="p-4">
-            <div className="text-xl font-bold">Average Order</div>
-            <div className="text-3xl font-bold text-blue-600">
-              ${summaryStats.averageOrder.toLocaleString()}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-xl font-bold">Total Orders</div>
-            <div className="text-3xl font-bold text-purple-600">
-              {summaryStats.totalOrders.toLocaleString()}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-xl font-bold">Top Products</div>
-            <div className="mt-2">
-              {summaryStats.topProducts.map((product, index) => (
-                <div key={index} className="flex justify-between text-sm">
-                  <span>{product.name}</span>
-                  <span>{product.sales} units</span>
-                </div>
-              ))}
-            </div>
+          <CardHeader>
+            <CardTitle>Expense Distribution</CardTitle>
+            <CardDescription>Breakdown by category</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {reportData?.expenses && (
+              <Pie
+                data={{
+                  labels: reportData.expenses.labels,
+                  datasets: [{
+                    data: reportData.expenses.data,
+                    backgroundColor: [
+                      'rgba(59, 130, 246, 0.8)',
+                      'rgba(16, 185, 129, 0.8)',
+                      'rgba(249, 115, 22, 0.8)',
+                      'rgba(139, 92, 246, 0.8)',
+                      'rgba(236, 72, 153, 0.8)',
+                      'rgba(107, 114, 128, 0.8)'
+                    ]
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { position: 'right' }
+                  }
+                }}
+              />
+            )}
           </CardContent>
         </Card>
       </div>
-    );
-  };
+    </div>
+  );
+
+  const renderOperationalDashboard = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {renderMetricCard("Efficiency", metrics.operational.efficiency, <TrendingUp className="h-6 w-6 text-green-600" />)}
+        {renderMetricCard("Productivity", metrics.operational.productivity, <Users className="h-6 w-6 text-blue-600" />)}
+        {renderMetricCard("Resource Utilization", metrics.operational.utilization, <Box className="h-6 w-6 text-purple-600" />)}
+      </div>
+
+      {reportData?.departmental && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Departmental Performance</CardTitle>
+            <CardDescription>Efficiency vs Utilization</CardDescription>
+          </CardHeader>
+          <CardContent className="h-[400px]">
+            <Radar
+              data={{
+                labels: reportData.departmental.labels,
+                datasets: [
+                  {
+                    label: 'Efficiency',
+                    data: reportData.departmental.efficiency,
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    pointBackgroundColor: 'rgb(59, 130, 246)'
+                  },
+                  {
+                    label: 'Utilization',
+                    data: reportData.departmental.utilization,
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    borderColor: 'rgb(16, 185, 129)',
+                    pointBackgroundColor: 'rgb(16, 185, 129)'
+                  }
+                ]
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  r: {
+                    beginAtZero: true,
+                    max: 100
+                  }
+                }
+              }}
+            />
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+
+  const renderMarketDashboard = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {renderMetricCard("Market Share", metrics.market.marketShare, <Globe className="h-6 w-6 text-blue-600" />)}
+        {renderMetricCard("Customer Satisfaction", metrics.market.customerSatisfaction, <Users className="h-6 w-6 text-green-600" />)}
+        {renderMetricCard("Brand Rating", metrics.market.brandValue, <TrendingUp className="h-6 w-6 text-purple-600" />)}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {reportData?.regions && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Regional Performance</CardTitle>
+              <CardDescription>Market share and growth by region</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Bar
+                data={{
+                  labels: reportData.regions.labels,
+                  datasets: [
+                    {
+                      label: 'Market Share (%)',
+                      data: reportData.regions.market_share,
+                      backgroundColor: 'rgba(59, 130, 246, 0.8)'
+                    },
+                    {
+                      label: 'Growth (%)',
+                      data: reportData.regions.growth,
+                      backgroundColor: 'rgba(16, 185, 129, 0.8)'
+                    }
+                  ]
+                }}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { position: 'top' }
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true
+                    }
+                  }
+                }}
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        {reportData?.competitors && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Competitive Analysis</CardTitle>
+              <CardDescription>Market share distribution</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Pie
+                data={{
+                  labels: reportData.competitors.labels,
+                  datasets: [{
+                    data: reportData.competitors.data,
+                    backgroundColor: [
+                      'rgba(59, 130, 246, 0.8)',
+                      'rgba(16, 185, 129, 0.8)',
+                      'rgba(249, 115, 22, 0.8)',
+                      'rgba(139, 92, 246, 0.8)',
+                      'rgba(107, 114, 128, 0.8)'
+                    ]
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { position: 'right' }
+                  }
+                }}
+              />
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Reports & Analytics</h1>
+        <div>
+          <h1 className="text-3xl font-bold">Advanced Analytics & Reporting</h1>
+          <p className="text-gray-500 mt-1">
+            Comprehensive business intelligence and performance metrics
+          </p>
+        </div>
         <div className="flex gap-2">
           <Button 
             variant="outline" 
@@ -252,6 +420,7 @@ export default function ReportsPage() {
             Export Excel
           </Button>
           <Button 
+            variant="outline"
             onClick={() => exportReport('pdf')}
             disabled={isLoading}
           >
@@ -261,38 +430,50 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <Card className="mb-6">
+      <Card>
         <CardHeader>
           <CardTitle>Report Configuration</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <DatePickerWithRange value={dateRange} onChange={setDateRange} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+            <div className="lg:col-span-2">
+              <DatePickerWithRange value={dateRange} onChange={setDateRange} />
+            </div>
             <Select value={reportType} onValueChange={setReportType}>
               <SelectTrigger>
                 <SelectValue placeholder="Report Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="sales">Sales Report</SelectItem>
-                <SelectItem value="inventory">Inventory Report</SelectItem>
-                <SelectItem value="staff">Staff Report</SelectItem>
-                <SelectItem value="financial">Financial Report</SelectItem>
+                <SelectItem value="financial">Financial Analytics</SelectItem>
+                <SelectItem value="operational">Operational Metrics</SelectItem>
+                <SelectItem value="market">Market Analysis</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={filterStore} onValueChange={setFilterStore}>
+            <Select value={filterRegion} onValueChange={setFilterRegion}>
               <SelectTrigger>
-                <SelectValue placeholder="Select Store" />
+                <SelectValue placeholder="Select Region" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Stores</SelectItem>
-                <SelectItem value="main">Main Store</SelectItem>
-                <SelectItem value="branch1">Branch 1</SelectItem>
-                <SelectItem value="branch2">Branch 2</SelectItem>
+                <SelectItem value="all">All Regions</SelectItem>
+                <SelectItem value="north">North</SelectItem>
+                <SelectItem value="south">South</SelectItem>
+                <SelectItem value="east">East</SelectItem>
+                <SelectItem value="west">West</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={comparisonPeriod} onValueChange={setComparisonPeriod}>
+              <SelectTrigger>
+                <SelectValue placeholder="Comparison Period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="previous_year">Previous Year</SelectItem>
+                <SelectItem value="previous_quarter">Previous Quarter</SelectItem>
+                <SelectItem value="previous_month">Previous Month</SelectItem>
               </SelectContent>
             </Select>
             <Button 
               variant="outline" 
-              onClick={fetchReportData}
+              onClick={fetchAdvancedReportData}
               disabled={isLoading}
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
@@ -302,49 +483,23 @@ export default function ReportsPage() {
         </CardContent>
       </Card>
 
-      <Tabs value={reportView} onValueChange={setReportView}>
+      <Tabs value={reportType} onValueChange={setReportType}>
         <TabsList>
-          <TabsTrigger value="chart">Charts</TabsTrigger>
-          <TabsTrigger value="table">Table View</TabsTrigger>
-          <TabsTrigger value="summary">Summary</TabsTrigger>
+          <TabsTrigger value="financial">Financial</TabsTrigger>
+          <TabsTrigger value="operational">Operational</TabsTrigger>
+          <TabsTrigger value="market">Market</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="chart">
-          {reportData && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>
-                    {reportType.charAt(0).toUpperCase() + reportType.slice(1)} Overview
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {reportType === 'sales' ? (
-                    <Line data={reportData} />
-                  ) : reportType === 'inventory' ? (
-                    <Pie data={reportData} />
-                  ) : (
-                    <Bar data={reportData} />
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          )}
+        <TabsContent value="financial">
+          {renderFinancialDashboard()}
         </TabsContent>
 
-        <TabsContent value="table">
-          <Card>
-            <CardHeader>
-              <CardTitle>Detailed Data</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {renderTableView()}
-            </CardContent>
-          </Card>
+        <TabsContent value="operational">
+          {renderOperationalDashboard()}
         </TabsContent>
 
-        <TabsContent value="summary">
-          {renderSummaryView()}
+        <TabsContent value="market">
+          {renderMarketDashboard()}
         </TabsContent>
       </Tabs>
     </div>
