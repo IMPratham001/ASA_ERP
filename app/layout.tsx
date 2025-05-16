@@ -20,14 +20,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} min-h-screen bg-background text-foreground`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex min-h-screen bg-background">
+          <div className="flex min-h-screen">
             <Sidebar />
             <div className="flex-1 ml-[280px]">
               <main className="h-screen overflow-y-auto p-8">

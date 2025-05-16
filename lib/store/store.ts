@@ -1,49 +1,32 @@
 import { create } from 'zustand';
-import { createJSONStorage } from 'zustand/middleware';
 import * as api from '@/lib/api/laravel';
 
 interface StoreState {
-  // State types
   inventory: any[];
   products: any[];
   customers: any[];
-  invoices: any[];
-  transactions: any[];
-  activityLogs: any[];
-  error: string | null;
   loading: boolean;
-  user: any | null;
+  error: string | null;
 
-  // Actions
   fetchInventory: () => Promise<void>;
   fetchProducts: () => Promise<void>;
-  fetchCustomers: () => Promise<void>;
-  fetchInvoices: () => Promise<void>;
-  updateInventory: (item: any) => Promise<void>;
-  addInventoryItem: (item: any) => Promise<void>;
-  importData: (type: string, file: File) => Promise<void>;
-  exportData: (type: string, format: 'csv' | 'pdf') => Promise<void>;
-  logActivity: (log: any) => void;
-  clearErrors: () => void;
-  reset: () => void;
+  syncProductsWithInventory: () => Promise<void>;
+  updateInventory: (id: string, data: any) => Promise<void>;
+  updateProduct: (id: string, data: any) => Promise<void>;
 }
 
 export const useStore = create<StoreState>((set, get) => ({
   inventory: [],
   products: [],
   customers: [],
-  invoices: [],
-  transactions: [],
-  activityLogs: [],
-  error: null,
   loading: false,
-  user: null,
+  error: null,
 
   fetchInventory: async () => {
     try {
       set({ loading: true });
-      const response = await api.inventoryApi.getAll();
-      set({ inventory: response.data, loading: false });
+      const data = await api.inventory.getAll();
+      set({ inventory: data, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
     }
@@ -52,139 +35,44 @@ export const useStore = create<StoreState>((set, get) => ({
   fetchProducts: async () => {
     try {
       set({ loading: true });
-      const [productsRes, inventoryRes] = await Promise.all([
-        api.productsApi.getAll(),
-        api.inventory.getAll()
-      ]);
-      
-      const products = productsRes.data.map(product => ({
-        ...product,
-        inventory: inventoryRes.data.find(inv => inv.productId === product.id)
-      }));
-      
-      set({ products, loading: false });
+      const data = await api.products.getAll();
+      set({ products: data, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
     }
   },
 
-  fetchCustomers: async () => {
+  syncProductsWithInventory: async () => {
     try {
       set({ loading: true });
-      const response = await api.customerApi.getAll();
-      set({ customers: response.data, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-
-  fetchInvoices: async () => {
-    try {
-      set({ loading: true });
-      const response = await api.billingApi.getInvoices();
-      set({ invoices: response.data, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-
-  updateInventory: async (item) => {
-    try {
-      set({ loading: true });
-      await api.inventoryApi.update(item.id, item);
-      get().fetchInventory();
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-
-  addInventoryItem: async (item) => {
-    try {
-      set({ loading: true });
-      await api.inventoryApi.create(item);
-      get().fetchInventory();
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-
-  importData: async (type, file) => {
-    try {
-      set({ loading: true });
-      switch (type) {
-        case 'inventory':
-          await api.inventoryApi.import(file);
-          get().fetchInventory();
-          break;
-        case 'customers':
-          await api.customerApi.import(file);
-          get().fetchCustomers();
-          break;
-        case 'products':
-          await api.productsApi.import(file);
-          get().fetchProducts();
-          break;
-      }
+      await api.products.sync();
+      await get().fetchProducts();
+      await get().fetchInventory();
       set({ loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
     }
   },
 
-  exportData: async (type, format) => {
+  updateInventory: async (id, data) => {
     try {
       set({ loading: true });
-      let response;
-      switch (type) {
-        case 'inventory':
-          response = await api.inventoryApi.export(format);
-          break;
-        case 'customers':
-          response = await api.customerApi.export(format);
-          break;
-        case 'products':
-          response = await api.productsApi.export(format);
-          break;
-      }
-
-      // Handle file download
-      if (response) {
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `${type}-export.${format}`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      }
-
+      await api.inventory.update(id, data);
+      await get().fetchInventory();
       set({ loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
     }
   },
 
-  logActivity: (log) => set((state) => ({
-    activityLogs: [
-      {
-        ...log,
-        timestamp: new Date().toISOString(),
-        id: crypto.randomUUID()
-      },
-      ...state.activityLogs
-    ].slice(0, 1000),
-  })),
-
-  clearErrors: () => set({ error: null }),
-
-  reset: () => set((state) => ({
-    ...state,
-    transactions: [],
-    activityLogs: [],
-    error: null,
-    loading: false
-  }))
-}), {
-  name: 'erp-store',
-  storage: createJSONStorage(() => sessionStorage)
-});
+  updateProduct: async (id, data) => {
+    try {
+      set({ loading: true });
+      await api.products.update(id, data);
+      await get().fetchProducts();
+      set({ loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+}));
