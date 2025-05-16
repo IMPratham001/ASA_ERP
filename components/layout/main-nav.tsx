@@ -570,9 +570,9 @@ export function Sidebar() {
                       <span className="flex-1 truncate">{route.label}</span>
 
                       {/* Badge */}
-                      {route.badge && (
+                      {typeof route.badge !== 'undefined' && (
                         <span className="ml-auto bg-blue-600 text-xs text-white rounded-full h-5 min-w-5 px-1.5 flex items-center justify-center">
-                          {route.badge}
+                          {typeof route.badge === 'number' && route.badge > 99 ? '99+' : route.badge}
                         </span>
                       )}
                     </>
