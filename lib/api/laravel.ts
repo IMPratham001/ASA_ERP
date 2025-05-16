@@ -65,4 +65,12 @@ export const products = {
   delete: (id: string) => api.delete(`/products/${id}`)
 };
 
+export const invoices = {
+  create: (data: any) => api.post('/invoices', data),
+  getAll: () => api.get('/invoices'),
+  getById: (id: string) => api.get(`/invoices/${id}`),
+  update: (id: string, data: any) => api.put(`/invoices/${id}`, data),
+  delete: (id: string) => api.delete(`/invoices/${id}`)
+};
+
 export default api;

@@ -58,7 +58,6 @@ export default function CreateInvoicePage() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // Validate form data
       const validatedData = formSchema.parse(values);
       
       if (items.length === 0) {
@@ -66,18 +65,26 @@ export default function CreateInvoicePage() {
       }
 
       const invoiceData = {
-        ...validatedData,
+        customer_id: validatedData.customerId,
+        due_date: validatedData.dueDate,
+        notes: validatedData.note,
         items: items.map(item => ({
-          productId: item.productId,
+          product_id: item.productId,
           quantity: item.quantity,
           price: item.price,
-          discount: item.discount,
-          tax: item.tax
+          discount: item.discount || 0,
+          tax: item.tax || 0
         }))
       };
 
-      // TODO: Integrate with API
-      console.log("Validated data:", invoiceData);
+      const response = await invoices.create(invoiceData);
+      
+      toast({
+        title: "Success",
+        description: "Invoice created successfully",
+      });
+
+      router.push(`/invoices/${response.invoice.id}`);
       
     } catch (error) {
       console.error("Form submission error:", error);

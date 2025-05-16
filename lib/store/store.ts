@@ -12,8 +12,30 @@ interface Customer {
 
 interface State {
   customers: Customer[];
+  invoices: Invoice[];
   loading: boolean;
   error: string | null;
+}
+
+interface Invoice {
+  id: number;
+  customer_id: number;
+  invoice_number: string;
+  status: 'draft' | 'pending' | 'paid' | 'cancelled';
+  subtotal: number;
+  tax: number;
+  total: number;
+  due_date: string;
+  notes?: string;
+  items: InvoiceItem[];
+}
+
+interface InvoiceItem {
+  product_id: number;
+  quantity: number;
+  price: number;
+  discount: number;
+  tax: number;
 }
 
 interface Actions {
