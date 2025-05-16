@@ -3,6 +3,7 @@
 import { memo } from 'react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import styles from './overview.module.css'; // Import the CSS module
 
 const data = [
   { name: "Jan", total: 1234 },
@@ -27,10 +28,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export const Overview = memo(function Overview() {
   return (
-    <Card>
+    <Card className={styles.overviewCard}>
       <CardHeader>
-        <CardTitle>Revenue Overview</CardTitle>
-        <CardDescription>Monthly revenue breakdown</CardDescription>
+        <CardTitle className={styles.overviewTitle}>Revenue Overview</CardTitle>
+        <CardDescription className={styles.overviewDescription}>Monthly revenue breakdown</CardDescription>
       </CardHeader>
       <CardContent className="pl-2">
         <ResponsiveContainer width="100%" height={350}>

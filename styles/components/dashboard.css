@@ -1,0 +1,23 @@
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+}
+
+.recent-sales {
+  margin-top: 2rem;
+}
+
+.chart-container {
+  height: 350px;
+  margin-top: 1.5rem;
+}

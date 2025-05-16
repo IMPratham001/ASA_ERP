@@ -28,6 +28,7 @@ import { ProductTable } from "@/components/billing/product-table";
 import { InvoiceSummary } from "@/components/billing/invoice-summary";
 import { StoreSelect } from "@/components/billing/store-select";
 import { PrinterIcon, Save } from "lucide-react";
+import "./create-invoice-page.css";
 
 const formSchema = z.object({
   invoiceType: z.enum(["retail", "wholesale", "tax"]),
@@ -59,7 +60,7 @@ export default function CreateInvoicePage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const validatedData = formSchema.parse(values);
-      
+
       if (items.length === 0) {
         throw new Error("Please add at least one item to the invoice");
       }
@@ -78,14 +79,14 @@ export default function CreateInvoicePage() {
       };
 
       const response = await invoices.create(invoiceData);
-      
+
       toast({
         title: "Success",
         description: "Invoice created successfully",
       });
 
       router.push(`/invoices/${response.invoice.id}`);
-      
+
     } catch (error) {
       console.error("Form submission error:", error);
       // Show error toast
@@ -98,10 +99,10 @@ export default function CreateInvoicePage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Create Invoice</h2>
-        <div className="flex gap-2">
+    <div className="invoice-container">
+      <div className="invoice-header">
+        <h2 className="invoice-title">Create Invoice</h2>
+        <div className="invoice-actions">
           <Button variant="outline" onClick={() => form.reset()}>
             Clear
           </Button>
@@ -117,12 +118,12 @@ export default function CreateInvoicePage() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="invoice-form">
           <Card>
             <CardHeader>
               <CardTitle>Invoice Details</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <CardContent className="invoice-card-content">
               <FormField
                 control={form.control}
                 name="invoiceType"

@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+@import '../styles/components/customer-select.css';
+@import '../styles/components/invoice.css';
+@import '../styles/components/dashboard.css';
+
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+  --border: #e5e7eb;
+  --accent: #f3f4f6;
+}
+
+.dark {
+  --background: #1a1a1a;
+  --foreground: #ffffff;
+  --border: #2e2e2e;
+  --accent: #2e2e2e;
+}
+
 @layer base {
   :root {
     --background: 224 71% 4%;
