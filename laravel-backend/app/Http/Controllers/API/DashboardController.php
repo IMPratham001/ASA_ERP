@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Http\Controllers\API;
@@ -17,7 +16,7 @@ class DashboardController extends Controller
     {
         try {
             $currentMonth = Carbon::now()->month;
-            
+
             $stats = [
                 'overview' => [
                     'totalRevenue' => Invoice::sum('total'),
@@ -53,7 +52,8 @@ class DashboardController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => $stats
+                'data' => $stats,
+                'message' => 'Dashboard statistics retrieved successfully'
             ]);
         } catch (\Exception $e) {
             return response()->json([

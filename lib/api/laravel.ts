@@ -1,33 +1,27 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api',
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    'Accept': 'application/json',
   },
-  withCredentials: true,
-  timeout: 10000
+  timeout: 10000,
 });
 
+// Add error handling interceptor
 api.interceptors.response.use(
-  response => response.data,
-  error => {
-    const errorResponse = {
-      status: error.response?.status,
-      message: error.response?.data?.message || error.message,
-      errors: error.response?.data?.errors,
-      timestamp: new Date().toISOString()
-    };
-    console.error('API Error:', errorResponse);
-
-     // Handling specific error cases
-     if (error.response?.status === 401) {
-      // Handle authentication errors
-      window.location.href = '/auth/login';
+  (response) => response,
+  (error) => {
+    if (!error.response) {
+      console.error('Network Error:', error);
+      return Promise.reject({
+        status: 'error',
+        message: 'Network Error - Please check your connection',
+        timestamp: new Date().toISOString()
+      });
     }
-
-    return Promise.reject(errorResponse);
+    return Promise.reject(error.response.data);
   }
 );
 
