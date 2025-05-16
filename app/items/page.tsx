@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -12,46 +13,40 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { useStore } from "@/lib/store/store";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  MoreVertical,
+  Barcode,
   Upload,
   Download,
   Plus,
   Search,
   Filter,
+  QrCode,
 } from "lucide-react";
+import JsBarcode from 'jsbarcode';
 
 export default function ItemsPage() {
-  const {
-    products = [],
-    fetchProducts = () => {},
-    addProduct,
-    updateProduct,
-    deleteProduct,
-  } = useStore();
+  const router = useRouter();
+  const { products = [], fetchProducts, addProduct, updateProduct, deleteProduct } = useStore();
   const [searchTerm, setSearchTerm] = useState("");
-  const [editItem, setEditItem] = useState(null);
-  const [newItem, setNewItem] = useState(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+  const generateBarcode = (sku) => {
+    const canvas = document.createElement('canvas');
+    JsBarcode(canvas, sku, {
+      format: "CODE128",
+      width: 2,
+      height: 100,
+    });
+    const url = canvas.toDataURL("image/png");
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `barcode-${sku}.png`;
+    link.click();
+  };
 
   const handleImport = async (file) => {
     const formData = new FormData();
@@ -64,55 +59,26 @@ export default function ItemsPage() {
     await useStore.getState().exportData("products", format);
   };
 
-  if (!products) {
-    return <div>Loading...</div>; // Or some other loading state
-  }
-
-  const filteredItems = products.filter(
+  const filteredItems = products?.filter(
     (item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.sku.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+      item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.sku?.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
 
   return (
     <div className="flex flex-col gap-4 p-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Items</h1>
         <div className="flex gap-2">
-          <input
-            type="file"
-            id="import-file"
-            className="hidden"
-            onChange={(e) => handleImport(e.target.files[0])}
-          />
-          <Button
-            onClick={() => document.getElementById("import-file").click()}
-          >
+          <Button variant="outline" onClick={() => router.push('/items/import')}>
             <Upload className="w-4 h-4 mr-2" />
             Import
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleExport("csv")}>
-                CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport("json")}>
-                JSON
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button
-            onClick={() => {
-              setNewItem({});
-              setIsDialogOpen(true);
-            }}
-          >
+          <Button variant="outline" onClick={() => handleExport('csv')}>
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+          <Button onClick={() => router.push('/items/create')}>
             <Plus className="w-4 h-4 mr-2" />
             Add Item
           </Button>
@@ -142,6 +108,7 @@ export default function ItemsPage() {
                 <TableHead>SKU</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Stock</TableHead>
+                <TableHead>Barcode</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -153,24 +120,20 @@ export default function ItemsPage() {
                   <TableCell>${item.price}</TableCell>
                   <TableCell>{item.inventory?.quantity || 0}</TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => setEditItem(item)}>
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => deleteProduct(item.id)}
-                          className="text-red-600"
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button variant="outline" size="sm" onClick={() => generateBarcode(item.sku)}>
+                      <Barcode className="h-4 w-4 mr-2" />
+                      Generate
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => router.push(`/items/${item.id}`)}>
+                        View
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => router.push(`/items/${item.id}/edit`)}>
+                        Edit
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -178,93 +141,6 @@ export default function ItemsPage() {
           </Table>
         </CardContent>
       </Card>
-
-      <Dialog
-        open={isDialogOpen || !!editItem}
-        onOpenChange={() => {
-          setIsDialogOpen(false);
-          setEditItem(null);
-          setNewItem(null);
-        }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editItem ? "Edit Item" : "Add New Item"}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label>Name</Label>
-              <Input
-                value={(editItem?.name || newItem?.name) ?? ""}
-                onChange={(e) => {
-                  if (editItem) {
-                    setEditItem({ ...editItem, name: e.target.value });
-                  } else {
-                    setNewItem({ ...newItem, name: e.target.value });
-                  }
-                }}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>SKU</Label>
-              <Input
-                value={(editItem?.sku || newItem?.sku) ?? ""}
-                onChange={(e) => {
-                  if (editItem) {
-                    setEditItem({ ...editItem, sku: e.target.value });
-                  } else {
-                    setNewItem({ ...newItem, sku: e.target.value });
-                  }
-                }}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>Price</Label>
-              <Input
-                type="number"
-                value={(editItem?.price || newItem?.price) ?? ""}
-                onChange={(e) => {
-                  if (editItem) {
-                    setEditItem({ ...editItem, price: e.target.value });
-                  } else {
-                    setNewItem({ ...newItem, price: e.target.value });
-                  }
-                }}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsDialogOpen(false);
-                setEditItem(null);
-                setNewItem(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (editItem?.id) {
-                  updateProduct(editItem.id, editItem);
-                } else {
-                  addProduct({
-                    name: newItem.name,
-                    sku: newItem.sku,
-                    price: parseFloat(newItem.price),
-                  });
-                }
-                setIsDialogOpen(false);
-                setEditItem(null);
-                setNewItem(null);
-              }}
-            >
-              {editItem ? "Update" : "Add"} Item
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
