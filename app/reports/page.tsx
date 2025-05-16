@@ -19,6 +19,14 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   DollarSign,
   Users,
   TrendingUp,
@@ -34,6 +42,9 @@ import {
   UserCheck,
   Target,
   Clock,
+  Award,
+  Briefcase,
+  Star,
 } from "lucide-react";
 import { Line, Bar, Radar, Pie } from "react-chartjs-2";
 import {
@@ -68,387 +79,208 @@ ChartJS.register(
 
 export default function ReportsPage() {
   const [dateRange, setDateRange] = useState({ from: null, to: null });
-  const [reportType, setReportType] = useState("financial");
-  const [reportView, setReportView] = useState("dashboard");
-  const [filterRegion, setFilterRegion] = useState("all");
-  const [filterDepartment, setFilterDepartment] = useState("all");
-  const [comparisonPeriod, setComparisonPeriod] = useState("previous_year");
-  const [reportData, setReportData] = useState(null);
+  const [reportType, setReportType] = useState("employees");
+  const [selectedEmployees, setSelectedEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { reports, exportReport } = useStore();
 
-  const [metrics, setMetrics] = useState({
-    financial: {
-      revenue: { current: 15250000, previous: 12800000, trend: "+19.1%" },
-      profit: { current: 4350000, previous: 3680000, trend: "+18.2%" },
-      expenses: { current: 8900000, previous: 7600000, trend: "+17.1%" },
-      margins: { current: "28.5%", previous: "28.8%", trend: "-0.3%" }
-    },
-    employees: {
-      totalEmployees: { current: 156, previous: 142, trend: "+9.8%" },
-      averagePerformance: { current: "92.3%", previous: "89.1%", trend: "+3.2%" },
-      topPerformers: { current: 23, previous: 18, trend: "+27.7%" },
-      productivity: { current: 856, previous: 798, trend: "+7.3%" }
-    },
-    stores: {
-      physicalStores: {
-        revenue: { current: 8900000, previous: 7600000, trend: "+17.1%" },
-        footfall: { current: 45600, previous: 42300, trend: "+7.8%" },
-        conversion: { current: "23.5%", previous: "21.2%", trend: "+2.3%" }
-      },
-      onlineStore: {
-        revenue: { current: 6350000, previous: 5200000, trend: "+22.1%" },
-        visitors: { current: 156000, previous: 134000, trend: "+16.4%" },
-        conversion: { current: "3.2%", previous: "2.8%", trend: "+0.4%" }
-      }
-    }
-  });
+  // Simulated employee data
+  const employees = [
+    { id: 1, name: "John Doe", department: "Sales" },
+    { id: 2, name: "Jane Smith", department: "Marketing" },
+    { id: 3, name: "Mike Johnson", department: "IT" },
+    { id: 4, name: "Sarah Wilson", department: "HR" },
+    { id: 5, name: "Tom Brown", department: "Finance" },
+  ];
 
-  const generateAdvancedReportData = () => {
-    // Simulated data generation for different report types
-    const data = {
-      financial: {
-        revenue: {
-          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-          current: [1.2, 1.3, 1.4, 1.3, 1.5, 1.6, 1.4, 1.3, 1.5, 1.6, 1.7, 1.8].map(x => x * 1000000),
-          previous: [1.1, 1.2, 1.3, 1.2, 1.4, 1.5, 1.3, 1.2, 1.4, 1.5, 1.6, 1.7].map(x => x * 1000000)
-        },
-        profitMargins: {
-          labels: ["Q1", "Q2", "Q3", "Q4"],
-          data: [28.5, 29.1, 27.8, 28.9]
-        },
-        expenses: {
-          labels: ["Operations", "Marketing", "R&D", "Admin", "Sales", "IT"],
-          data: [35, 20, 15, 10, 12, 8]
-        }
-      },
-      operational: {
-        productivity: {
-          labels: Array.from({length: 12}, (_, i) => `Week ${i+1}`),
-          data: Array.from({length: 12}, () => 75 + Math.random() * 20)
-        },
-        departmental: {
-          labels: ["Sales", "Operations", "IT", "HR", "Finance", "R&D"],
-          efficiency: [92, 88, 95, 85, 90, 87],
-          utilization: [88, 85, 92, 80, 87, 84]
-        }
-      },
-      market: {
-        regions: {
-          labels: ["North", "South", "East", "West", "Central"],
-          market_share: [25, 22, 20, 18, 15],
-          growth: [8, 5, 6, 4, 7]
-        },
-        competitors: {
-          labels: ["Our Company", "Competitor A", "Competitor B", "Competitor C", "Others"],
-          data: [23.5, 20.1, 18.4, 15.8, 22.2]
-        }
-      }
-    };
-    return data[reportType];
-  };
-
-  const fetchAdvancedReportData = async () => {
-    setIsLoading(true);
-    try {
-      // Simulate API call with advanced data
-      const response = await new Promise(resolve => 
-        setTimeout(() => resolve(generateAdvancedReportData()), 1000)
-      );
-      setReportData(response);
-    } catch (error) {
-      console.error("Error fetching advanced report data:", error);
-    } finally {
-      setIsLoading(false);
+  const employeeMetrics = {
+    performance: {
+      labels: ["Q1", "Q2", "Q3", "Q4"],
+      datasets: [
+        { label: "John Doe", data: [85, 88, 92, 90] },
+        { label: "Jane Smith", data: [82, 85, 88, 91] },
+        { label: "Mike Johnson", data: [90, 92, 89, 94] },
+        { label: "Sarah Wilson", data: [87, 86, 90, 89] },
+        { label: "Tom Brown", data: [84, 87, 91, 88] },
+      ]
+    },
+    skills: {
+      labels: ["Technical", "Communication", "Leadership", "Teamwork", "Innovation"],
+      datasets: [
+        { label: "John Doe", data: [4.5, 4.2, 3.8, 4.0, 3.9] },
+        { label: "Jane Smith", data: [4.2, 4.5, 4.3, 4.4, 4.1] },
+        { label: "Mike Johnson", data: [4.8, 4.0, 3.9, 4.2, 4.5] },
+        { label: "Sarah Wilson", data: [4.1, 4.6, 4.4, 4.5, 4.0] },
+        { label: "Tom Brown", data: [4.3, 4.1, 4.2, 4.0, 4.3] },
+      ]
+    },
+    productivity: {
+      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+      datasets: [
+        { label: "John Doe", data: [92, 88, 90, 92, 94, 91] },
+        { label: "Jane Smith", data: [88, 90, 89, 91, 90, 92] },
+        { label: "Mike Johnson", data: [94, 93, 95, 92, 94, 96] },
+        { label: "Sarah Wilson", data: [90, 89, 91, 90, 92, 91] },
+        { label: "Tom Brown", data: [89, 91, 90, 88, 91, 90] },
+      ]
     }
   };
 
-  useEffect(() => {
-    fetchAdvancedReportData();
-  }, [reportType, dateRange, filterRegion, filterDepartment, comparisonPeriod]);
-
-  const renderMetricCard = (title, data, icon) => (
-    <Card>
-      <CardContent className="p-6">
-        <div className="flex justify-between items-start">
-          <div>
-            <p className="text-sm font-medium text-gray-500">{title}</p>
-            <h3 className="text-2xl font-bold mt-2">
-              {typeof data.current === 'number' && data.current > 1000 
-                ? `₹${(data.current/1000000).toFixed(2)}M` 
-                : data.current}
-            </h3>
-            <div className={`flex items-center mt-1 ${
-              data.trend.startsWith('+') ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {data.trend.startsWith('+') ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
-              <span className="text-sm">{data.trend}</span>
-            </div>
-          </div>
-          <div className="p-2 bg-gray-100 rounded-full">
-            {icon}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  const renderFinancialDashboard = () => (
+  const renderEmployeeComparison = () => (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {renderMetricCard("Revenue", metrics.financial.revenue, <DollarSign className="h-6 w-6 text-blue-600" />)}
-        {renderMetricCard("Profit", metrics.financial.profit, <TrendingUp className="h-6 w-6 text-green-600" />)}
-        {renderMetricCard("Expenses", metrics.financial.expenses, <BarChart className="h-6 w-6 text-red-600" />)}
-        {renderMetricCard("Profit Margins", metrics.financial.margins, <PieChart className="h-6 w-6 text-purple-600" />)}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenue Trends</CardTitle>
-            <CardDescription>Monthly revenue comparison</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {reportData?.revenue && (
-              <Line
-                data={{
-                  labels: reportData.revenue.labels,
-                  datasets: [
-                    {
-                      label: 'Current Period',
-                      data: reportData.revenue.current,
-                      borderColor: 'rgb(59, 130, 246)',
-                      backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                      fill: true
-                    },
-                    {
-                      label: 'Previous Period',
-                      data: reportData.revenue.previous,
-                      borderColor: 'rgb(107, 114, 128)',
-                      backgroundColor: 'rgba(107, 114, 128, 0.1)',
-                      fill: true
-                    }
-                  ]
+      <Card>
+        <CardHeader>
+          <CardTitle>Employee Selection</CardTitle>
+          <CardDescription>Select up to 5 employees to compare</CardDescription>
+          <div className="flex flex-wrap gap-2 mt-4">
+            {employees.map((emp) => (
+              <Button
+                key={emp.id}
+                variant={selectedEmployees.includes(emp.id) ? "default" : "outline"}
+                onClick={() => {
+                  if (selectedEmployees.includes(emp.id)) {
+                    setSelectedEmployees(selectedEmployees.filter(id => id !== emp.id));
+                  } else if (selectedEmployees.length < 5) {
+                    setSelectedEmployees([...selectedEmployees, emp.id]);
+                  }
                 }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: { position: 'top' },
-                    title: { display: false }
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      ticks: {
-                        callback: value => `$${(value/1000000).toFixed(1)}M`
+              >
+                {emp.name}
+              </Button>
+            ))}
+          </div>
+        </CardHeader>
+      </Card>
+
+      {selectedEmployees.length > 0 && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Performance Metrics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Line
+                  data={{
+                    labels: employeeMetrics.performance.labels,
+                    datasets: employeeMetrics.performance.datasets
+                      .filter(ds => selectedEmployees.includes(employees.find(e => e.name === ds.label)?.id))
+                  }}
+                  options={{
+                    responsive: true,
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        max: 100
                       }
                     }
-                  }
-                }}
-              />
-            )}
-          </CardContent>
-        </Card>
+                  }}
+                />
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Expense Distribution</CardTitle>
-            <CardDescription>Breakdown by category</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {reportData?.expenses && (
-              <Pie
-                data={{
-                  labels: reportData.expenses.labels,
-                  datasets: [{
-                    data: reportData.expenses.data,
-                    backgroundColor: [
-                      'rgba(59, 130, 246, 0.8)',
-                      'rgba(16, 185, 129, 0.8)',
-                      'rgba(249, 115, 22, 0.8)',
-                      'rgba(139, 92, 246, 0.8)',
-                      'rgba(236, 72, 153, 0.8)',
-                      'rgba(107, 114, 128, 0.8)'
-                    ]
-                  }]
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: { position: 'right' }
-                  }
-                }}
-              />
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+            <Card>
+              <CardHeader>
+                <CardTitle>Skill Assessment</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Radar
+                  data={{
+                    labels: employeeMetrics.skills.labels,
+                    datasets: employeeMetrics.skills.datasets
+                      .filter(ds => selectedEmployees.includes(employees.find(e => e.name === ds.label)?.id))
+                  }}
+                  options={{
+                    responsive: true,
+                    scales: {
+                      r: {
+                        beginAtZero: true,
+                        max: 5
+                      }
+                    }
+                  }}
+                />
+              </CardContent>
+            </Card>
 
-  const renderEmployeePerformance = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {renderMetricCard("Total Employees", metrics.employees.totalEmployees, <Users className="h-6 w-6 text-blue-600" />)}
-        {renderMetricCard("Avg Performance", metrics.employees.averagePerformance, <Target className="h-6 w-6 text-green-600" />)}
-        {renderMetricCard("Top Performers", metrics.employees.topPerformers, <UserCheck className="h-6 w-6 text-purple-600" />)}
-        {renderMetricCard("Productivity", metrics.employees.productivity, <Clock className="h-6 w-6 text-orange-600" />)}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Employee Performance Distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[400px]">
-            <Bar 
-              data={{
-                labels: ['90-100%', '80-90%', '70-80%', '60-70%', 'Below 60%'],
-                datasets: [{
-                  label: 'Employees',
-                  data: [23, 45, 56, 24, 8],
-                  backgroundColor: [
-                    'rgba(34, 197, 94, 0.8)',
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(234, 179, 8, 0.8)',
-                    'rgba(249, 115, 22, 0.8)',
-                    'rgba(239, 68, 68, 0.8)'
-                  ]
-                }]
-              }}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-              }}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Department Performance</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[400px]">
-            <Radar
-              data={{
-                labels: ['Sales', 'Marketing', 'Operations', 'IT', 'Finance', 'HR'],
-                datasets: [{
-                  label: 'Performance',
-                  data: [95, 88, 92, 87, 90, 85],
-                  backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                  borderColor: 'rgb(59, 130, 246)',
-                }]
-              }}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                  r: {
-                    beginAtZero: true,
-                    max: 100
-                  }
-                }
-              }}
-            />
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-
-  const renderStoreAnalysis = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Physical Stores</h3>
-          <div className="grid grid-cols-1 gap-4">
-            {renderMetricCard("Store Revenue", metrics.stores.physicalStores.revenue, <DollarSign className="h-6 w-6 text-blue-600" />)}
-            {renderMetricCard("Footfall", metrics.stores.physicalStores.footfall, <Users className="h-6 w-6 text-green-600" />)}
-            {renderMetricCard("Conversion Rate", metrics.stores.physicalStores.conversion, <Target className="h-6 w-6 text-purple-600" />)}
+            <Card>
+              <CardHeader>
+                <CardTitle>Productivity Trends</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Bar
+                  data={{
+                    labels: employeeMetrics.productivity.labels,
+                    datasets: employeeMetrics.productivity.datasets
+                      .filter(ds => selectedEmployees.includes(employees.find(e => e.name === ds.label)?.id))
+                  }}
+                  options={{
+                    responsive: true,
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        max: 100
+                      }
+                    }
+                  }}
+                />
+              </CardContent>
+            </Card>
           </div>
-        </div>
 
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Online Store</h3>
-          <div className="grid grid-cols-1 gap-4">
-            {renderMetricCard("Online Revenue", metrics.stores.onlineStore.revenue, <ShoppingCart className="h-6 w-6 text-blue-600" />)}
-            {renderMetricCard("Visitors", metrics.stores.onlineStore.visitors, <Users className="h-6 w-6 text-green-600" />)}
-            {renderMetricCard("Conversion Rate", metrics.stores.onlineStore.conversion, <Target className="h-6 w-6 text-purple-600" />)}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenue Distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[400px]">
-            <Pie
-              data={{
-                labels: ['Physical Stores', 'Online Store'],
-                datasets: [{
-                  data: [8900000, 6350000],
-                  backgroundColor: [
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(34, 197, 94, 0.8)'
-                  ]
-                }]
-              }}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-              }}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Store Performance Trends</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[400px]">
-            <Line
-              data={{
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [
-                  {
-                    label: 'Physical Stores',
-                    data: [1.2, 1.3, 1.4, 1.5, 1.6, 1.7].map(x => x * 1000000),
-                    borderColor: 'rgb(59, 130, 246)',
-                  },
-                  {
-                    label: 'Online Store',
-                    data: [0.8, 0.9, 1.1, 1.2, 1.3, 1.4].map(x => x * 1000000),
-                    borderColor: 'rgb(34, 197, 94)',
-                  }
-                ]
-              }}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-              }}
-            />
-          </CardContent>
-        </Card>
-      </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Detailed Comparison</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Metric</TableHead>
+                    {selectedEmployees.map(id => (
+                      <TableHead key={id}>{employees.find(e => e.id === id)?.name}</TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">Average Performance</TableCell>
+                    {selectedEmployees.map(id => (
+                      <TableCell key={id}>
+                        {(employeeMetrics.performance.datasets
+                          .find(ds => ds.label === employees.find(e => e.id === id)?.name)?.data
+                          .reduce((a, b) => a + b, 0) / 4).toFixed(1)}%
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Skills Score</TableCell>
+                    {selectedEmployees.map(id => (
+                      <TableCell key={id}>
+                        {(employeeMetrics.skills.datasets
+                          .find(ds => ds.label === employees.find(e => e.id === id)?.name)?.data
+                          .reduce((a, b) => a + b, 0) / 5).toFixed(2)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Productivity Index</TableCell>
+                    {selectedEmployees.map(id => (
+                      <TableCell key={id}>
+                        {(employeeMetrics.productivity.datasets
+                          .find(ds => ds.label === employees.find(e => e.id === id)?.name)?.data
+                          .reduce((a, b) => a + b, 0) / 6).toFixed(1)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
-
-  const handleExport = async (format: 'excel' | 'pdf') => {
-    try {
-      setIsLoading(true);
-      if (format === 'excel') {
-        await exportReport('xlsx');
-      } else {
-        await exportReport('pdf');
-      }
-    } catch (error) {
-      console.error('Export failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -460,11 +292,11 @@ export default function ReportsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => handleExport('excel')} disabled={isLoading}>
+          <Button variant="outline" onClick={() => exportReport('excel')} disabled={isLoading}>
             <FileSpreadsheet className="w-4 h-4 mr-2" />
             Export Excel
           </Button>
-          <Button variant="outline" onClick={() => handleExport('pdf')} disabled={isLoading}>
+          <Button variant="outline" onClick={() => exportReport('pdf')} disabled={isLoading}>
             <FileText className="w-4 h-4 mr-2" />
             Export PDF
           </Button>
@@ -476,7 +308,7 @@ export default function ReportsPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-between">
             <DatePickerWithRange value={dateRange} onChange={setDateRange}/>
             <div className="flex gap-2">
-              <Select value={filterRegion} onValueChange={setFilterRegion}>
+              <Select value={undefined} onValueChange={undefined}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All Regions" />
                 </SelectTrigger>
@@ -488,7 +320,7 @@ export default function ReportsPage() {
                   <SelectItem value="west">West</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" onClick={fetchAdvancedReportData} disabled={isLoading}>
+              <Button variant="outline" onClick={() => setIsLoading(prev => !prev)} disabled={isLoading}>
                 <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
@@ -499,21 +331,395 @@ export default function ReportsPage() {
 
       <Tabs value={reportType} onValueChange={setReportType}>
         <TabsList>
-          <TabsTrigger value="financial">Financial</TabsTrigger>
-          <TabsTrigger value="employees">Employees</TabsTrigger>
-          <TabsTrigger value="stores">Stores</TabsTrigger>
+          <TabsTrigger value="employees">
+            <Users className="w-4 h-4 mr-2" />
+            Employee Analysis
+          </TabsTrigger>
+          <TabsTrigger value="financial">
+            <DollarSign className="w-4 h-4 mr-2" />
+            Financial
+          </TabsTrigger>
+          <TabsTrigger value="stores">
+            <Building2 className="w-4 h-4 mr-2" />
+            Stores
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="financial">
-          {renderFinancialDashboard()}
+        <TabsContent value="employees" className="space-y-6">
+          {renderEmployeeComparison()}
         </TabsContent>
 
-        <TabsContent value="employees">
-          {renderEmployeePerformance()}
+        <TabsContent value="financial">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Revenue</p>
+                      <h3 className="text-2xl font-bold mt-2">
+                        {typeof 15250000 === 'number' && 15250000 > 1000
+                          ? `₹${(15250000 / 1000000).toFixed(2)}M`
+                          : 15250000}
+                      </h3>
+                      <div className={`flex items-center mt-1 ${'+19.1%'.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                        {'+19.1%'.startsWith('+') ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                        <span className="text-sm">{'+19.1%'}</span>
+                      </div>
+                    </div>
+                    <div className="p-2 bg-gray-100 rounded-full">
+                      <DollarSign className="h-6 w-6 text-blue-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Profit</p>
+                      <h3 className="text-2xl font-bold mt-2">
+                        {typeof 4350000 === 'number' && 4350000 > 1000
+                          ? `₹${(4350000 / 1000000).toFixed(2)}M`
+                          : 4350000}
+                      </h3>
+                      <div className={`flex items-center mt-1 ${'+18.2%'.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                        {'+18.2%'.startsWith('+') ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                        <span className="text-sm">{'+18.2%'}</span>
+                      </div>
+                    </div>
+                    <div className="p-2 bg-gray-100 rounded-full">
+                      <TrendingUp className="h-6 w-6 text-green-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Expenses</p>
+                      <h3 className="text-2xl font-bold mt-2">
+                        {typeof 8900000 === 'number' && 8900000 > 1000
+                          ? `₹${(8900000 / 1000000).toFixed(2)}M`
+                          : 8900000}
+                      </h3>
+                      <div className={`flex items-center mt-1 ${'+17.1%'.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                        {'+17.1%'.startsWith('+') ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                        <span className="text-sm">{'+17.1%'}</span>
+                      </div>
+                    </div>
+                    <div className="p-2 bg-gray-100 rounded-full">
+                      <BarChart className="h-6 w-6 text-red-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Profit Margins</p>
+                      <h3 className="text-2xl font-bold mt-2">
+                        {'28.5%'}
+                      </h3>
+                      <div className={`flex items-center mt-1 ${'-0.3%'.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                        {'-0.3%'.startsWith('+') ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                        <span className="text-sm">{'-0.3%'}</span>
+                      </div>
+                    </div>
+                    <div className="p-2 bg-gray-100 rounded-full">
+                      <PieChart className="h-6 w-6 text-purple-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Revenue Trends</CardTitle>
+                  <CardDescription>Monthly revenue comparison</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {undefined && (
+                    <Line
+                      data={{
+                        labels: [],
+                        datasets: [
+                          {
+                            label: 'Current Period',
+                            data: [],
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true
+                          },
+                          {
+                            label: 'Previous Period',
+                            data: [],
+                            borderColor: 'rgb(107, 114, 128)',
+                            backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                            fill: true
+                          }
+                        ]
+                      }}
+                      options={{
+                        responsive: true,
+                        plugins: {
+                          legend: { position: 'top' },
+                          title: { display: false }
+                        },
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            ticks: {
+                              callback: value => `$${(value / 1000000).toFixed(1)}M`
+                            }
+                          }
+                        }
+                      }}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Expense Distribution</CardTitle>
+                  <CardDescription>Breakdown by category</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {undefined && (
+                    <Pie
+                      data={{
+                        labels: [],
+                        datasets: [{
+                          data: [],
+                          backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(249, 115, 22, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(236, 72, 153, 0.8)',
+                            'rgba(107, 114, 128, 0.8)'
+                          ]
+                        }]
+                      }}
+                      options={{
+                        responsive: true,
+                        plugins: {
+                          legend: { position: 'right' }
+                        }
+                      }}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="stores">
-          {renderStoreAnalysis()}
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Physical Stores</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Store Revenue</p>
+                          <h3 className="text-2xl font-bold mt-2">
+                            {typeof 8900000 === 'number' && 8900000 > 1000
+                              ? `₹${(8900000 / 1000000).toFixed(2)}M`
+                              : 8900000}
+                          </h3>
+                          <div className={`flex items-center mt-1 ${'+17.1%'.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                            {'+17.1%'.startsWith('+') ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                            <span className="text-sm">{'+17.1%'}</span>
+                          </div>
+                        </div>
+                        <div className="p-2 bg-gray-100 rounded-full">
+                          <DollarSign className="h-6 w-6 text-blue-600" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Footfall</p>
+                          <h3 className="text-2xl font-bold mt-2">
+                            {typeof 45600 === 'number' && 45600 > 1000
+                              ? `₹${(45600 / 1000000).toFixed(2)}M`
+                              : 45600}
+                          </h3>
+                          <div className={`flex items-center mt-1 ${'+7.8%'.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                            {'+7.8%'.startsWith('+') ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                            <span className="text-sm">{'+7.8%'}</span>
+                          </div>
+                        </div>
+                        <div className="p-2 bg-gray-100 rounded-full">
+                          <Users className="h-6 w-6 text-green-600" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Conversion Rate</p>
+                          <h3 className="text-2xl font-bold mt-2">
+                            {'23.5%'}
+                          </h3>
+                          <div className={`flex items-center mt-1 ${'+2.3%'.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                            {'+2.3%'.startsWith('+') ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                            <span className="text-sm">{'+2.3%'}</span>
+                          </div>
+                        </div>
+                        <div className="p-2 bg-gray-100 rounded-full">
+                          <Target className="h-6 w-6 text-purple-600" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Online Store</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Online Revenue</p>
+                          <h3 className="text-2xl font-bold mt-2">
+                            {typeof 6350000 === 'number' && 6350000 > 1000
+                              ? `₹${(6350000 / 1000000).toFixed(2)}M`
+                              : 6350000}
+                          </h3>
+                          <div className={`flex items-center mt-1 ${'+22.1%'.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                            {'+22.1%'.startsWith('+') ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                            <span className="text-sm">{'+22.1%'}</span>
+                          </div>
+                        </div>
+                        <div className="p-2 bg-gray-100 rounded-full">
+                          <ShoppingCart className="h-6 w-6 text-blue-600" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Visitors</p>
+                          <h3 className="text-2xl font-bold mt-2">
+                            {typeof 156000 === 'number' && 156000 > 1000
+                              ? `₹${(156000 / 1000000).toFixed(2)}M`
+                              : 156000}
+                          </h3>
+                          <div className={`flex items-center mt-1 ${'+16.4%'.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                            {'+16.4%'.startsWith('+') ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                            <span className="text-sm">{'+16.4%'}</span>
+                          </div>
+                        </div>
+                        <div className="p-2 bg-gray-100 rounded-full">
+                          <Users className="h-6 w-6 text-green-600" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Conversion Rate</p>
+                          <h3 className="text-2xl font-bold mt-2">
+                            {'3.2%'}
+                          </h3>
+                          <div className={`flex items-center mt-1 ${'+0.4%'.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                            {'+0.4%'.startsWith('+') ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                            <span className="text-sm">{'+0.4%'}</span>
+                          </div>
+                        </div>
+                        <div className="p-2 bg-gray-100 rounded-full">
+                          <Target className="h-6 w-6 text-purple-600" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Revenue Distribution</CardTitle>
+                </CardHeader>
+                <CardContent className="h-[400px]">
+                  <Pie
+                    data={{
+                      labels: ['Physical Stores', 'Online Store'],
+                      datasets: [{
+                        data: [8900000, 6350000],
+                        backgroundColor: [
+                          'rgba(59, 130, 246, 0.8)',
+                          'rgba(34, 197, 94, 0.8)'
+                        ]
+                      }]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                    }}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Store Performance Trends</CardTitle>
+                </CardHeader>
+                <CardContent className="h-[400px]">
+                  <Line
+                    data={{
+                      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                      datasets: [
+                        {
+                          label: 'Physical Stores',
+                          data: [1.2, 1.3, 1.4, 1.5, 1.6, 1.7].map(x => x * 1000000),
+                          borderColor: 'rgb(59, 130, 246)',
+                        },
+                        {
+                          label: 'Online Store',
+                          data: [0.8, 0.9, 1.1, 1.2, 1.3, 1.4].map(x => x * 1000000),
+                          borderColor: 'rgb(34, 197, 94)',
+                        }
+                      ]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
