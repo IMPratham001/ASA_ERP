@@ -1,6 +1,21 @@
 
 import { create } from 'zustand';
 import * as api from '@/lib/api/laravel';
+import testConnection from '@/lib/db/test-connection';
+
+interface State {
+  loading: boolean;
+  error: string | null;
+  customers: any[];
+  // ... other state properties
+}
+
+interface Actions {
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  clearError: () => void;
+  // ... other actions
+}
 
 interface StoreState {
   inventory: any[];

@@ -11,6 +11,19 @@ const api = axios.create({
   timeout: 10000
 });
 
+// Add error handling
+api.interceptors.response.use(
+  response => response.data,
+  error => {
+    console.error('API Error:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    throw error;
+  }
+);
+
 // Add response interceptor for error handling
 api.interceptors.response.use(
   response => response.data,
