@@ -1,4 +1,6 @@
 
+"use client";
+
 import React from "react";
 import { Sidebar } from "@/components/layout/main-nav";
 
@@ -8,8 +10,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex-1">{children}</div>
+    <div className="min-h-screen flex">
+      <Sidebar />
+      <main className="flex-1 ml-[280px] p-8 bg-background">
+        {children}
+      </main>
     </div>
   );
 }
