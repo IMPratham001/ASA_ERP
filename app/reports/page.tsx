@@ -7,7 +7,15 @@ import { Button } from "@/components/ui/button";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, FileSpreadsheet, FileText } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { 
+  Download, 
+  FileSpreadsheet, 
+  FileText,
+  Filter,
+  Calendar,
+  RefreshCw 
+} from "lucide-react";
 import { Bar, Line, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -40,19 +48,42 @@ export default function ReportsPage() {
   const [reportView, setReportView] = useState("chart");
   const [filterStore, setFilterStore] = useState("all");
   const [reportData, setReportData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [summaryStats, setSummaryStats] = useState({
+    totalSales: 0,
+    averageOrder: 0,
+    totalOrders: 0,
+    topProducts: []
+  });
+
+  const fetchReportData = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call with actual data structure
+      const response = await generateReportData(reportType, dateRange, filterStore);
+      setReportData(response);
+      setSummaryStats({
+        totalSales: 125000,
+        averageOrder: 250,
+        totalOrders: 500,
+        topProducts: [
+          { name: "Product A", sales: 150 },
+          { name: "Product B", sales: 120 },
+          { name: "Product C", sales: 90 }
+        ]
+      });
+    } catch (error) {
+      console.error("Error fetching report data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Simulated data fetch based on filters
-    const fetchReportData = () => {
-      // This would be replaced with actual API calls
-      const data = generateReportData(reportType, dateRange, filterStore);
-      setReportData(data);
-    };
     fetchReportData();
   }, [reportType, dateRange, filterStore]);
 
   const generateReportData = (type, range, store) => {
-    // Simulated data generation
     const baseData = {
       sales: {
         labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
@@ -106,8 +137,8 @@ export default function ReportsPage() {
   };
 
   const exportReport = async (format) => {
+    setIsLoading(true);
     try {
-      // This would be replaced with actual export logic
       const response = await fetch('/api/reports/export', {
         method: 'POST',
         headers: {
@@ -118,6 +149,7 @@ export default function ReportsPage() {
           format,
           dateRange,
           store: filterStore,
+          data: reportData
         }),
       });
       
@@ -133,7 +165,77 @@ export default function ReportsPage() {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Export failed:', error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const renderTableView = () => {
+    if (!reportData?.datasets?.[0]?.data) return null;
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr>
+              <th className="border p-2">Label</th>
+              <th className="border p-2">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {reportData.labels.map((label, index) => (
+              <tr key={index}>
+                <td className="border p-2">{label}</td>
+                <td className="border p-2">{reportData.datasets[0].data[index]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  const renderSummaryView = () => {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-xl font-bold">Total Sales</div>
+            <div className="text-3xl font-bold text-green-600">
+              ${summaryStats.totalSales.toLocaleString()}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-xl font-bold">Average Order</div>
+            <div className="text-3xl font-bold text-blue-600">
+              ${summaryStats.averageOrder.toLocaleString()}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-xl font-bold">Total Orders</div>
+            <div className="text-3xl font-bold text-purple-600">
+              {summaryStats.totalOrders.toLocaleString()}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-xl font-bold">Top Products</div>
+            <div className="mt-2">
+              {summaryStats.topProducts.map((product, index) => (
+                <div key={index} className="flex justify-between text-sm">
+                  <span>{product.name}</span>
+                  <span>{product.sales} units</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   };
 
   return (
@@ -141,11 +243,18 @@ export default function ReportsPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Reports & Analytics</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => exportReport('xlsx')}>
+          <Button 
+            variant="outline" 
+            onClick={() => exportReport('xlsx')}
+            disabled={isLoading}
+          >
             <FileSpreadsheet className="w-4 h-4 mr-2" />
             Export Excel
           </Button>
-          <Button onClick={() => exportReport('pdf')}>
+          <Button 
+            onClick={() => exportReport('pdf')}
+            disabled={isLoading}
+          >
             <FileText className="w-4 h-4 mr-2" />
             Export PDF
           </Button>
@@ -181,6 +290,14 @@ export default function ReportsPage() {
                 <SelectItem value="branch2">Branch 2</SelectItem>
               </SelectContent>
             </Select>
+            <Button 
+              variant="outline" 
+              onClick={fetchReportData}
+              disabled={isLoading}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -191,28 +308,45 @@ export default function ReportsPage() {
           <TabsTrigger value="table">Table View</TabsTrigger>
           <TabsTrigger value="summary">Summary</TabsTrigger>
         </TabsList>
-      </Tabs>
 
-      {reportData && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <TabsContent value="chart">
+          {reportData && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    {reportType.charAt(0).toUpperCase() + reportType.slice(1)} Overview
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {reportType === 'sales' ? (
+                    <Line data={reportData} />
+                  ) : reportType === 'inventory' ? (
+                    <Pie data={reportData} />
+                  ) : (
+                    <Bar data={reportData} />
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="table">
           <Card>
             <CardHeader>
-              <CardTitle>
-                {reportType.charAt(0).toUpperCase() + reportType.slice(1)} Overview
-              </CardTitle>
+              <CardTitle>Detailed Data</CardTitle>
             </CardHeader>
             <CardContent>
-              {reportType === 'sales' ? (
-                <Line data={reportData} />
-              ) : reportType === 'inventory' ? (
-                <Pie data={reportData} />
-              ) : (
-                <Bar data={reportData} />
-              )}
+              {renderTableView()}
             </CardContent>
           </Card>
-        </div>
-      )}
+        </TabsContent>
+
+        <TabsContent value="summary">
+          {renderSummaryView()}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
