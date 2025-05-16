@@ -1,3 +1,4 @@
+
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -18,17 +19,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-background`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.className} bg-background antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <div className="min-h-screen flex">
+          <div className="relative min-h-screen flex">
             <Sidebar />
-            <main className="flex-1 p-8">{children}</main>
+            <main className="flex-1 h-screen overflow-y-auto p-8 pt-4">
+              {children}
+            </main>
           </div>
           <Toaster />
         </ThemeProvider>

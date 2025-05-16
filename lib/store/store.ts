@@ -1,231 +1,181 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { createJSONStorage } from 'zustand/middleware';
+import * as api from '@/lib/api/laravel';
 
-export type Role = 'super_admin' | 'admin' | 'manager' | 'accountant' | 'inventory' | 'sales';
+interface StoreState {
+  // State types
+  inventory: any[];
+  products: any[];
+  customers: any[];
+  invoices: any[];
+  transactions: any[];
+  activityLogs: any[];
+  error: string | null;
+  loading: boolean;
+  user: any | null;
 
-export type Permission = 'view' | 'create' | 'edit' | 'delete';
-
-export type ModuleAccess = {
-  module: string;
-  permissions: Permission[];
-};
-
-export type User = {
-  id: string;
-  email: string;
-  name: string;
-  role: Role;
-  storeId: string | null; // null for super_admin
-  moduleAccess: ModuleAccess[];
-  lastLogin: string;
-};
-
-export type Store = {
-  id: string;
-  name: string;
-  address: string;
-  phone: string;
-  region: string;
-  isMainBranch: boolean;
-  status: 'active' | 'inactive';
-  createdAt: string;
-  currency: string;
-};
-
-export type Product = {
-  id: string;
-  name: string;
-  description: string;
-  sku: string;
-  price: number;
-  cost: number;
-  category: string;
-  brand: string;
-  supplier: string;
-  reorderPoint: number;
-  tax: number;
-  images: string[];
-};
-
-export type InventoryItem = {
-  id: string;
-  storeId: string;
-  productId: string;
-  quantity: number;
-  minQuantity: number;
-  location: string;
-  lastUpdated: string;
-  batchNumber: string;
-  expiryDate: string | null;
-};
-
-export type Order = {
-  id: string;
-  storeId: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
-  totalAmount: number;
-  tax: number;
-  discount: number;
-  items: OrderItem[];
-  paymentMethod: string;
-  paymentStatus: 'pending' | 'paid' | 'failed';
-  notes: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type OrderItem = {
-  id: string;
-  orderId: string;
-  productId: string;
-  quantity: number;
-  unitPrice: number;
-  discount: number;
-};
-
-export type Transaction = {
-  id: string;
-  storeId: string;
-  type: 'income' | 'expense';
-  amount: number;
-  description: string;
-  category: string;
-  reference: string;
-  paymentMethod: string;
-  status: 'pending' | 'completed' | 'failed';
-  createdAt: string;
-  createdBy: string;
-};
-
-export type ActivityLog = {
-  id: string;
-  userId: string;
-  action: string;
-  module: string;
-  details: string;
-  ipAddress: string;
-  timestamp: string;
-};
-
-interface State {
-  user: User | null;
-  stores: Store[];
-  currentStore: Store | null;
-  products: Product[];
-  inventory: InventoryItem[];
-  orders: Order[];
-  transactions: Transaction[];
-  activityLogs: ActivityLog[];
-  setUser: (user: User | null) => void;
-  addStore: (store: Store) => void;
-  updateStore: (id: string, store: Partial<Store>) => void;
-  setCurrentStore: (store: Store | null) => void;
-  setStores: (stores: Store[]) => void;
-  addProduct: (product: Product) => void;
-  updateProduct: (id: string, product: Partial<Product>) => void;
-  updateInventory: (item: InventoryItem) => void;
-  addOrder: (order: Order) => void;
-  updateOrderStatus: (orderId: string, status: Order['status']) => void;
-  addTransaction: (transaction: Transaction) => void;
-  logActivity: (log: ActivityLog) => void;
-  hasPermission: (module: string, permission: Permission) => boolean;
+  // Actions
+  fetchInventory: () => Promise<void>;
+  fetchProducts: () => Promise<void>;
+  fetchCustomers: () => Promise<void>;
+  fetchInvoices: () => Promise<void>;
+  updateInventory: (item: any) => Promise<void>;
+  addInventoryItem: (item: any) => Promise<void>;
+  importData: (type: string, file: File) => Promise<void>;
+  exportData: (type: string, format: 'csv' | 'pdf') => Promise<void>;
+  logActivity: (log: any) => void;
   clearErrors: () => void;
   reset: () => void;
 }
 
-export const useStore = create<State>()(
-  persist(
-    (set, get) => ({
-      user: null,
-      stores: [],
-      currentStore: null,
-      products: [],
-      inventory: [],
-      orders: [],
-      transactions: [],
-      activityLogs: [],
-      setUser: (user) => set({ user }),
-      addStore: (store) =>
-        set((state) => ({ stores: [...state.stores, store] })),
-      updateStore: (id, store) =>
-        set((state) => ({
-          stores: state.stores.map((s) =>
-            s.id === id ? { ...s, ...store } : s
-          ),
-        })),
-      setCurrentStore: (store) => set({ currentStore: store }),
-      setStores: (stores) => set({ stores }),
-      addProduct: (product) =>
-        set((state) => ({ products: [...state.products, product] })),
-      updateProduct: (id, product) =>
-        set((state) => ({
-          products: state.products.map((p) =>
-            p.id === id ? { ...p, ...product } : p
-          ),
-        })),
-      updateInventory: (item) =>
-        set((state) => ({
-          inventory: [
-            ...state.inventory.filter((i) => i.id !== item.id),
-            item,
-          ],
-        })),
-      addOrder: (order) =>
-        set((state) => ({ orders: [...state.orders, order] })),
-      updateOrderStatus: (orderId, status) =>
-        set((state) => ({
-          orders: state.orders.map((order) =>
-            order.id === orderId ? { ...order, status } : order
-          ),
-        })),
-      addTransaction: (transaction) =>
-        set((state) => ({
-          transactions: [...state.transactions, transaction],
-        })),
-      logActivity: (log) =>
-        set((state) => ({
-          activityLogs: [
-            {
-              ...log,
-              timestamp: new Date().toISOString(),
-              id: crypto.randomUUID()
-            },
-            ...state.activityLogs
-          ].slice(0, 1000),
-        })),
-      hasPermission: (module: string, permission: string) => {
-        const user = get().user;
-        if (!user?.moduleAccess) return false;
-        
-        if (user.role === 'super_admin') return true;
-        
-        try {
-          const moduleAccess = user.moduleAccess.find(
-            (m) => m.module === module || m.module === '*'
-          );
-          return moduleAccess?.permissions?.includes(permission) || 
-                 moduleAccess?.permissions?.includes('*') || 
-                 false;
-        } catch (error) {
-          console.error("Permission check error:", error);
-          return false;
-        }
-      },
-      clearErrors: () => set({ error: null }),
-      reset: () => set((state) => ({
-        ...state,
-        transactions: [],
-        activityLogs: [],
-        error: null
-      }))
-    }),
-    {
-      name: 'erp-store',
-      storage: createJSONStorage(() => sessionStorage),
-      version: 1
+export const useStore = create<StoreState>((set, get) => ({
+  inventory: [],
+  products: [],
+  customers: [],
+  invoices: [],
+  transactions: [],
+  activityLogs: [],
+  error: null,
+  loading: false,
+  user: null,
+
+  fetchInventory: async () => {
+    try {
+      set({ loading: true });
+      const response = await api.inventoryApi.getAll();
+      set({ inventory: response.data, loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
     }
-  )
-);
+  },
+
+  fetchProducts: async () => {
+    try {
+      set({ loading: true });
+      const response = await api.productsApi.getAll();
+      set({ products: response.data, loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  fetchCustomers: async () => {
+    try {
+      set({ loading: true });
+      const response = await api.customerApi.getAll();
+      set({ customers: response.data, loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  fetchInvoices: async () => {
+    try {
+      set({ loading: true });
+      const response = await api.billingApi.getInvoices();
+      set({ invoices: response.data, loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  updateInventory: async (item) => {
+    try {
+      set({ loading: true });
+      await api.inventoryApi.update(item.id, item);
+      get().fetchInventory();
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  addInventoryItem: async (item) => {
+    try {
+      set({ loading: true });
+      await api.inventoryApi.create(item);
+      get().fetchInventory();
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  importData: async (type, file) => {
+    try {
+      set({ loading: true });
+      switch (type) {
+        case 'inventory':
+          await api.inventoryApi.import(file);
+          get().fetchInventory();
+          break;
+        case 'customers':
+          await api.customerApi.import(file);
+          get().fetchCustomers();
+          break;
+        case 'products':
+          await api.productsApi.import(file);
+          get().fetchProducts();
+          break;
+      }
+      set({ loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  exportData: async (type, format) => {
+    try {
+      set({ loading: true });
+      let response;
+      switch (type) {
+        case 'inventory':
+          response = await api.inventoryApi.export(format);
+          break;
+        case 'customers':
+          response = await api.customerApi.export(format);
+          break;
+        case 'products':
+          response = await api.productsApi.export(format);
+          break;
+      }
+
+      // Handle file download
+      if (response) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${type}-export.${format}`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+
+      set({ loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  logActivity: (log) => set((state) => ({
+    activityLogs: [
+      {
+        ...log,
+        timestamp: new Date().toISOString(),
+        id: crypto.randomUUID()
+      },
+      ...state.activityLogs
+    ].slice(0, 1000),
+  })),
+
+  clearErrors: () => set({ error: null }),
+
+  reset: () => set((state) => ({
+    ...state,
+    transactions: [],
+    activityLogs: [],
+    error: null,
+    loading: false
+  }))
+}), {
+  name: 'erp-store',
+  storage: createJSONStorage(() => sessionStorage)
+});

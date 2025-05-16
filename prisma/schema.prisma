@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,27 +9,14 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(uuid())
-  email       String    @unique
-  name        String
-  role        String
-  storeId     String?
-  lastLogin   DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-}
-
-model Store {
-  id          String    @id @default(uuid())
-  name        String
-  address     String
-  phone       String
-  region      String
-  isMainBranch Boolean  @default(false)
-  status      String    @default("active")
-  currency    String    @default("USD")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String
+  role          String    @default("user")
+  password      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  moduleAccess  Json?
 }
 
 model Product {
@@ -36,26 +24,44 @@ model Product {
   name        String
   sku         String    @unique
   description String?
-  price       Float
-  cost        Float
-  category    String
-  brand       String
-  supplier    String
-  reorderPoint Int
-  tax         Float
+  price       Decimal
+  cost        Decimal
+  inventory   Inventory?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
 
 model Inventory {
   id          String    @id @default(uuid())
-  storeId     String
-  productId   String
+  productId   String    @unique
+  product     Product   @relation(fields: [productId], references: [id])
   quantity    Int
-  minQuantity Int
+  minQuantity Int       @default(0)
   location    String
-  batchNumber String?
-  expiryDate  DateTime?
+  lastUpdated DateTime  @updatedAt
+}
+
+model Customer {
+  id          String    @id @default(uuid())
+  name        String
+  email       String    @unique
+  phone       String?
+  address     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  invoices    Invoice[]
+}
+
+model Invoice {
+  id          String    @id @default(uuid())
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  number      String    @unique
+  date        DateTime
+  dueDate     DateTime
+  status      String
+  items       Json
+  total       Decimal
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
