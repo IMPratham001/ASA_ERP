@@ -9,7 +9,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import {
   Select,
   SelectContent,
@@ -457,7 +457,7 @@ export default function ReportsPage() {
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4 justify-between">
-            <DateRangePicker value={dateRange} onChange={setDateRange}/>
+            <DatePickerWithRange value={dateRange} onChange={setDateRange}/>
             <div className="flex gap-2">
               <Select value={filterRegion} onValueChange={setFilterRegion}>
                 <SelectTrigger className="w-40">
