@@ -46,9 +46,34 @@ export const useStore = create<StoreState>((set, get) => ({
     try {
       set({ loading: true });
       await api.products.sync();
-      await get().fetchProducts();
-      await get().fetchInventory();
-      set({ loading: false });
+      const [products, inventory] = await Promise.all([
+        api.products.getAll(),
+        api.inventory.getAll()
+      ]);
+      set({ 
+        products,
+        inventory,
+        loading: false 
+      });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  fetchAllData: async () => {
+    try {
+      set({ loading: true });
+      const [products, inventory, customers] = await Promise.all([
+        api.products.getAll(),
+        api.inventory.getAll(),
+        api.customers.getAll()
+      ]);
+      set({ 
+        products,
+        inventory,
+        customers,
+        loading: false 
+      });
     } catch (error: any) {
       set({ error: error.message, loading: false });
     }

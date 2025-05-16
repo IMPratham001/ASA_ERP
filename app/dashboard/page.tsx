@@ -24,6 +24,27 @@ import {
 import { CardHeader, CardContent, Card } from "@/components/ui/card";
 import { Overview } from "@/components/dashboard/overview";
 import { RecentSales } from "@/components/dashboard/recent-sales";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 export default function DashboardPage() {
   // State for notifications
@@ -133,6 +154,33 @@ export default function DashboardPage() {
     setNotifications(
       notifications.filter((notification) => notification.id !== id),
     );
+  };
+
+  // Line Chart Data
+  const lineChartData = {
+    labels: ["January", "February", "March", "April", "May", "June", "July"],
+    datasets: [
+      {
+        label: "Monthly Revenue",
+        data: [65, 59, 80, 81, 56, 55, 40],
+        fill: false,
+        backgroundColor: "rgb(75, 192, 192)",
+        borderColor: "rgba(75, 192, 192, 0.2)",
+      },
+    ],
+  };
+
+  const lineChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Monthly Revenue",
+      },
+    },
   };
 
   return (
@@ -285,6 +333,21 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <Overview />
+            </CardContent>
+          </Card>
+
+          {/* Line Chart */}
+          <Card className="shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <div className="flex flex-col">
+                <h3 className="text-lg font-medium">Monthly Revenue</h3>
+                <p className="text-sm text-muted-foreground">
+                  Revenue trends over the last 7 months
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Line data={lineChartData} options={lineChartOptions} />
             </CardContent>
           </Card>
 
