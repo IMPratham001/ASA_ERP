@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { Sidebar } from "@/components/layout/main-nav";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import UserGuide from "@/components/shared/user-guide";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,6 +35,7 @@ export default function RootLayout({
               </main>
             </div>
           </div>
+          <UserGuide />
           <Toaster />
         </ThemeProvider>
       </body>
