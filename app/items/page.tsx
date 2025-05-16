@@ -41,6 +41,7 @@ export default function ItemsPage() {
   const { products, fetchProducts, addProduct, updateProduct, deleteProduct } = useStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [editItem, setEditItem] = useState(null);
+  const [newItem, setNewItem] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -95,7 +96,10 @@ export default function ItemsPage() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => setIsDialogOpen(true)}>
+          <Button onClick={() => {
+            setNewItem({});
+            setIsDialogOpen(true);
+          }}>
             <Plus className="w-4 h-4 mr-2" />
             Add Item
           </Button>
@@ -165,6 +169,7 @@ export default function ItemsPage() {
       <Dialog open={isDialogOpen || !!editItem} onOpenChange={() => {
         setIsDialogOpen(false);
         setEditItem(null);
+        setNewItem(null);
       }}>
         <DialogContent>
           <DialogHeader>
@@ -174,23 +179,41 @@ export default function ItemsPage() {
             <div className="grid gap-2">
               <Label>Name</Label>
               <Input
-                value={editItem?.name || ''}
-                onChange={(e) => setEditItem({...editItem, name: e.target.value})}
+                value={(editItem?.name || newItem?.name) ?? ''}
+                onChange={(e) => {
+                  if (editItem) {
+                    setEditItem({...editItem, name: e.target.value});
+                  } else {
+                    setNewItem({...newItem, name: e.target.value});
+                  }
+                }}
               />
             </div>
             <div className="grid gap-2">
               <Label>SKU</Label>
               <Input
-                value={editItem?.sku || ''}
-                onChange={(e) => setEditItem({...editItem, sku: e.target.value})}
+                value={(editItem?.sku || newItem?.sku) ?? ''}
+                onChange={(e) => {
+                  if (editItem) {
+                    setEditItem({...editItem, sku: e.target.value});
+                  } else {
+                    setNewItem({...newItem, sku: e.target.value});
+                  }
+                }}
               />
             </div>
             <div className="grid gap-2">
               <Label>Price</Label>
               <Input
                 type="number"
-                value={editItem?.price || ''}
-                onChange={(e) => setEditItem({...editItem, price: e.target.value})}
+                value={(editItem?.price || newItem?.price) ?? ''}
+                onChange={(e) => {
+                  if (editItem) {
+                    setEditItem({...editItem, price: e.target.value});
+                  } else {
+                    setNewItem({...newItem, price: e.target.value});
+                  }
+                }}
               />
             </div>
           </div>
@@ -198,6 +221,7 @@ export default function ItemsPage() {
             <Button variant="outline" onClick={() => {
               setIsDialogOpen(false);
               setEditItem(null);
+              setNewItem(null);
             }}>
               Cancel
             </Button>
@@ -206,13 +230,14 @@ export default function ItemsPage() {
                 updateProduct(editItem.id, editItem);
               } else {
                 addProduct({
-                name: editItem.name,
-                sku: editItem.sku,
-                price: parseFloat(editItem.price),
-              });
+                  name: newItem.name,
+                  sku: newItem.sku,
+                  price: parseFloat(newItem.price),
+                });
               }
               setIsDialogOpen(false);
               setEditItem(null);
+              setNewItem(null);
             }}>
               {editItem ? 'Update' : 'Add'} Item
             </Button>

@@ -47,6 +47,7 @@ export default function CustomersPage() {
   } = useStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [editCustomer, setEditCustomer] = useState(null);
+  const [newCustomer, setNewCustomer] = useState({});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -68,10 +69,13 @@ export default function CustomersPage() {
     <div className="flex flex-col gap-4 p-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Customers</h1>
-        <Button onClick={() => setIsDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Customer
-        </Button>
+        <Button onClick={() => {
+            setNewCustomer({});
+            setIsDialogOpen(true);
+          }}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Customer
+          </Button>
       </div>
 
       <Card>
@@ -163,80 +167,89 @@ export default function CustomersPage() {
         </CardContent>
       </Card>
 
-      <Dialog
-        open={isDialogOpen || !!editCustomer}
-        onOpenChange={() => {
-          setIsDialogOpen(false);
-          setEditCustomer(null);
-        }}
-      >
+      <Dialog open={isDialogOpen || !!editCustomer} onOpenChange={() => {
+        setIsDialogOpen(false);
+        setEditCustomer(null);
+        setNewCustomer({});
+      }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {editCustomer ? "Edit Customer" : "Add New Customer"}
-            </DialogTitle>
+            <DialogTitle>{editCustomer ? 'Edit Customer' : 'Add New Customer'}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label>Name</Label>
               <Input
-                value={editCustomer?.name || ""}
-                onChange={(e) =>
-                  setEditCustomer({ ...editCustomer, name: e.target.value })
-                }
+                value={(editCustomer?.name ) ?? (newCustomer?.name ?? '')}
+                onChange={(e) => {
+                  if (editCustomer) {
+                    setEditCustomer({...editCustomer, name: e.target.value});
+                  } else {
+                    setNewCustomer({...newCustomer, name: e.target.value});
+                  }
+                }}
               />
             </div>
             <div className="grid gap-2">
               <Label>Email</Label>
               <Input
                 type="email"
-                value={editCustomer?.email || ""}
-                onChange={(e) =>
-                  setEditCustomer({ ...editCustomer, email: e.target.value })
-                }
+                value={(editCustomer?.email) ?? (newCustomer?.email ?? '')}
+                onChange={(e) => {
+                  if (editCustomer) {
+                    setEditCustomer({...editCustomer, email: e.target.value});
+                  } else {
+                    setNewCustomer({...newCustomer, email: e.target.value});
+                  }
+                }}
               />
             </div>
             <div className="grid gap-2">
               <Label>Phone</Label>
               <Input
-                value={editCustomer?.phone || ""}
-                onChange={(e) =>
-                  setEditCustomer({ ...editCustomer, phone: e.target.value })
-                }
+                value={(editCustomer?.phone) ?? (newCustomer?.phone ?? '')}
+                onChange={(e) => {
+                  if (editCustomer) {
+                    setEditCustomer({...editCustomer, phone: e.target.value});
+                  } else {
+                    setNewCustomer({...newCustomer, phone: e.target.value});
+                  }
+                }}
               />
             </div>
             <div className="grid gap-2">
               <Label>Address</Label>
               <Input
-                value={editCustomer?.address || ""}
-                onChange={(e) =>
-                  setEditCustomer({ ...editCustomer, address: e.target.value })
-                }
+                value={(editCustomer?.address) ?? (newCustomer?.address ?? '')}
+                onChange={(e) => {
+                  if (editCustomer) {
+                    setEditCustomer({...editCustomer, address: e.target.value});
+                  } else {
+                    setNewCustomer({...newCustomer, address: e.target.value});
+                  }
+                }}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsDialogOpen(false);
-                setEditCustomer(null);
-              }}
-            >
+            <Button variant="outline" onClick={() => {
+              setIsDialogOpen(false);
+              setEditCustomer(null);
+              setNewCustomer({});
+            }}>
               Cancel
             </Button>
-            <Button
-              onClick={() => {
-                if (editCustomer?.id) {
-                  updateCustomer(editCustomer.id, editCustomer);
-                } else {
-                  addCustomer(editCustomer);
-                }
-                setIsDialogOpen(false);
-                setEditCustomer(null);
-              }}
-            >
-              {editCustomer ? "Update" : "Add"} Customer
+            <Button onClick={() => {
+              if (editCustomer?.id) {
+                updateCustomer(editCustomer.id, editCustomer);
+              } else {
+                addCustomer(newCustomer);
+              }
+              setIsDialogOpen(false);
+              setEditCustomer(null);
+              setNewCustomer({});
+            }}>
+              {editCustomer ? 'Update' : 'Add'} Customer
             </Button>
           </DialogFooter>
         </DialogContent>
