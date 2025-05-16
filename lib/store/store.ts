@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import * as api from '@/lib/api/laravel';
 
@@ -10,9 +11,16 @@ interface StoreState {
 
   fetchInventory: () => Promise<void>;
   fetchProducts: () => Promise<void>;
-  syncProductsWithInventory: () => Promise<void>;
-  updateInventory: (id: string, data: any) => Promise<void>;
+  fetchCustomers: () => Promise<void>;
+  addCustomer: (data: any) => Promise<void>;
+  updateCustomer: (id: string, data: any) => Promise<void>;
+  deleteCustomer: (id: string) => Promise<void>;
+  addProduct: (data: any) => Promise<void>;
   updateProduct: (id: string, data: any) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  updateInventory: (id: string, data: any) => Promise<void>;
+  syncProductsWithInventory: () => Promise<void>;
+  clearError: () => void;
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -22,167 +30,180 @@ export const useStore = create<StoreState>((set, get) => ({
   loading: false,
   error: null,
 
+  clearError: () => set({ error: null }),
+
   fetchCustomers: async () => {
     try {
-      set({ loading: true });
+      set({ loading: true, error: null });
       const data = await api.customers.getAll();
-      set({ customers: data, loading: false });
+      set({ customers: data });
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message });
+      throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 
   addCustomer: async (data: any) => {
     try {
-      set({ loading: true });
-      await api.customers.create(data);
-      await get().fetchCustomers();
-      set({ loading: false });
+      set({ loading: true, error: null });
+      const response = await api.customers.create(data);
+      set(state => ({
+        customers: [...state.customers, response]
+      }));
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message });
+      throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 
   updateCustomer: async (id: string, data: any) => {
     try {
-      set({ loading: true });
-      await api.customers.update(id, data);
-      await get().fetchCustomers();
-      set({ loading: false });
+      set({ loading: true, error: null });
+      const response = await api.customers.update(id, data);
+      set(state => ({
+        customers: state.customers.map(customer => 
+          customer.id === id ? response : customer
+        )
+      }));
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message });
+      throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 
   deleteCustomer: async (id: string) => {
     try {
-      set({ loading: true });
+      set({ loading: true, error: null });
       await api.customers.delete(id);
-      await get().fetchCustomers();
-      set({ loading: false });
+      set(state => ({
+        customers: state.customers.filter(customer => customer.id !== id)
+      }));
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message });
+      throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 
   fetchInventory: async () => {
     try {
-      set({ loading: true });
+      set({ loading: true, error: null });
       const data = await api.inventory.getAll();
-      set({ inventory: data, loading: false });
+      set({ inventory: data });
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message });
+      throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 
   fetchProducts: async () => {
     try {
-      set({ loading: true });
+      set({ loading: true, error: null });
       const data = await api.products.getAll();
-      set({ products: data, loading: false });
+      set({ products: data });
     } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-
-  syncProductsWithInventory: async () => {
-    try {
-      set({ loading: true });
-      const [products, inventory] = await Promise.all([
-        api.products.getAll(),
-        api.inventory.getAll()
-      ]);
-      
-      // Merge product data with inventory
-      const mergedProducts = products.map(product => {
-        const inventoryItem = inventory.find(item => item.productId === product.id);
-        return {
-          ...product,
-          inventory: inventoryItem || { quantity: 0 }
-        };
-      });
-      
-      set({ 
-        products: mergedProducts,
-        inventory,
-        loading: false 
-      });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-
-  deleteProduct: async (id: string) => {
-    try {
-      set({ loading: true });
-      await api.products.delete(id);
-      await get().syncProductsWithInventory();
+      set({ error: error.message });
+      throw error;
+    } finally {
       set({ loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-
-  fetchAllData: async () => {
-    try {
-      set({ loading: true });
-      const [products, inventory, customers] = await Promise.all([
-        api.products.getAll(),
-        api.inventory.getAll(),
-        api.customers.getAll()
-      ]);
-      set({ 
-        products,
-        inventory,
-        customers,
-        loading: false 
-      });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
-    }
-  },
-
-  updateInventory: async (id, data) => {
-    try {
-      set({ loading: true });
-      await api.inventory.update(id, data);
-      await get().fetchInventory();
-      set({ loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
     }
   },
 
   addProduct: async (data: any) => {
     try {
-      set({ loading: true });
-      await api.products.create(data);
-      await get().fetchProducts();
-      set({ loading: false });
+      set({ loading: true, error: null });
+      const response = await api.products.create(data);
+      set(state => ({
+        products: [...state.products, response]
+      }));
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message });
+      throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 
   updateProduct: async (id: string, data: any) => {
     try {
-      set({ loading: true });
-      await api.products.update(id, data);
-      await get().fetchProducts();
-      set({ loading: false });
+      set({ loading: true, error: null });
+      const response = await api.products.update(id, data);
+      set(state => ({
+        products: state.products.map(product => 
+          product.id === id ? response : product
+        )
+      }));
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message });
+      throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 
   deleteProduct: async (id: string) => {
     try {
-      set({ loading: true });
+      set({ loading: true, error: null });
       await api.products.delete(id);
-      await get().fetchProducts();
-      set({ loading: false });
+      set(state => ({
+        products: state.products.filter(product => product.id !== id)
+      }));
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      set({ error: error.message });
+      throw error;
+    } finally {
+      set({ loading: false });
     }
   },
+
+  syncProductsWithInventory: async () => {
+    try {
+      set({ loading: true, error: null });
+      const [products, inventory] = await Promise.all([
+        api.products.getAll(),
+        api.inventory.getAll()
+      ]);
+      
+      const mergedProducts = products.map(product => ({
+        ...product,
+        inventory: inventory.find(item => item.productId === product.id) || null
+      }));
+      
+      set({ 
+        products: mergedProducts,
+        inventory
+      });
+    } catch (error: any) {
+      set({ error: error.message });
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  updateInventory: async (id: string, data: any) => {
+    try {
+      set({ loading: true, error: null });
+      const response = await api.inventory.update(id, data);
+      set(state => ({
+        inventory: state.inventory.map(item => 
+          item.id === id ? response : item
+        )
+      }));
+    } catch (error: any) {
+      set({ error: error.message });
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  }
 }));
