@@ -70,30 +70,42 @@ const sidebarConfig: SidebarItem[] = [
     color: "text-emerald-600 dark:text-emerald-400",
   },
   {
+    label: "Inventory",
+    icon: Package,
+    href: "/inventory",
+    color: "text-orange-600 dark:text-orange-400",
+  },
+  {
     label: "Items",
     icon: Package,
     href: "/items",
     color: "text-violet-600 dark:text-violet-400",
   },
   {
-    label: "Invoices",
+    label: "Billing",
     icon: FileText,
-    href: "/invoices",
+    href: "/create-invoice",
     color: "text-indigo-600 dark:text-indigo-400",
-    badge: 3,
+    subItems: [
+      {
+        label: "Create Invoice",
+        icon: FileText,
+        href: "/create-invoice",
+        color: "text-indigo-600 dark:text-indigo-400",
+      },
+      {
+        label: "All Invoices",
+        icon: FileText,
+        href: "/invoices",
+        color: "text-indigo-600 dark:text-indigo-400",
+      }
+    ]
   },
   {
-    label: "Payments Received",
+    label: "Payments",
     icon: CreditCard,
     href: "/payments",
     color: "text-amber-600 dark:text-amber-400",
-  },
-  {
-    label: "Expenses",
-    icon: CreditCard,
-    href: "/expenses",
-    color: "text-rose-600 dark:text-rose-400",
-    permissions: ["admin", "accountant"],
   },
   {
     label: "Time Tracking",
@@ -125,8 +137,20 @@ const sidebarConfig: SidebarItem[] = [
         href: "/settings/security",
         color: "text-slate-600 dark:text-slate-400",
       },
+      {
+        label: "Users",
+        icon: Users,
+        href: "/settings/users",
+        color: "text-slate-600 dark:text-slate-400",
+      }
     ],
   },
+  {
+    label: "Stores",
+    icon: Store,
+    href: "/stores",
+    color: "text-purple-600 dark:text-purple-400",
+  }
 ];
 
 // Mock stores for the store switcher
