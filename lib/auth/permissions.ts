@@ -65,9 +65,9 @@ export const DEFAULT_PERMISSIONS: Record<Role, UserPermissions> = {
     canManageSales: false,
     canManageFinance: false,
     canManageSettings: false,
-    storeAccess: [],
-    departmentAccess: [],
-    moduleAccess: []
+    storeAccess: ['*'],
+    departmentAccess: ['*'],
+    moduleAccess: ['inventory', 'dashboard']
   },
   sales_staff: {
     canManageUsers: false,
