@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Download, Filter, MoreHorizontal, User, Users, Search, ShoppingBag, Star, Tag, MapPin, Calendar, Clock, ChevronDown, CreditCard, RefreshCw } from "lucide-react";
+import { 
+  AlertCircle, Download, Filter, MoreHorizontal, User, Users, 
+  Search, ShoppingBag, Star, Tag, MapPin, Calendar, Clock, 
+  ChevronDown, CreditCard, RefreshCw 
+} from "lucide-react";
 import {
   Pagination,
   PaginationContent,
