@@ -26,7 +26,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex min-h-screen">
+          <div className="min-h-screen flex">
             <Sidebar />
             <main className="flex-1 p-8">{children}</main>
           </div>
