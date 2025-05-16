@@ -75,7 +75,7 @@ export default function InventoryPage() {
 
   // Unique locations for filtering
   const locations = useMemo(() => {
-    const uniqueLocations = new Set(inventory.map((item) => item.location));
+    const uniqueLocations = new Set((inventory || []).map((item) => item.location));
     return ["all", ...Array.from(uniqueLocations)];
   }, [inventory]);
 
