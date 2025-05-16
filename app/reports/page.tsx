@@ -50,6 +50,7 @@ import {
   Legend,
   Filler
 } from "chart.js";
+import { useStore } from "@/lib/store/store";
 
 ChartJS.register(
   CategoryScale,
@@ -74,6 +75,7 @@ export default function ReportsPage() {
   const [comparisonPeriod, setComparisonPeriod] = useState("previous_year");
   const [reportData, setReportData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { reports, exportReport } = useStore();
 
   const [metrics, setMetrics] = useState({
     financial: {
@@ -433,6 +435,21 @@ export default function ReportsPage() {
     </div>
   );
 
+  const handleExport = async (format: 'excel' | 'pdf') => {
+    try {
+      setIsLoading(true);
+      if (format === 'excel') {
+        await exportReport('xlsx');
+      } else {
+        await exportReport('pdf');
+      }
+    } catch (error) {
+      console.error('Export failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex justify-between items-center">
@@ -443,11 +460,11 @@ export default function ReportsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => exportReport('xlsx')} disabled={isLoading}>
+          <Button variant="outline" onClick={() => handleExport('excel')} disabled={isLoading}>
             <FileSpreadsheet className="w-4 h-4 mr-2" />
             Export Excel
           </Button>
-          <Button variant="outline" onClick={() => exportReport('pdf')} disabled={isLoading}>
+          <Button variant="outline" onClick={() => handleExport('pdf')} disabled={isLoading}>
             <FileText className="w-4 h-4 mr-2" />
             Export PDF
           </Button>
