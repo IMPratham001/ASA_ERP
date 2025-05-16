@@ -35,32 +35,37 @@ args = "npm install"
 task = "shell.exec"
 args = "npm run dev"
 
+[[workflows.workflow]]
+name = "Full Stack Dev"
+author = 38304816
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd laravel-backend && php artisan serve --host=0.0.0.0 --port=8000"
+
+[[workflows.workflow]]
+name = "Full Stack Dev"
+author = 38304816
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd laravel-backend && php artisan serve --host=0.0.0.0 --port=8000"
+
+[[workflows.workflow]]
+name = "backend"
+mode = "parallel"
+author = 38304816
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "php artisan serve"
-
-[[workflows.workflow]]
-name = "Full Stack Dev"
-author = 38304816
-mode = "parallel"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd laravel-backend && php artisan serve --host=0.0.0.0 --port=8000"
-
-[[workflows.workflow]]
-name = "Full Stack Dev"
-author = 38304816
-mode = "parallel"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd laravel-backend && php artisan serve --host=0.0.0.0 --port=8000"
