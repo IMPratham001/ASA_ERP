@@ -1,16 +1,17 @@
-
 import axios from 'axios';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api',
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest'
   },
   withCredentials: true,
   timeout: 10000
 });
 
+// Add response interceptor for error handling
 api.interceptors.response.use(
   response => response.data,
   error => {
@@ -19,62 +20,39 @@ api.interceptors.response.use(
   }
 );
 
-export const customers = {
-  getAll: async () => {
-    const response = await api.get('/customers');
-    return response;
+// Add request interceptor for auth
+api.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
   },
-  create: async (data: any) => {
-    const response = await api.post('/customers', data);
-    return response;
-  },
-  update: async (id: string, data: any) => {
-    const response = await api.put(`/customers/${id}`, data);
-    return response;
-  },
-  delete: async (id: string) => {
-    await api.delete(`/customers/${id}`);
+  error => {
+    return Promise.reject(error);
   }
+);
+
+export const customers = {
+  getAll: () => api.get('/customers'),
+  create: (data: any) => api.post('/customers', data),
+  update: (id: string, data: any) => api.put(`/customers/${id}`, data),
+  delete: (id: string) => api.delete(`/customers/${id}`)
 };
 
 export const inventory = {
-  getAll: async () => {
-    const response = await api.get('/inventory');
-    return response;
-  },
-  create: async (data: any) => {
-    const response = await api.post('/inventory', data);
-    return response;
-  },
-  update: async (id: string, data: any) => {
-    const response = await api.put(`/inventory/${id}`, data);
-    return response;
-  },
-  delete: async (id: string) => {
-    await api.delete(`/inventory/${id}`);
-  }
+  getAll: () => api.get('/inventory'),
+  create: (data: any) => api.post('/inventory', data),
+  update: (id: string, data: any) => api.put(`/inventory/${id}`, data),
+  delete: (id: string) => api.delete(`/inventory/${id}`)
 };
 
 export const products = {
-  getAll: async () => {
-    const response = await api.get('/products');
-    return response;
-  },
-  create: async (data: any) => {
-    const response = await api.post('/products', data);
-    return response;
-  },
-  update: async (id: string, data: any) => {
-    const response = await api.put(`/products/${id}`, data);
-    return response;
-  },
-  delete: async (id: string) => {
-    await api.delete(`/products/${id}`);
-  }
+  getAll: () => api.get('/products'),
+  create: (data: any) => api.post('/products', data),
+  update: (id: string, data: any) => api.put(`/products/${id}`, data),
+  delete: (id: string) => api.delete(`/products/${id}`)
 };
 
-export default {
-  customers,
-  inventory,
-  products
-};
+export default api;
