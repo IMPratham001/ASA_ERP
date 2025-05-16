@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -17,7 +18,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -66,53 +66,6 @@ export default function StoresPage() {
           <Plus className="w-4 h-4 mr-2" />
           Add Store
         </Button>
-            <DialogHeader>
-              <DialogTitle>Add New Store</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <Input
-                placeholder="Store Name"
-                value={newStore.name}
-                onChange={(e) =>
-                  setNewStore({ ...newStore, name: e.target.value })
-                }
-              />
-              <Input
-                placeholder="Address"
-                value={newStore.address}
-                onChange={(e) =>
-                  setNewStore({ ...newStore, address: e.target.value })
-                }
-              />
-              <Input
-                placeholder="Phone"
-                value={newStore.phone}
-                onChange={(e) =>
-                  setNewStore({ ...newStore, phone: e.target.value })
-                }
-              />
-              <Select
-                value={newStore.region}
-                onValueChange={(value) =>
-                  setNewStore({ ...newStore, region: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Region" />
-                </SelectTrigger>
-                <SelectContent>
-                  {regions.map((region) => (
-                    <SelectItem key={region} value={region}>
-                      {region}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="new">+ Add New Region</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button onClick={handleAddStore}>Add Store</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
 
       <div className="grid gap-6">
@@ -157,6 +110,56 @@ export default function StoresPage() {
           </div>
         ))}
       </div>
+
+      <Dialog>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Store</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Input
+              placeholder="Store Name"
+              value={newStore.name}
+              onChange={(e) =>
+                setNewStore({ ...newStore, name: e.target.value })
+              }
+            />
+            <Input
+              placeholder="Address"
+              value={newStore.address}
+              onChange={(e) =>
+                setNewStore({ ...newStore, address: e.target.value })
+              }
+            />
+            <Input
+              placeholder="Phone"
+              value={newStore.phone}
+              onChange={(e) =>
+                setNewStore({ ...newStore, phone: e.target.value })
+              }
+            />
+            <Select
+              value={newStore.region}
+              onValueChange={(value) =>
+                setNewStore({ ...newStore, region: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Region" />
+              </SelectTrigger>
+              <SelectContent>
+                {regions.map((region) => (
+                  <SelectItem key={region} value={region}>
+                    {region}
+                  </SelectItem>
+                ))}
+                <SelectItem value="new">+ Add New Region</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={handleAddStore}>Add Store</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
