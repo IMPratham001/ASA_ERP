@@ -1,30 +1,56 @@
-
 import axios from 'axios';
 
-const LARAVEL_API_URL = process.env.NEXT_PUBLIC_LARAVEL_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api';
 
 const api = axios.create({
-  baseURL: LARAVEL_API_URL,
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Inventory Management
-export const inventoryApi = {
-  getAll: () => api.get('/inventory'),
-  getById: (id: string) => api.get(`/inventory/${id}`),
-  create: (data: any) => api.post('/inventory', data),
-  update: (id: string, data: any) => api.put(`/inventory/${id}`, data),
-  delete: (id: string) => api.delete(`/inventory/${id}`),
-  import: (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    return api.post('/inventory/import', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+// Add auth interceptor
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Add error handling interceptor
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/auth/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export const auth = {
+  login: async (email: string, password: string) => {
+    const response = await api.post('/auth/login', { email, password });
+    localStorage.setItem('token', response.data.access_token);
+    return response.data;
   },
-  export: (format: 'csv' | 'pdf') => api.get(`/inventory/export/${format}`, { responseType: 'blob' }),
+  logout: async () => {
+    await api.post('/auth/logout');
+    localStorage.removeItem('token');
+  },
+  getUser: async () => {
+    return (await api.get('/auth/me')).data;
+  },
+};
+
+export const inventory = {
+  getAll: async () => (await api.get('/inventory')).data,
+  update: async (id: string, data: any) => (await api.put(`/inventory/${id}`, data)).data,
+  create: async (data: any) => (await api.post('/inventory', data)).data,
+  delete: async (id: string) => await api.delete(`/inventory/${id}`),
+  getLowStock: async () => (await api.get('/inventory/low-stock')).data,
 };
 
 // Customer Management

@@ -21,14 +21,18 @@ model User {
 
 model Product {
   id          String    @id @default(uuid())
-  name        String
-  sku         String    @unique
-  description String?
-  price       Decimal
-  cost        Decimal
+  name        String    @db.VarChar(255)
+  sku         String    @unique @db.VarChar(50)
+  description String?   @db.Text
+  price       Decimal   @db.Decimal(10,2)
+  cost        Decimal   @db.Decimal(10,2)
   inventory   Inventory?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  @@index([name])
+  @@index([sku])
+  @@index([createdAt])
 }
 
 model Inventory {
