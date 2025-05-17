@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { StoreSwitcher } from "@/components/shared/store-switcher";
 import {
   BarChart,
   Activity,
@@ -56,55 +62,55 @@ ChartJS.register(
 );
 
 // Add the StoreSwitcher component
-const StoreSwitcher = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedStore, setSelectedStore] = useState("Main Store");
+// const StoreSwitcher = () => {
+//   const [isOpen, setIsOpen] = useState(false);
+//   const [selectedStore, setSelectedStore] = useState("Main Store");
 
-  const stores = [
-    { id: 1, name: "Main Store" },
-    { id: 2, name: "Branch Store" },
-    { id: 3, name: "Online Store" },
-  ];
+//   const stores = [
+//     { id: 1, name: "Main Store" },
+//     { id: 2, name: "Branch Store" },
+//     { id: 3, name: "Online Store" },
+//   ];
 
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1 text-sm rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"
-      >
-        <Store className="h-4 w-4" />
-        {selectedStore}
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 12 12"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
-        >
-          <path d="M6 8.5L2 4.5H10L6 8.5Z" fill="currentColor" />
-        </svg>
-      </button>
+//   return (
+//     <div className="relative">
+//       <button
+//         onClick={() => setIsOpen(!isOpen)}
+//         className="flex items-center gap-2 px-3 py-1 text-sm rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+//       >
+//         <Store className="h-4 w-4" />
+//         {selectedStore}
+//         <svg
+//           width="12"
+//           height="12"
+//           viewBox="0 0 12 12"
+//           fill="none"
+//           xmlns="http://www.w3.org/2000/svg"
+//           className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+//         >
+//           <path d="M6 8.5L2 4.5H10L6 8.5Z" fill="currentColor" />
+//         </svg>
+//       </button>
 
-      {isOpen && (
-        <div className="absolute top-full mt-1 w-full py-1 rounded-md border bg-popover shadow-md z-50">
-          {stores.map((store) => (
-            <button
-              key={store.id}
-              className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
-              onClick={() => {
-                setSelectedStore(store.name);
-                setIsOpen(false);
-              }}
-            >
-              {store.name}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+//       {isOpen && (
+//         <div className="absolute top-full mt-1 w-full py-1 rounded-md border bg-popover shadow-md z-50">
+//           {stores.map((store) => (
+//             <button
+//               key={store.id}
+//               className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
+//               onClick={() => {
+//                 setSelectedStore(store.name);
+//                 setIsOpen(false);
+//               }}
+//             >
+//               {store.name}
+//             </button>
+//           ))}
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState({

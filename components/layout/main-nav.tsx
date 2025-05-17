@@ -38,6 +38,74 @@ type SubItem = {
   permissions?: string[];
 };
 
+  {
+    label: "Custom Orders",
+    icon: Package,
+    href: "/custom-orders",
+    color: "text-purple-600 dark:text-purple-400",
+    subItems: [
+      {
+        label: "All Orders",
+        icon: Package,
+        href: "/custom-orders",
+        color: "text-purple-600 dark:text-purple-400",
+      },
+      {
+        label: "Create Order",
+        icon: Plus,
+        href: "/custom-orders/create",
+        color: "text-purple-600 dark:text-purple-400",
+      }
+    ]
+  },
+  {
+    label: "Document Vault",
+    icon: FileText,
+    href: "/documents",
+    color: "text-amber-600 dark:text-amber-400",
+    subItems: [
+      {
+        label: "All Documents",
+        icon: FileText,
+        href: "/documents",
+        color: "text-amber-600 dark:text-amber-400",
+      },
+      {
+        label: "Upload",
+        icon: Plus,
+        href: "/documents/upload",
+        color: "text-amber-600 dark:text-amber-400",
+      },
+      {
+        label: "Version History",
+        icon: Clock,
+        href: "/documents/history",
+        color: "text-amber-600 dark:text-amber-400",
+      }
+    ]
+  },
+  {
+    label: "Activity Logs",
+    icon: Clock,
+    href: "/logs",
+    color: "text-cyan-600 dark:text-cyan-400",
+    subItems: [
+      {
+        label: "All Logs",
+        icon: Clock,
+        href: "/logs",
+        color: "text-cyan-600 dark:text-cyan-400",
+      },
+      {
+        label: "Export",
+        icon: Download,
+        href: "/logs/export",
+        color: "text-cyan-600 dark:text-cyan-400",
+      }
+    ]
+  },
+
+
 type SidebarItem = {
   label: string;
   icon: React.ElementType;
