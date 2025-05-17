@@ -17,15 +17,60 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function CreateCustomer() {
   const router = useRouter();
   const [customerType, setCustomerType] = useState("business");
   const [allowPortalAccess, setAllowPortalAccess] = useState(false);
+  const [customer, setCustomer] = useState({
+    customerType: "business",
+    salutation: "",
+    firstName: "",
+    lastName: "",
+    companyName: "",
+    displayName: "",
+    email: "",
+    workPhone: "",
+    mobile: "",
+    website: "",
+    currency: "USD",
+    paymentTerms: "due_on_receipt",
+    portalLanguage: "english",
+    billingAddress: {
+      attention: "",
+      country: "",
+      street1: "",
+      street2: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      phone: "",
+      fax: ""
+    },
+    shippingAddress: {
+      attention: "",
+      country: "",
+      street1: "",
+      street2: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      phone: "",
+      fax: ""
+    },
+    contactPersons: [],
+    remarks: ""
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    router.push("/customers");
+    try {
+      // Add API call here
+      router.push("/customers");
+    } catch (error) {
+      console.error("Error creating customer:", error);
+    }
   };
 
   return (
@@ -62,25 +107,52 @@ export default function CreateCustomer() {
               <div>
                 <Label>Primary Contact</Label>
                 <div className="flex gap-2 mt-2">
-                  <Input placeholder="Salutation" className="w-1/4" />
-                  <Input placeholder="First Name" />
-                  <Input placeholder="Last Name" />
+                  <Input 
+                    placeholder="Salutation" 
+                    className="w-1/4" 
+                    value={customer.salutation}
+                    onChange={(e) => setCustomer({...customer, salutation: e.target.value})}
+                  />
+                  <Input 
+                    placeholder="First Name"
+                    value={customer.firstName}
+                    onChange={(e) => setCustomer({...customer, firstName: e.target.value})}
+                  />
+                  <Input 
+                    placeholder="Last Name"
+                    value={customer.lastName}
+                    onChange={(e) => setCustomer({...customer, lastName: e.target.value})}
+                  />
                 </div>
               </div>
               <div>
                 <Label>Company Name</Label>
-                <Input className="mt-2" />
+                <Input 
+                  className="mt-2"
+                  value={customer.companyName}
+                  onChange={(e) => setCustomer({...customer, companyName: e.target.value})}
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Customer Display Name*</Label>
-                <Input className="mt-2" required />
+                <Input 
+                  className="mt-2" 
+                  required
+                  value={customer.displayName}
+                  onChange={(e) => setCustomer({...customer, displayName: e.target.value})}
+                />
               </div>
               <div>
                 <Label>Customer Email</Label>
-                <Input type="email" className="mt-2" />
+                <Input 
+                  type="email" 
+                  className="mt-2"
+                  value={customer.email}
+                  onChange={(e) => setCustomer({...customer, email: e.target.value})}
+                />
               </div>
             </div>
 
@@ -88,13 +160,25 @@ export default function CreateCustomer() {
               <div>
                 <Label>Customer Phone</Label>
                 <div className="flex gap-2 mt-2">
-                  <Input placeholder="Work Phone" />
-                  <Input placeholder="Mobile" />
+                  <Input 
+                    placeholder="Work Phone"
+                    value={customer.workPhone}
+                    onChange={(e) => setCustomer({...customer, workPhone: e.target.value})}
+                  />
+                  <Input 
+                    placeholder="Mobile"
+                    value={customer.mobile}
+                    onChange={(e) => setCustomer({...customer, mobile: e.target.value})}
+                  />
                 </div>
               </div>
               <div>
                 <Label>Website</Label>
-                <Input className="mt-2" />
+                <Input 
+                  className="mt-2"
+                  value={customer.website}
+                  onChange={(e) => setCustomer({...customer, website: e.target.value})}
+                />
               </div>
             </div>
           </div>
@@ -112,7 +196,10 @@ export default function CreateCustomer() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Currency*</Label>
-                  <Select defaultValue="usd">
+                  <Select 
+                    defaultValue="usd"
+                    onValueChange={(value) => setCustomer({...customer, currency: value})}
+                  >
                     <SelectTrigger className="mt-2">
                       <SelectValue />
                     </SelectTrigger>
@@ -125,12 +212,15 @@ export default function CreateCustomer() {
                 </div>
                 <div>
                   <Label>Payment Terms</Label>
-                  <Select defaultValue="due">
+                  <Select 
+                    defaultValue="due_on_receipt"
+                    onValueChange={(value) => setCustomer({...customer, paymentTerms: value})}
+                  >
                     <SelectTrigger className="mt-2">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="due">Due on Receipt</SelectItem>
+                      <SelectItem value="due_on_receipt">Due on Receipt</SelectItem>
                       <SelectItem value="net15">Net 15</SelectItem>
                       <SelectItem value="net30">Net 30</SelectItem>
                     </SelectContent>
@@ -140,14 +230,17 @@ export default function CreateCustomer() {
 
               <div>
                 <Label>Portal Language</Label>
-                <Select defaultValue="en">
+                <Select 
+                  defaultValue="english"
+                  onValueChange={(value) => setCustomer({...customer, portalLanguage: value})}
+                >
                   <SelectTrigger className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="es">Spanish</SelectItem>
-                    <SelectItem value="fr">French</SelectItem>
+                    <SelectItem value="english">English</SelectItem>
+                    <SelectItem value="spanish">Spanish</SelectItem>
+                    <SelectItem value="french">French</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -168,39 +261,174 @@ export default function CreateCustomer() {
               <div className="grid grid-cols-2 gap-8">
                 <div className="space-y-4">
                   <h3 className="font-medium">Billing Address</h3>
-                  <Input placeholder="Attention" />
-                  <Input placeholder="Country/Region" />
-                  <Input placeholder="Street 1" />
-                  <Input placeholder="Street 2" />
+                  <Input 
+                    placeholder="Attention"
+                    value={customer.billingAddress.attention}
+                    onChange={(e) => setCustomer({
+                      ...customer, 
+                      billingAddress: {...customer.billingAddress, attention: e.target.value}
+                    })}
+                  />
+                  <Input 
+                    placeholder="Country/Region"
+                    value={customer.billingAddress.country}
+                    onChange={(e) => setCustomer({
+                      ...customer, 
+                      billingAddress: {...customer.billingAddress, country: e.target.value}
+                    })}
+                  />
+                  <Input 
+                    placeholder="Street 1"
+                    value={customer.billingAddress.street1}
+                    onChange={(e) => setCustomer({
+                      ...customer, 
+                      billingAddress: {...customer.billingAddress, street1: e.target.value}
+                    })}
+                  />
+                  <Input 
+                    placeholder="Street 2"
+                    value={customer.billingAddress.street2}
+                    onChange={(e) => setCustomer({
+                      ...customer, 
+                      billingAddress: {...customer.billingAddress, street2: e.target.value}
+                    })}
+                  />
                   <div className="grid grid-cols-2 gap-4">
-                    <Input placeholder="City" />
-                    <Input placeholder="State" />
+                    <Input 
+                      placeholder="City"
+                      value={customer.billingAddress.city}
+                      onChange={(e) => setCustomer({
+                        ...customer, 
+                        billingAddress: {...customer.billingAddress, city: e.target.value}
+                      })}
+                    />
+                    <Input 
+                      placeholder="State"
+                      value={customer.billingAddress.state}
+                      onChange={(e) => setCustomer({
+                        ...customer, 
+                        billingAddress: {...customer.billingAddress, state: e.target.value}
+                      })}
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <Input placeholder="ZIP Code" />
-                    <Input placeholder="Fax" />
+                    <Input 
+                      placeholder="ZIP Code"
+                      value={customer.billingAddress.zipCode}
+                      onChange={(e) => setCustomer({
+                        ...customer, 
+                        billingAddress: {...customer.billingAddress, zipCode: e.target.value}
+                      })}
+                    />
+                    <Input 
+                      placeholder="Fax"
+                      value={customer.billingAddress.fax}
+                      onChange={(e) => setCustomer({
+                        ...customer, 
+                        billingAddress: {...customer.billingAddress, fax: e.target.value}
+                      })}
+                    />
                   </div>
-                  <Input placeholder="Phone" />
+                  <Input 
+                    placeholder="Phone"
+                    value={customer.billingAddress.phone}
+                    onChange={(e) => setCustomer({
+                      ...customer, 
+                      billingAddress: {...customer.billingAddress, phone: e.target.value}
+                    })}
+                  />
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <h3 className="font-medium">Shipping Address</h3>
-                    <Button variant="link" size="sm">Copy Billing Address</Button>
+                    <Button 
+                      variant="link" 
+                      size="sm"
+                      onClick={() => setCustomer({
+                        ...customer,
+                        shippingAddress: {...customer.billingAddress}
+                      })}
+                    >
+                      Copy Billing Address
+                    </Button>
                   </div>
-                  <Input placeholder="Attention" />
-                  <Input placeholder="Country/Region" />
-                  <Input placeholder="Street 1" />
-                  <Input placeholder="Street 2" />
+                  <Input 
+                    placeholder="Attention"
+                    value={customer.shippingAddress.attention}
+                    onChange={(e) => setCustomer({
+                      ...customer, 
+                      shippingAddress: {...customer.shippingAddress, attention: e.target.value}
+                    })}
+                  />
+                  <Input 
+                    placeholder="Country/Region"
+                    value={customer.shippingAddress.country}
+                    onChange={(e) => setCustomer({
+                      ...customer, 
+                      shippingAddress: {...customer.shippingAddress, country: e.target.value}
+                    })}
+                  />
+                  <Input 
+                    placeholder="Street 1"
+                    value={customer.shippingAddress.street1}
+                    onChange={(e) => setCustomer({
+                      ...customer, 
+                      shippingAddress: {...customer.shippingAddress, street1: e.target.value}
+                    })}
+                  />
+                  <Input 
+                    placeholder="Street 2"
+                    value={customer.shippingAddress.street2}
+                    onChange={(e) => setCustomer({
+                      ...customer, 
+                      shippingAddress: {...customer.shippingAddress, street2: e.target.value}
+                    })}
+                  />
                   <div className="grid grid-cols-2 gap-4">
-                    <Input placeholder="City" />
-                    <Input placeholder="State" />
+                    <Input 
+                      placeholder="City"
+                      value={customer.shippingAddress.city}
+                      onChange={(e) => setCustomer({
+                        ...customer, 
+                        shippingAddress: {...customer.shippingAddress, city: e.target.value}
+                      })}
+                    />
+                    <Input 
+                      placeholder="State"
+                      value={customer.shippingAddress.state}
+                      onChange={(e) => setCustomer({
+                        ...customer, 
+                        shippingAddress: {...customer.shippingAddress, state: e.target.value}
+                      })}
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <Input placeholder="ZIP Code" />
-                    <Input placeholder="Fax" />
+                    <Input 
+                      placeholder="ZIP Code"
+                      value={customer.shippingAddress.zipCode}
+                      onChange={(e) => setCustomer({
+                        ...customer, 
+                        shippingAddress: {...customer.shippingAddress, zipCode: e.target.value}
+                      })}
+                    />
+                    <Input 
+                      placeholder="Fax"
+                      value={customer.shippingAddress.fax}
+                      onChange={(e) => setCustomer({
+                        ...customer, 
+                        shippingAddress: {...customer.shippingAddress, fax: e.target.value}
+                      })}
+                    />
                   </div>
-                  <Input placeholder="Phone" />
+                  <Input 
+                    placeholder="Phone"
+                    value={customer.shippingAddress.phone}
+                    onChange={(e) => setCustomer({
+                      ...customer, 
+                      shippingAddress: {...customer.shippingAddress, phone: e.target.value}
+                    })}
+                  />
                 </div>
               </div>
             </TabsContent>
@@ -222,9 +450,11 @@ export default function CreateCustomer() {
             </TabsContent>
 
             <TabsContent value="remarks" className="mt-4">
-              <textarea
-                className="w-full h-32 p-2 border rounded-md"
+              <Textarea
+                className="w-full h-32"
                 placeholder="Remarks (For Internal Use)"
+                value={customer.remarks}
+                onChange={(e) => setCustomer({...customer, remarks: e.target.value})}
               />
             </TabsContent>
           </Tabs>
