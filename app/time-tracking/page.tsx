@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useStore } from "@/lib/store/store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -57,7 +58,22 @@ export default function TimeTrackingPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4 mb-4">
-            <Select value={currentTask.project} onValueChange={(val) => setCurrentTask({ ...currentTask, project: val })}>
+            <Select 
+        value={currentTask.staffId} 
+        onValueChange={(val) => setCurrentTask({ ...currentTask, staffId: val })}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Select Staff Member" />
+        </SelectTrigger>
+        <SelectContent>
+          {staff.map((member) => (
+            <SelectItem key={member.id} value={member.id}>
+              {member.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select value={currentTask.project} onValueChange={(val) => setCurrentTask({ ...currentTask, project: val })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select Project" />
               </SelectTrigger>

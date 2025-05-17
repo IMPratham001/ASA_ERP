@@ -16,6 +16,7 @@ import {
 import { Download, Filter } from "lucide-react";
 
 export default function LogsPage() {
+  const { activities, inventory, payments, staff } = useStore();
   const [logs, setLogs] = useState([
     {
       id: 1,

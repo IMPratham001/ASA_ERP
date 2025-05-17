@@ -9,6 +9,11 @@ import { Search, Filter, Download } from "lucide-react";
 
 export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const { invoices, payments, updateInvoicePayment } = useStore();
+
+  const handlePayment = async (invoiceId, amount) => {
+    await updateInvoicePayment(invoiceId, amount);
+  };
 
   return (
     <div className="flex flex-col gap-4 p-6">

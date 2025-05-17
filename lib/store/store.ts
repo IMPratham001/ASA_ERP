@@ -59,7 +59,27 @@ interface Inventory {
   last_restock_date: string;
 }
 
+interface TimeEntry {
+  id: string;
+  staffId: string;
+  projectId: string;
+  description: string;
+  startTime: string;
+  duration: number;
+}
+
+interface ActivityLog {
+  id: string;
+  type: 'inventory' | 'payment' | 'staff' | 'time';
+  action: string;
+  details: string;
+  timestamp: string;
+  userId: string;
+}
+
 interface State {
+  timeEntries: TimeEntry[];
+  activityLogs: ActivityLog[];
   customers: Customer[];
   invoices: Invoice[];
   products: Product[];
