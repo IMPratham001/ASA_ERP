@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Play, Pause, Square, Plus } from "lucide-react";
 
 export default function TimeTrackingPage() {
-  const { staff, projects, timeEntries, addTimeEntry } = useStore();
+  const [entries, setEntries] = useState([]);
+  const { staff = [], projects = [], timeEntries = [], addTimeEntry } = useStore();
   const [timer, setTimer] = useState({ active: false, seconds: 0 });
   const [currentTask, setCurrentTask] = useState({
     project: "",
