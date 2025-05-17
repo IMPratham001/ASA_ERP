@@ -171,7 +171,7 @@ const Tooltip = ({
   side?: "top" | "right" | "bottom" | "left";
 }) => {
   const [show, setShow] = useState(false);
-  
+
   return (
     <div
       className="relative flex"
@@ -205,7 +205,6 @@ const Tooltip = ({
       )}
     </div>
   );
-};
 };
 
 export function Sidebar() {
