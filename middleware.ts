@@ -1,6 +1,6 @@
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verify } from 'jsonwebtoken';
 
 // Define public routes that don't require authentication
 const PUBLIC_PATHS = ['/auth/login', '/api/auth/login'];
@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('token');
 
-  // Always allow API routes
+  // Allow API routes to pass through
   if (pathname.startsWith('/api/')) {
     return NextResponse.next();
   }
@@ -17,13 +17,13 @@ export function middleware(request: NextRequest) {
   // Check if the path is public
   const isPublicPath = PUBLIC_PATHS.includes(pathname);
 
-  // If on a public path and has token, redirect to dashboard
-  if (isPublicPath && token) {
+  // If has token and trying to access login page, redirect to dashboard
+  if (token && isPublicPath) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // If on a protected path and no token, redirect to login
-  if (!isPublicPath && !token) {
+  // If no token and trying to access protected route, redirect to login
+  if (!token && !isPublicPath) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
