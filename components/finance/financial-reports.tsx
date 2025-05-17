@@ -3,14 +3,34 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAccountingStore } from "@/lib/store/accounting";
-import { useState } from "react";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export function FinancialReports() {
   const { accounts, getAccountBalance } = useAccountingStore();
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+  const [dateRange, setDateRange] = useState({
     from: new Date(),
     to: new Date()
   });
@@ -55,16 +75,23 @@ export function FinancialReports() {
     ]
   };
 
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(0,0,0,0.1)'
+        }
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Financial Reports</h2>
-        <DateRangePicker 
-          from={dateRange.from} 
-          to={dateRange.to}
-          onFromChange={(date) => setDateRange(prev => ({ ...prev, from: date }))}
-          onToChange={(date) => setDateRange(prev => ({ ...prev, to: date }))}
-        />
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
@@ -126,19 +153,7 @@ export function FinancialReports() {
             </CardHeader>
             <CardContent>
               <div className="h-[300px]">
-                <Line data={chartData} options={{ 
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      grid: {
-                        display: true,
-                        color: 'rgba(0,0,0,0.1)'
-                      }
-                    }
-                  }
-                }} />
+                <Line data={chartData} options={chartOptions} />
               </div>
             </CardContent>
           </Card>
