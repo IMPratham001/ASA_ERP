@@ -55,7 +55,7 @@ const sidebarItems = [
   {
     label: "Document Vault",
     icon: FileText,
-    href: "/documents",
+    href: "/document-vault",
     color: "text-amber-600 dark:text-amber-400",
   },
   {
@@ -132,7 +132,7 @@ const sidebarItems = [
   {
     label: "Documents",
     icon: FileText,
-    href: "/documents",
+    href: "/documents/all",
     color: "text-purple-600 dark:text-purple-400",
   },
   {
