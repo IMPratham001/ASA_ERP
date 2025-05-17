@@ -91,8 +91,8 @@ export default function CreateCustomer() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 max-w-6xl mx-auto">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Add Customer</h1>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => router.back()}>Cancel</Button>
@@ -102,10 +102,10 @@ export default function CreateCustomer() {
         </div>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-4">
         <form onSubmit={handleSubmit}>
-          <div className="mb-6 space-y-4">
-            <div className="flex gap-4 mb-6">
+          <div className="mb-4 space-y-3">
+            <div className="flex gap-4 mb-4">
               <RadioGroup
                 defaultValue="business"
                 onValueChange={setCustomerType}
