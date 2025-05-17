@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -9,42 +10,37 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { StoreSwitcher } from "@/components/shared/store-switcher";
+import { Overview } from "@/components/dashboard/overview";
+import { RecentSales } from "@/components/dashboard/recent-sales";
+import { Line, Doughnut, Bar, Radar, Pie, PolarArea } from "react-chartjs-2";
+import api from "@/lib/api/laravel";
 import {
-  BarChart,
-  Activity,
-  DollarSign,
+  Store,
   Users,
-  ShoppingCart,
   Package,
+  DollarSign,
+  ArrowUp,
+  ArrowDown,
+  Clock,
   Bell,
-  Calendar,
+  RefreshCcw,
+  TrendingUp,
+  PieChart,
   AlertTriangle,
   Layers,
-  TrendingUp,
+  TrendingDown,
   Plus,
   Search,
   Filter,
   Check,
-  Store,
-  ArrowUp,
-  ArrowDown,
-  TrendingDown,
-  Clock,
+  Calendar,
   Percent,
   ChevronRight,
   Download,
-  RefreshCcw,
-  PieChart,
   LineChart,
 } from "lucide-react";
-import { Overview } from "@/components/dashboard/overview";
-import { IntegrationTest } from "@/components/shared/integration-test";
-import { RecentSales } from "@/components/dashboard/recent-sales";
-import { Line, Doughnut, Bar, Radar, Pie, PolarArea } from "react-chartjs-2";
-import api from "@/lib/api/laravel";
 
 // Register chart components
 import {
@@ -77,6 +73,10 @@ ChartJS.register(
 );
 
 export default function DashboardPage() {
+  const [timeframe, setTimeframe] = useState("weekly");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lastRefreshed, setLastRefreshed] = useState(new Date());
   const [dashboardData, setDashboardData] = useState({
     overview: {
       totalRevenue: 0,
@@ -122,34 +122,27 @@ export default function DashboardPage() {
       email: 5,
     },
   });
-  const [timeframe, setTimeframe] = useState("weekly");
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get(
-          `/dashboard/stats?timeframe=${timeframe}`,
-        );
-        if (response.data?.status === "success") {
-          setDashboardData(response.data.data);
-          setLastRefreshed(new Date());
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchDashboardData();
-    // Refresh data every 5 minutes
     const interval = setInterval(fetchDashboardData, 300000);
     return () => clearInterval(interval);
   }, [timeframe]);
+
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.get(`/dashboard/stats?timeframe=${timeframe}`);
+      if (response.data?.status === "success") {
+        setDashboardData(response.data.data);
+        setLastRefreshed(new Date());
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const [notifications, setNotifications] = useState([
     {
@@ -430,7 +423,7 @@ export default function DashboardPage() {
         <Card className="bg-gradient-to-br from-orange-500/10 to-red-500/10">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Sales</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+12,234</div>
