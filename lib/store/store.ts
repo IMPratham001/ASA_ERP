@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { customerAPI } from '@/lib/api/laravel';
 
@@ -63,9 +62,9 @@ interface TimeEntry {
   id: string;
   staffId: string;
   projectId: string;
-  description: string;
   startTime: string;
   duration: number;
+  description: string;
 }
 
 interface ActivityLog {
@@ -77,12 +76,29 @@ interface ActivityLog {
   userId: string;
 }
 
+interface TimeEntry {
+  id: string;
+  staffId: string;
+  projectId: string;
+  startTime: string;
+  duration: number;
+  description: string;
+}
+
+interface Payment {
+  id: string;
+  invoiceId: string;
+  amount: number;
+  status: string;
+  date: string;
+}
+
 interface State {
-  timeEntries: TimeEntry[];
-  activityLogs: ActivityLog[];
   customers: Customer[];
   invoices: Invoice[];
   products: Product[];
+  timeEntries: TimeEntry[];
+  payments: Payment[];
   loading: boolean;
   error: string | null;
 }
@@ -92,11 +108,11 @@ interface Actions {
   addCustomer: (customer: Omit<Customer, 'id'>) => Promise<void>;
   updateCustomer: (id: number, customer: Partial<Customer>) => Promise<void>;
   deleteCustomer: (id: number) => Promise<void>;
-  
+
   fetchInvoices: () => Promise<void>;
   addInvoice: (invoice: Omit<Invoice, 'id'>) => Promise<void>;
   updateInvoice: (id: number, invoice: Partial<Invoice>) => Promise<void>;
-  
+
   fetchProducts: () => Promise<void>;
   addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
   updateProduct: (id: number, product: Partial<Product>) => Promise<void>;
@@ -107,6 +123,8 @@ export const useStore = create<State & Actions>((set, get) => ({
   customers: [],
   invoices: [],
   products: [],
+  timeEntries: [],
+  payments: [],
   loading: false,
   error: null,
 
@@ -179,7 +197,7 @@ export const useStore = create<State & Actions>((set, get) => ({
         body: JSON.stringify(invoice),
       });
       const newInvoice = await response.json();
-      
+
       // Update customer's invoices
       set((state) => ({
         invoices: [...state.invoices, newInvoice],
@@ -204,7 +222,7 @@ export const useStore = create<State & Actions>((set, get) => ({
         body: JSON.stringify(invoice),
       });
       const updatedInvoice = await response.json();
-      
+
       set((state) => ({
         invoices: state.invoices.map(inv => inv.id === id ? updatedInvoice : inv),
         loading: false

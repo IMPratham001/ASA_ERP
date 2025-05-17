@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,9 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Play, Pause, Square, Plus } from "lucide-react";
 
 export default function TimeTrackingPage() {
+  const { staff, projects, timeEntries, addTimeEntry } = useStore();
   const [timer, setTimer] = useState({ active: false, seconds: 0 });
-  const [currentTask, setCurrentTask] = useState({ project: "", description: "" });
-  const [entries, setEntries] = useState([]);
+  const [currentTask, setCurrentTask] = useState({
+    project: "",
+    staffId: "",
+    description: "",
+    startTime: "",
+  });
 
   useEffect(() => {
     let interval;
@@ -51,7 +55,7 @@ export default function TimeTrackingPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Time Tracking</h1>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Active Timer</CardTitle>

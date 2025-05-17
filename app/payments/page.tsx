@@ -10,9 +10,10 @@ import { Search, Filter, Download } from "lucide-react";
 export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const { invoices, payments, updateInvoicePayment } = useStore();
+  const [statusFilter, setStatusFilter] = useState("all");
 
-  const handlePayment = async (invoiceId, amount) => {
-    await updateInvoicePayment(invoiceId, amount);
+  const handlePaymentUpdate = async (invoiceId: string, status: string, amount: number) => {
+    await updateInvoicePayment(invoiceId, status, amount);
   };
 
   return (
