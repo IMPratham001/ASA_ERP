@@ -1,0 +1,72 @@
+
+
+1/1
+
+Next.js 15.3.2
+Webpack
+Console Error
+
+Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+See more info here: https://nextjs.org/docs/messages/react-hydration-error
+
+
+  ...
+    <InnerLayoutRouter url="/auth/login" tree={[...]} cacheNode={{lazyData:null, ...}} segmentPath={[...]}>
+      <ClientPageRoot Component={function LoginPage} searchParams={{}} params={{}}>
+        <LoginPage params={Promise} searchParams={Promise}>
+          <div className="min-h-scre...">
+            <div className="w-full max...">
+              <div>
+              <_c>
+                <div ref={null} className="rounded-lg...">
+                  <_c8 className="pt-6">
+                    <div ref={null} className="p-6 pt-6">
+                      <form onSubmit={function handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <Mail>
+                            <_c type="email" placeholder="Email" value="" onChange={function onChange} className="pl-10" ...>
+                              <input
+                                type="email"
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 tex..."
+                                ref={null}
+                                placeholder="Email"
+                                value=""
+                                onChange={function onChange}
+                                required={true}
+-                               autocomplete="off"
+                              >
+                        ...
+      ...
+components/ui/input.tsx (11:7) @ _c
+
+
+   9 |   ({ className, type, ...props }, ref) => {
+  10 |     return (
+> 11 |       <input
+     |       ^
+  12 |         type={type}
+  13 |         className={cn(
+  14 |           'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+Call Stack
+19
+
+Show 16 ignore-listed frame(s)
+input
+<anonymous> (0:0)
+_c
+components/ui/input.tsx (11:7)
+LoginPage
+app/auth/login/page.tsx (62:19)
+1
+2
+Was this helpful?
