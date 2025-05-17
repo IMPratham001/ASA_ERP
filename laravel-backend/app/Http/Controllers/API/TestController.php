@@ -49,3 +49,39 @@ class TestController extends Controller
         ]);
     }
 }
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
+
+class TestController extends Controller
+{
+    public function testConnection(): JsonResponse
+    {
+        try {
+            // Test raw connection
+            DB::select('SELECT 1 as result');
+            
+            // Test tables
+            $tables = [
+                'customers' => DB::table('customers')->count(),
+                'invoices' => DB::table('invoices')->count(),
+                'inventory' => DB::table('inventory')->count(),
+            ];
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Database connection successful',
+                'tables' => $tables
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Database connection failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+}
