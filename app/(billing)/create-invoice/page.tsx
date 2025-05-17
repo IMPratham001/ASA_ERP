@@ -59,7 +59,7 @@ export default function CreateInvoicePage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const validatedData = formSchema.parse(values);
-      
+
       if (items.length === 0) {
         throw new Error("Please add at least one item to the invoice");
       }
@@ -78,17 +78,16 @@ export default function CreateInvoicePage() {
       };
 
       const response = await invoices.create(invoiceData);
-      
+
       toast({
         title: "Success",
         description: "Invoice created successfully",
       });
 
       router.push(`/invoices/${response.invoice.id}`);
-      
+
     } catch (error) {
       console.error("Form submission error:", error);
-      // Show error toast
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to create invoice",
@@ -98,7 +97,7 @@ export default function CreateInvoicePage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Create Invoice</h2>
         <div className="flex gap-2">
@@ -118,7 +117,7 @@ export default function CreateInvoicePage() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Card>
+          <Card className="dark:bg-slate-900/50 backdrop-blur-sm">
             <CardHeader>
               <CardTitle>Invoice Details</CardTitle>
             </CardHeader>
@@ -226,84 +225,6 @@ export default function CreateInvoicePage() {
           <InvoiceSummary items={items} />
         </form>
       </Form>
-    </div>
-  );
-}
-"use client";
-
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { CustomerSelect } from "@/components/billing/customer-select";
-import { ProductTable } from "@/components/billing/product-table";
-import { StoreSelect } from "@/components/billing/store-select";
-import { QrCode, Save, Printer } from "lucide-react";
-import QRCode from 'qrcode.react';
-
-export default function CreateInvoicePage() {
-  const [invoice, setInvoice] = useState({
-    customerId: "",
-    storeId: "",
-    items: [],
-    notes: "",
-  });
-
-  const generateQR = (invoiceId) => {
-    return `https://your-domain.com/verify-invoice/${invoiceId}`;
-  };
-
-  return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Create New Invoice</h1>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Printer className="w-4 h-4 mr-2" />
-            Print Preview
-          </Button>
-          <Button>
-            <Save className="w-4 h-4 mr-2" />
-            Save Invoice
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Store</label>
-              <StoreSelect
-                value={invoice.storeId}
-                onChange={(value) => setInvoice({ ...invoice, storeId: value })}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Customer</label>
-              <CustomerSelect
-                value={invoice.customerId}
-                onChange={(value) => setInvoice({ ...invoice, customerId: value })}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-2">
-          <CardHeader>
-            <CardTitle>Items</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ProductTable
-              items={invoice.items}
-              onChange={(items) => setInvoice({ ...invoice, items })}
-            />
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
