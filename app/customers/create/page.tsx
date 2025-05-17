@@ -122,43 +122,88 @@ export default function CreateCustomer() {
               </RadioGroup>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Primary Contact</Label>
-                <div className="flex gap-2 mt-2">
-                  <Select onValueChange={(value) => setCustomer({...customer, salutation: value})}>
-                    <SelectTrigger className="w-[100px]">
-                      <SelectValue placeholder="Title" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="mr">Mr.</SelectItem>
-                      <SelectItem value="mrs">Mrs.</SelectItem>
-                      <SelectItem value="ms">Ms.</SelectItem>
-                      <SelectItem value="dr">Dr.</SelectItem>
-                    </SelectContent>
-                  </Select>
+            {customerType === "business" ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Company Name*</Label>
                   <Input 
-                    placeholder="First Name"
-                    value={customer.firstName}
-                    onChange={(e) => setCustomer({...customer, firstName: e.target.value})}
+                    className="mt-2"
+                    required
+                    value={customer.companyName}
+                    onChange={(e) => setCustomer({...customer, companyName: e.target.value})}
                   />
+                </div>
+                <div>
+                  <Label>Primary Contact Person</Label>
+                  <div className="flex gap-2 mt-2">
+                    <Select onValueChange={(value) => setCustomer({...customer, salutation: value})}>
+                      <SelectTrigger className="w-[100px]">
+                        <SelectValue placeholder="Title" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="mr">Mr.</SelectItem>
+                        <SelectItem value="mrs">Mrs.</SelectItem>
+                        <SelectItem value="ms">Ms.</SelectItem>
+                        <SelectItem value="dr">Dr.</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input 
+                      placeholder="First Name"
+                      value={customer.firstName}
+                      onChange={(e) => setCustomer({...customer, firstName: e.target.value})}
+                    />
+                    <Input 
+                      placeholder="Last Name"
+                      value={customer.lastName}
+                      onChange={(e) => setCustomer({...customer, lastName: e.target.value})}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Personal Details*</Label>
+                  <div className="flex gap-2 mt-2">
+                    <Select 
+                      required
+                      onValueChange={(value) => setCustomer({...customer, salutation: value})}
+                    >
+                      <SelectTrigger className="w-[100px]">
+                        <SelectValue placeholder="Title" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="mr">Mr.</SelectItem>
+                        <SelectItem value="mrs">Mrs.</SelectItem>
+                        <SelectItem value="ms">Ms.</SelectItem>
+                        <SelectItem value="dr">Dr.</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input 
+                      required
+                      placeholder="First Name"
+                      value={customer.firstName}
+                      onChange={(e) => setCustomer({...customer, firstName: e.target.value})}
+                    />
+                    <Input 
+                      required
+                      placeholder="Last Name"
+                      value={customer.lastName}
+                      onChange={(e) => setCustomer({...customer, lastName: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>Display Name*</Label>
                   <Input 
-                    placeholder="Last Name"
-                    value={customer.lastName}
-                    onChange={(e) => setCustomer({...customer, lastName: e.target.value})}
+                    className="mt-2"
+                    required
+                    value={customer.displayName}
+                    onChange={(e) => setCustomer({...customer, displayName: e.target.value})}
                   />
                 </div>
               </div>
-              <div>
-                <Label>Company Name</Label>
-                <Input 
-                  className="mt-2"
-                  value={customer.companyName}
-                  onChange={(e) => setCustomer({...customer, companyName: e.target.value})}
-                  disabled={customerType === "individual"}
-                />
-              </div>
-            </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>
