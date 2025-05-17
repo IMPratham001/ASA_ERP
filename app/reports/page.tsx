@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StoreSwitcher } from "@/components/shared/store-switcher";
+import { useStore } from "@/lib/store/store";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Bar, BarChart, Line, LineChart, Pie, PieChart, 
@@ -18,7 +18,6 @@ export default function ReportsPage() {
     { id: 3, type: 'error' }
   ]);
 
-  // Enhanced sample data
   const salesData = [
     { name: 'Jan', revenue: 4000, profit: 2400, expenses: 1600 },
     { name: 'Feb', revenue: 3000, profit: 1398, expenses: 1602 },
@@ -34,30 +33,21 @@ export default function ReportsPage() {
     { name: 'Salaries', value: 300 },
     { name: 'Marketing', value: 200 },
   ];
-  
+
   const cashFlowData = [
     { name: 'Week 1', inflow: 4000, outflow: 2400 },
     { name: 'Week 2', inflow: 3000, outflow: 1398 },
     { name: 'Week 3', inflow: 2000, outflow: 9800 },
     { name: 'Week 4', inflow: 2780, outflow: 3908 },
   ];
-  
+
   const { invoices, products } = useStore();
-  
+
   const stockData = [
     { name: 'Product A', current: 100, minimum: 20 },
     { name: 'Product B', current: 80, minimum: 30 },
     { name: 'Product C', current: 40, minimum: 25 },
     { name: 'Product D', current: 60, minimum: 40 },
-  ];
-  
-  const customerData = [
-    { month: 'Jan', new: 400, returning: 240 },
-    { month: 'Feb', new: 300, returning: 139 },
-    { month: 'Mar', new: 200, returning: 980 },
-    { month: 'Apr', new: 278, returning: 390 },
-    { month: 'May', new: 189, returning: 480 },
-    { month: 'Jun', new: 239, returning: 380 },
   ];
 
   return (
@@ -77,7 +67,6 @@ export default function ReportsPage() {
               />
             ))}
           </div>
-          <StoreSwitcher />
         </div>
       </div>
 
@@ -91,202 +80,68 @@ export default function ReportsPage() {
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="dark:bg-slate-900/50 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Revenue</p>
-                    <h3 className="text-2xl font-bold mt-2">₹6.35M</h3>
-                    <div className="flex items-center mt-1 text-emerald-600">
-                      <ArrowUpRight className="h-4 w-4" />
-                      <span className="text-sm">+22.1%</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <ResponsiveContainer width="100%" height={60}>
-                    <AreaChart data={salesData}>
-                      <Area type="monotone" dataKey="revenue" stroke="#10b981" fill="#10b981" fillOpacity={0.2} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="dark:bg-slate-900/50 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Growth</p>
-                    <h3 className="text-2xl font-bold mt-2">28.5%</h3>
-                    <div className="flex items-center mt-1 text-red-600">
-                      <ArrowDownRight className="h-4 w-4" />
-                      <span className="text-sm">-0.3%</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <ResponsiveContainer width="100%" height={60}>
-                    <AreaChart data={salesData}>
-                      <Area type="monotone" dataKey="profit" stroke="#ef4444" fill="#ef4444" fillOpacity={0.2} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="dark:bg-slate-900/50 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Performance</p>
-                    <h3 className="text-2xl font-bold mt-2">92%</h3>
-                    <div className="flex items-center mt-1 text-emerald-600">
-                      <Target className="h-4 w-4" />
-                      <span className="text-sm">On Track</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <ResponsiveContainer width="100%" height={60}>
-                    <AreaChart data={salesData}>
-                      <Area type="monotone" dataKey="expenses" stroke="#6366f1" fill="#6366f1" fillOpacity={0.2} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="dark:bg-slate-900/50 backdrop-blur-sm">
+            {/* Charts and metrics */}
+            <Card className="col-span-2">
               <CardHeader>
-                <CardTitle>Revenue Analysis</CardTitle>
+                <CardTitle>Sales Overview</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={salesData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="name" className="text-sm" />
-                    <YAxis className="text-sm" />
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
                     <Tooltip />
                     <Legend />
                     <Line type="monotone" dataKey="revenue" stroke="#8884d8" />
                     <Line type="monotone" dataKey="profit" stroke="#82ca9d" />
-                    <Line type="monotone" dataKey="expenses" stroke="#ffc658" />
                   </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card className="dark:bg-slate-900/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle>Monthly Distribution</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={salesData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="name" className="text-sm" />
-                    <YAxis className="text-sm" />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="revenue" fill="#8884d8" />
-                    <Bar dataKey="profit" fill="#82ca9d" />
-                  </BarChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
 
-        <TabsContent value="financial" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="dark:bg-slate-900/50 backdrop-blur-sm">
+        <TabsContent value="financial">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
               <CardHeader>
                 <CardTitle>Expense Distribution</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
-                    <Pie
-                      data={expenseData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      fill="#8884d8"
-                      label
-                    />
+                    <Pie data={expenseData} dataKey="value" nameKey="name" />
                     <Tooltip />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
+          </div>
+        </TabsContent>
 
-            <Card className="dark:bg-slate-900/50 backdrop-blur-sm">
+        <TabsContent value="inventory">
+          <div className="grid grid-cols-1 gap-6">
+            <Card>
               <CardHeader>
-                <CardTitle>Cash Flow</CardTitle>
+                <CardTitle>Stock Levels</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={cashFlowData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="name" className="text-sm" />
-                    <YAxis className="text-sm" />
+                  <BarChart data={stockData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="inflow" fill="#82ca9d" />
-                    <Bar dataKey="outflow" fill="#8884d8" />
+                    <Bar dataKey="current" fill="#8884d8" />
+                    <Bar dataKey="minimum" fill="#82ca9d" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
-
-        <TabsContent value="inventory" className="space-y-6">
-          <Card className="dark:bg-slate-900/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle>Stock Levels</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={stockData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="name" className="text-sm" />
-                  <YAxis className="text-sm" />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="current" fill="#82ca9d" />
-                  <Bar dataKey="minimum" fill="#ff7f7f" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="customers" className="space-y-6">
-          <Card className="dark:bg-slate-900/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle>Customer Growth</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={customerData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-sm" />
-                  <YAxis className="text-sm" />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="new" stroke="#82ca9d" />
-                  <Line type="monotone" dataKey="returning" stroke="#8884d8" />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
