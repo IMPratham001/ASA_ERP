@@ -69,7 +69,9 @@ class TestController extends Controller
             $tables = [
                 'customers' => DB::table('customers')->count(),
                 'invoices' => DB::table('invoices')->count(),
-                'inventory' => DB::table('inventory')->count(),
+                'products' => DB::table('products')->count(),
+                'categories' => DB::table('categories')->count(),
+                'brands' => DB::table('brands')->count(),
             ];
             
             return response()->json([
