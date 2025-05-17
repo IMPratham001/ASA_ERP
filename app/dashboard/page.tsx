@@ -283,10 +283,9 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="flex flex-col gap-6 pb-8">
-      {/* Dashboard Header */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+    <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <div className="flex items-center gap-3">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -302,7 +301,6 @@ export default function DashboardPage() {
           </button>
         </div>
       </div>
-
       {/* Quick Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {quickStats.map((stat, index) => (
@@ -340,7 +338,7 @@ export default function DashboardPage() {
             <CardTitle>Revenue Overview</CardTitle>
           </CardHeader>
           <CardContent>
-            <Overview />
+            <Line data={lineChartData} options={lineChartOptions} />
           </CardContent>
         </Card>
 
