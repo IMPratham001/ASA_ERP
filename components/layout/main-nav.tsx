@@ -12,7 +12,6 @@ import {
   Package,
   FileText,
   CreditCard,
-  Clock,
   BarChart2,
   Settings,
   ChevronDown,
@@ -122,12 +121,6 @@ const sidebarItems = [
     icon: CreditCard,
     href: "/payments",
     color: "text-amber-600 dark:text-amber-400",
-  },
-  {
-    label: "Time Tracking",
-    icon: Clock,
-    href: "/time-tracking",
-    color: "text-teal-600 dark:text-teal-400",
   },
   {
     label: "Reports",

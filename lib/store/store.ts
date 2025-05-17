@@ -135,7 +135,7 @@ export const useStore = create<State & Actions>((set) => ({
   customOrders: [],
   invoices: [],
   products: [],
-  timeEntries: [],
+  
   payments: [],
   loading: false,
   error: null,
