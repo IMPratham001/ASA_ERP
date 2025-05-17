@@ -41,8 +41,54 @@ const sidebarItems = [
   {
     label: "Dashboard",
     icon: LayoutDashboard,
-    href: "/dashboard",
+    href: "/dashboard", 
     color: "text-blue-600 dark:text-blue-400",
+  },
+  {
+    label: "Security",
+    icon: Lock,
+    href: "/security",
+    color: "text-red-600 dark:text-red-400",
+    subItems: [
+      {
+        label: "Access Control",
+        icon: Key,
+        href: "/security/access",
+      },
+      {
+        label: "Audit Logs",
+        icon: ScrollText,
+        href: "/security/audit",
+      },
+      {
+        label: "Encryption",
+        icon: Shield,
+        href: "/security/encryption",
+      }
+    ]
+  },
+  {
+    label: "Signals",
+    icon: Radio,
+    href: "/signals",
+    color: "text-emerald-600 dark:text-emerald-400",
+    subItems: [
+      {
+        label: "Monitor",
+        icon: Activity,
+        href: "/signals/monitor",
+      },
+      {
+        label: "Alerts",
+        icon: Bell,
+        href: "/signals/alerts",
+      },
+      {
+        label: "History",
+        icon: History,
+        href: "/signals/history",
+      }
+    ]
   },
   {
     label: "Custom Orders",
