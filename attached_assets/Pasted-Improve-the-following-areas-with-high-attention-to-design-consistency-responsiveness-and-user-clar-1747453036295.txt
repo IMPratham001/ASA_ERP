@@ -1,0 +1,73 @@
+Improve the following areas with high attention to design consistency, responsiveness, and user clarity:
+
+1. Navigation Sidebar Enhancement
+Add active state highlighting for the current route.
+
+Implement hover tooltips for icons when the sidebar is collapsed.
+
+Add smooth animation for expanding/collapsing the sidebar.
+
+Support a mini variant for mobile view that overlays the screen.
+
+Make sure the sidebar is sticky and scrollable on smaller screens.
+
+2. Dashboard Visual Polish
+Add placeholder loading skeletons for dashboard cards and charts.
+
+Improve spacing, alignment, and layout consistency.
+
+Use iconography and visual cues to enhance readability.
+
+Animate chart transitions using Framer Motion or similar.
+
+3. Customer & Staff Tables
+Improve table readability with zebra striping and hover effects.
+
+Add status badges with clear color schemes for Active/Inactive.
+
+Implement column-based filtering, sorting icons, and searchable table headers.
+
+Add pagination and make the table layout responsive for mobile.
+
+4. Modal & Form Improvements
+Refine modal transitions and ensure accessibility (focus traps, ESC close).
+
+Align form field labels, add input validation styles, and consistent spacing.
+
+Add toggle switches, select dropdowns, and date pickers using Shadcn UI.
+
+Ensure all forms adapt well on mobile, using proper grid or stack layouts.
+
+5. Dark Mode & Theme Consistency
+Ensure all components work seamlessly in both light and dark mode.
+
+Standardize color usage via Tailwind tokens (e.g., bg-background, text-muted).
+
+Use theme-aware icons and input borders.
+
+6. Responsive UI Optimization
+Review all major screens for mobile usability.
+
+Use Tailwind’s responsive utilities to fix overflow issues, stacking problems, and spacing bugs.
+
+Make sidebar collapsible on tablets, and overlays on mobile.
+
+Test interactions like modals, buttons, and dropdowns on touch devices.
+
+7. General UI/UX Enhancements
+Add subtle hover animations and micro-interactions for buttons, icons, and cards.
+
+Ensure consistent use of buttons (<Button variant="default">, etc.) across the app.
+
+Use motion/transition effects where appropriate for user feedback.
+
+Add toast notifications for user actions like form submission success/failure (UI-only, no actual backend hook).
+
+Notes:
+Use only frontend logic. Assume static or placeholder data if needed.
+
+Maintain clean, semantic, and accessible HTML structure.
+
+Use Tailwind and Shadcn UI components where possible.
+
+Avoid adding custom libraries unless absolutely necessary.
