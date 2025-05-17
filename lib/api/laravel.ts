@@ -21,8 +21,9 @@ api.interceptors.request.use((config) => {
 
 // Add response interceptor for error handling
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  response => response,
+  error => {
+    console.error('API Error:', error);
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';
