@@ -1,7 +1,7 @@
-
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { sign } from "jsonwebtoken";
+import axios from "@/lib/api/axios";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -9,39 +9,23 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    // Demo authentication logic 
-    let isValid = false;
-    let userData = null;
+    // Call Laravel login endpoint
+    const response = await axios.post('/auth/login', {
+      email,
+      password
+    });
 
-    if (email === "admin@example.com" && password === "admin") {
-      isValid = true;
-      userData = {
-        id: "1",
-        email,
-        name: "Super Admin",
-        role: "admin"
-      };
-    } else if (email === "manager@example.com" && password === "manager") {
-      isValid = true;
-      userData = {
-        id: "2",
-        email,
-        name: "Store Manager",
-        role: "manager"
-      };
-    }
-
-    if (!isValid) {
+    if (!response.data.access_token) {
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
       );
     }
 
-    // Generate JWT token
+    const userData = response.data.user;
     const token = sign(userData, JWT_SECRET, { expiresIn: "7d" });
 
-    const response = NextResponse.json(
+    const nextResponse = NextResponse.json(
       { success: true, user: userData },
       { status: 200 }
     );
@@ -55,12 +39,13 @@ export async function POST(req: Request) {
       path: "/"
     });
 
-    return response;
+    return nextResponse;
+
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+      { error: "Invalid credentials" },
+      { status: 401 }
     );
   }
 }
