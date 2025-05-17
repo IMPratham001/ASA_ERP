@@ -171,6 +171,42 @@ const Tooltip = ({
   side?: "top" | "right" | "bottom" | "left";
 }) => {
   const [show, setShow] = useState(false);
+  
+  return (
+    <div
+      className="relative flex"
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+      onFocus={() => setShow(true)}
+      onBlur={() => setShow(false)}
+    >
+      {children}
+      {show && (
+        <div
+          className={cn(
+            "absolute z-50 px-2 py-1 text-xs font-medium text-white bg-slate-800 rounded-md whitespace-nowrap transition-all duration-200 scale-100 opacity-100",
+            side === "right" && "left-full ml-2",
+            side === "left" && "right-full mr-2",
+            side === "top" && "bottom-full mb-2 left-1/2 -translate-x-1/2",
+            side === "bottom" && "top-full mt-2 left-1/2 -translate-x-1/2"
+          )}
+        >
+          {content}
+          <div
+            className={cn(
+              "absolute h-2 w-2 bg-slate-800 rotate-45",
+              side === "right" && "left-0 top-1/2 -translate-x-1/2 -translate-y-1/2",
+              side === "left" && "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+              side === "top" && "bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2",
+              side === "bottom" && "top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            )}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+  const [show, setShow] = useState(false);
 
   return (
     <div

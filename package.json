@@ -5,9 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-
     "studio": "prisma studio",
-
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate"
@@ -39,6 +37,7 @@
     "clsx": "^2.1.0",
     "cmdk": "^0.2.1",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.12.1",
     "jsbarcode": "^3.11.5",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.344.0",
