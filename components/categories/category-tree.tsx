@@ -13,6 +13,67 @@ type Category = {
   children?: Category[];
 };
 
+// Demo categories data
+const demoCategories: Category[] = [
+  {
+    id: '1',
+    name: 'Ushnakal Shringars and Sahityas',
+    children: [
+      { id: '1-1', name: 'Chip Shringars' }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Chandan Shringars',
+    children: [
+      { id: '2-1', name: 'Chandan Chandrika' },
+      { id: '2-2', name: 'Chandan Haas' },
+      { id: '2-3', name: 'Chandan Kundal' },
+      { id: '2-4', name: 'Chandan Venuji' },
+      { id: '2-5', name: 'Chandan Tipara' },
+      { id: '2-6', name: 'Chandan Mukut' },
+      { id: '2-7', name: 'Chandan Sets' },
+      { id: '2-8', name: 'Chandan Moti' }
+    ]
+  },
+  {
+    id: '3',
+    name: 'Moti Shringars',
+    children: [
+      { id: '3-1', name: 'Moti Gadimala' },
+      { id: '3-2', name: 'Moti Kandora' }
+    ]
+  },
+  {
+    id: '4',
+    name: 'Hindola',
+    children: [
+      { id: '4-1', name: 'Glass hindola' }
+    ]
+  },
+  {
+    id: '5',
+    name: 'Snan Chowki'
+  },
+  {
+    id: '6',
+    name: 'Thakorji khilona',
+    children: [
+      {
+        id: '6-1',
+        name: 'Chopat',
+        children: [
+          { id: '6-1-1', name: 'Kaanch ni Chopat (Glass Chopat)' }
+        ]
+      }
+    ]
+  },
+  {
+    id: '7',
+    name: 'Fulmandali'
+  }
+];
+
 const ItemTypes = {
   CATEGORY: 'category'
 };
