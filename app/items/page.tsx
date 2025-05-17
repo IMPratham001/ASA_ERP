@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -31,7 +32,17 @@ export default function ItemsPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetchProducts();
+    const loadProducts = async () => {
+      try {
+        if (typeof fetchProducts === 'function') {
+          await fetchProducts();
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    
+    loadProducts();
   }, [fetchProducts]);
 
   const generateBarcode = (sku) => {
@@ -52,7 +63,9 @@ export default function ItemsPage() {
     const formData = new FormData();
     formData.append("file", file);
     await useStore.getState().importData("products", file);
-    fetchProducts();
+    if (typeof fetchProducts === 'function') {
+      await fetchProducts();
+    }
   };
 
   const handleExport = async (format) => {
