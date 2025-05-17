@@ -1,0 +1,82 @@
+
+
+1/1
+
+Next.js 15.3.2
+Webpack
+Runtime Error
+
+Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+See more info here: https://nextjs.org/docs/messages/react-hydration-error
+
+
+  ...
+    <InnerLayoutRouter url="/finance/t..." tree={[...]} cacheNode={{lazyData:null, ...}} segmentPath={[...]}>
+      <ClientPageRoot Component={function TrialBalancePage} searchParams={{}} params={{}}>
+        <TrialBalancePage params={Promise} searchParams={Promise}>
+          <div className="p-6">
+            <h1>
+            <TrialBalance>
+              <div className="space-y-4">
+                <div>
+                <_c>
+                  <div className="relative w...">
+                    <table ref={null} className="w-full cap...">
+                      <_c2>
+                      <_c4>
+                        <tbody ref={null} className={"[&_tr:la..."}>
+                          <_c8>
+                            <tr
+                              ref={null}
++                             className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+-                             className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted f..."
+                            >
+                              <_c12>
+                                <td
+                                  ref={null}
+                                  className={"p-4 align-middle [&:has([role=checkbox])]:pr-0"}
+-                                 colspan="3"
+                                >
++                                 test
+-                                 Total
+                              ...
+                          ...
+      ...
+components/ui/table.tsx (92:3) @ _c12
+
+
+  90 |   React.TdHTMLAttributes<HTMLTableCellElement>
+  91 | >(({ className, ...props }, ref) => (
+> 92 |   <td
+     |   ^
+  93 |     ref={ref}
+  94 |     className={cn('p-4 align-middle [&:has([role=checkbox])]:pr-0', className)}
+  95 |     {...props}
+Call Stack
+18
+
+Show 12 ignore-listed frame(s)
+td
+<anonymous> (0:0)
+_c12
+components/ui/table.tsx (92:3)
+eval
+components/finance/trial-balance.tsx (61:15)
+Array.map
+<anonymous> (0:0)
+TrialBalance
+components/finance/trial-balance.tsx (59:25)
+TrialBalancePage
+app/finance/trial-balance/page.tsx (10:7)
+1
+2
+Was this helpful?
