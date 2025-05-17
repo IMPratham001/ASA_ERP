@@ -209,22 +209,7 @@ export default function DashboardPage() {
           <StoreSwitcher />
         </div>
         <div className="flex items-center space-x-4">
-          <div className="flex space-x-2">
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className={`h-3 w-3 rounded-full ${
-                  notification.type === "success"
-                    ? "bg-green-500"
-                    : notification.type === "warning"
-                      ? "bg-yellow-500"
-                      : "bg-red-500"
-                } animate-pulse`}
-                title={notification.title}
-              />
-            ))}
-          </div>
-          
+          {/* Removed notification dots */}
         </div>
       </div>
 
