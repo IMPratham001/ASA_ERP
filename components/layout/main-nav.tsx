@@ -27,6 +27,8 @@ import {
   Sun,
   Moon,
   ChevronLeft,
+  Plus,
+  Download,
 } from "lucide-react";
 
 // Types for sidebar items
@@ -38,6 +40,31 @@ type SubItem = {
   permissions?: string[];
 };
 
+type SidebarItem = {
+  label: string;
+  icon: React.ElementType;
+  href: string;
+  color: string;
+  badge?: number | string;
+  subItems?: SubItem[];
+  permissions?: string[];
+};
+
+type Store = {
+  id: string;
+  name: string;
+  icon?: string;
+  themeColor?: string;
+};
+
+// Configuration for sidebar routes
+const sidebarConfig: SidebarItem[] = [
+  {
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    href: "/dashboard",
+    color: "text-blue-600 dark:text-blue-400",
+  },
   {
     label: "Custom Orders",
     icon: Package,
@@ -103,33 +130,6 @@ type SubItem = {
         color: "text-cyan-600 dark:text-cyan-400",
       }
     ]
-  },
-
-
-type SidebarItem = {
-  label: string;
-  icon: React.ElementType;
-  href: string;
-  color: string;
-  badge?: number | string;
-  subItems?: SubItem[];
-  permissions?: string[];
-};
-
-type Store = {
-  id: string;
-  name: string;
-  icon?: string;
-  themeColor?: string;
-};
-
-// Configuration for sidebar routes
-const sidebarConfig: SidebarItem[] = [
-  {
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/dashboard",
-    color: "text-blue-600 dark:text-blue-400",
   },
   {
     label: "Customers",

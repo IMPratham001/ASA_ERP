@@ -2,39 +2,31 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
   timeout: 10000,
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  },
   withCredentials: true
 });
 
-// Add error handling interceptor
+// Add request interceptor for auth
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Add response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (!error.response) {
-      console.error('Network Error:', error);
-      return Promise.reject({
-        status: 'error',
-        message: 'Network Error - Please check your connection',
-        timestamp: new Date().toISOString()
-      });
+  async (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
-    return Promise.reject(error.response.data);
-  }
-);
-
-api.interceptors.request.use(
-  config => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  error => {
     return Promise.reject(error);
   }
 );
