@@ -16,6 +16,11 @@ import {
 import { FileText, Download, Eye, History, Upload } from "lucide-react";
 
 export default function DocumentsPage() {
+  const { invoices, fetchInvoices } = useStore();
+  
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
   const [documents, setDocuments] = useState([
     { 
       id: 1, 

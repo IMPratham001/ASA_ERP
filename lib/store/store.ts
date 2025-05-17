@@ -47,6 +47,16 @@ interface Product {
   category: string;
   images: string[];
   status: 'active' | 'inactive';
+  inventory?: Inventory;
+}
+
+interface Inventory {
+  id: number;
+  product_id: number;
+  quantity: number;
+  low_stock_threshold: number;
+  warehouse_location: string;
+  last_restock_date: string;
 }
 
 interface State {
@@ -249,3 +259,34 @@ export const useStore = create<State & Actions>((set, get) => ({
     }
   },
 }));
+interface TimeEntry {
+  id: number;
+  staff_id: number;
+  project_id: number;
+  start_time: string;
+  end_time: string;
+  description: string;
+}
+
+interface StaffMember {
+  id: number;
+  name: string;
+  role: string;
+  timeEntries?: TimeEntry[];
+}
+interface Payment {
+  id: number;
+  invoice_id: number;
+  amount: number;
+  payment_date: string;
+  payment_method: string;
+  status: 'pending' | 'completed' | 'failed';
+  transaction_id: string;
+}
+
+// Add to Invoice interface
+interface Invoice {
+  id: number;
+  // ... existing fields ...
+  payments?: Payment[];
+}

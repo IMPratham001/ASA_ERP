@@ -1,4 +1,3 @@
-
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login',
@@ -27,6 +26,9 @@ export const API_ENDPOINTS = {
     LIST: '/inventory',
     DETAIL: (id: string) => `/inventory/${id}`,
     MOVEMENTS: '/inventory/movements',
+    update: (id: number) => `/inventory/${id}`,
+    getByProduct: (productId: number) => `/inventory/product/${productId}`,
+    updateStock: (id: number) => `/inventory/${id}/stock`,
   },
   DASHBOARD: {
     STATS: '/dashboard/stats',

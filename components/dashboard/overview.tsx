@@ -20,8 +20,12 @@ export function Overview() {
   ];
 
   useEffect(() => {
+    const { products, fetchProducts } = useStore();
+    
     // Fetch data from API
     const fetchData = async () => {
+      await fetchProducts();
+      const lowStockItems = products.filter(p => p.stock <= (p.inventory?.low_stock_threshold || 10));
       try {
         const response = await fetch("/api/dashboard/stats");
         const json = await response.json();

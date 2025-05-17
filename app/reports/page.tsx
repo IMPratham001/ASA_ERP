@@ -42,6 +42,8 @@ export default function ReportsPage() {
     { name: 'Week 4', inflow: 2780, outflow: 3908 },
   ];
   
+  const { invoices, products } = useStore();
+  
   const stockData = [
     { name: 'Product A', current: 100, minimum: 20 },
     { name: 'Product B', current: 80, minimum: 30 },
