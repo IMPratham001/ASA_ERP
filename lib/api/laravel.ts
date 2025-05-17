@@ -1,21 +1,12 @@
-import axios from 'axios';
 
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api',
-  timeout: 30000,
-  withCredentials: true,
-  headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
-  }
-});
+import api from './axios';
 
-api.interceptors.response.use(
-  response => response,
-  error => {
-    console.error('API Error:', error);
-    return Promise.reject(error);
-  }
-);
+export const customerAPI = {
+  getAll: () => api.get('/customers'),
+  getById: (id: number) => api.get(`/customers/${id}`),
+  create: (data: any) => api.post('/customers', data),
+  update: (id: number, data: any) => api.put(`/customers/${id}`, data),
+  delete: (id: number) => api.delete(`/customers/${id}`)
+};
 
 export default api;

@@ -21,8 +21,12 @@ export default function CreateCustomerPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addCustomer(customer);
-    router.push("/customers");
+    try {
+      await addCustomer(customer);
+      router.push("/customers");
+    } catch (error) {
+      console.error("Failed to create customer:", error);
+    }
   };
 
   return (
