@@ -35,6 +35,7 @@ import {
   Info,
   LayoutList,
   BookOpen,
+  Clock,
 } from "lucide-react";
 
 // Configuration for navigation items
