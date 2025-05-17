@@ -1,49 +1,35 @@
-
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verify } from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+// Define public routes that don't require authentication
 const PUBLIC_PATHS = ['/auth/login', '/api/auth/login'];
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('token');
   const { pathname } = request.nextUrl;
+  const token = request.cookies.get('token');
 
-  // Allow public paths
-  if (PUBLIC_PATHS.includes(pathname)) {
-    if (token) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
-    return NextResponse.next();
-  }
-
-  // Protect API routes
+  // Always allow API routes
   if (pathname.startsWith('/api/')) {
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    try {
-      verify(token.value, JWT_SECRET);
-      return NextResponse.next();
-    } catch {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-  }
-
-  // Handle protected routes
-  if (!token) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
-  }
-
-  try {
-    verify(token.value, JWT_SECRET);
     return NextResponse.next();
-  } catch {
+  }
+
+  // Check if the path is public
+  const isPublicPath = PUBLIC_PATHS.includes(pathname);
+
+  // If on a public path and has token, redirect to dashboard
+  if (isPublicPath && token) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // If on a protected path and no token, redirect to login
+  if (!isPublicPath && !token) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)',],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };
