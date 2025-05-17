@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/layout/main-nav";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import ErrorBoundary from "@/components/shared/error-boundary";
+import { cookies } from 'next/headers';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +20,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const token = cookies().get('token');
+  const isLoggedIn = !!token;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning data-supressed-warning={true}>
@@ -30,7 +34,7 @@ export default function RootLayout({
         >
           <ErrorBoundary>
             <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
-              <Sidebar />
+              {isLoggedIn && <Sidebar />}
               <div className="flex-1">
                 <main className="h-screen overflow-y-auto p-4 md:p-8">
                   {children}
