@@ -312,6 +312,42 @@ export function Sidebar() {
           </div>
 
           <nav className="flex-1 overflow-y-auto py-2 px-3">
+            {/* Quick Actions */}
+            <div className="p-4 space-y-2">
+              <div className="text-sm font-medium text-slate-500 dark:text-slate-400">Quick Actions</div>
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/items/create"
+                  className="flex items-center gap-2 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm"
+                >
+                  <PlusCircle className="w-4 h-4 text-blue-500" />
+                  <span>New Item</span>
+                </Link>
+                <Link
+                  href="/create-invoice"
+                  className="flex items-center gap-2 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm"
+                >
+                  <FilePlus className="w-4 h-4 text-green-500" />
+                  <span>New Invoice</span>
+                </Link>
+                <Link
+                  href="/customers/create"
+                  className="flex items-center gap-2 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm"
+                >
+                  <UserPlus className="w-4 h-4 text-purple-500" />
+                  <span>New Customer</span>
+                </Link>
+                <Link
+                  href="/documents"
+                  className="flex items-center gap-2 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm"
+                >
+                  <FileCheck className="w-4 h-4 text-amber-500" />
+                  <span>Documents</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Mobile menu overlay */}
             <div className="space-y-0.5">
               {sidebarItems.map((item) => (
                 <div key={item.href}>
