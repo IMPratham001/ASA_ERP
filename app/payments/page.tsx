@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, Filter, Download } from "lucide-react";
+import { useStore } from "@/lib/store/store";
+import { useAccountingStore } from "@/lib/store/accounting";
 
 export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState("");

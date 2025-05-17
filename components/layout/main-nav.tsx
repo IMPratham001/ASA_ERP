@@ -34,6 +34,8 @@ import {
   MessageSquare,
   HelpCircle,
   Info,
+  LayoutList,
+  BookOpen,
 } from "lucide-react";
 
 // Configuration for navigation items
@@ -135,31 +137,26 @@ const sidebarItems = [
   },
   {
     label: "Finance",
-    icon: CreditCard,
+    icon: FileText,
     href: "/finance",
-    color: "text-emerald-600 dark:text-emerald-400",
+    color: "text-green-600 dark:text-green-400",
     subItems: [
       {
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        href: "/finance/dashboard",
-      },
-      {
         label: "Chart of Accounts",
-        icon: FileText,
         href: "/finance/accounts",
+        icon: LayoutList
       },
       {
         label: "Journal Entries",
-        icon: FileText,
         href: "/finance/journal",
+        icon: BookOpen
       },
       {
         label: "Trial Balance",
-        icon: BarChart2,
         href: "/finance/trial-balance",
-      },
-    ],
+        icon: BarChart2
+      }
+    ]
   },
   {
     label: "Settings",
