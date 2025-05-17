@@ -25,6 +25,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Overview } from "@/components/dashboard/overview";
+import { IntegrationTest } from "@/components/shared/integration-test";
 import { RecentSales } from "@/components/dashboard/recent-sales";
 import { Line, Doughnut, Bar } from "react-chartjs-2";
 import {
@@ -302,6 +303,7 @@ export default function DashboardPage() {
         </div>
       </div>
       {/* Quick Stats Grid */}
+      <IntegrationTest />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {quickStats.map((stat, index) => (
           <Card
