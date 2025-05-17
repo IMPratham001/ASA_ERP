@@ -136,12 +136,6 @@ const sidebarItems = [
     color: "text-purple-600 dark:text-purple-400",
   },
   {
-    label: "Time Tracking",
-    icon: Clock,
-    href: "/time-tracking",
-    color: "text-indigo-600 dark:text-indigo-400",
-  },
-  {
     label: "Finance",
     icon: FileText,
     href: "/finance",

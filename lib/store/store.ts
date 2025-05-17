@@ -73,14 +73,7 @@ interface Inventory {
   last_restock_date: string;
 }
 
-interface TimeEntry {
-  id: string;
-  staffId: string;
-  projectId: string;
-  startTime: string;
-  duration: number;
-  description: string;
-}
+
 
 interface ActivityLog {
   id: string;
