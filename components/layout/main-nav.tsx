@@ -313,36 +313,56 @@ export function Sidebar() {
 
           <nav className="flex-1 overflow-y-auto py-2 px-3">
             {/* Quick Actions */}
-            <div className="p-4 space-y-2">
-              <div className="text-sm font-medium text-slate-500 dark:text-slate-400">Quick Actions</div>
-              <div className="grid grid-cols-2 gap-2">
+            <div className={cn("p-4 space-y-2", isCollapsed && "p-2")}>
+              {!isCollapsed && <div className="text-sm font-medium text-slate-500 dark:text-slate-400">Quick Actions</div>}
+              <div className={cn("grid gap-2", isCollapsed ? "grid-cols-1" : "grid-cols-2")}>
                 <Link
                   href="/items/create"
-                  className="flex items-center gap-2 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm"
+                  className={cn(
+                    "flex items-center gap-2 p-2 rounded-md transition-colors text-sm group",
+                    "hover:bg-blue-50 dark:hover:bg-blue-900/20",
+                    isCollapsed && "justify-center"
+                  )}
+                  title="New Item"
                 >
-                  <PlusCircle className="w-4 h-4 text-blue-500" />
-                  <span>New Item</span>
+                  <PlusCircle className="w-6 h-6 text-blue-500" />
+                  {!isCollapsed && <span>New Item</span>}
                 </Link>
                 <Link
                   href="/create-invoice"
-                  className="flex items-center gap-2 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm"
+                  className={cn(
+                    "flex items-center gap-2 p-2 rounded-md transition-colors text-sm group",
+                    "hover:bg-green-50 dark:hover:bg-green-900/20",
+                    isCollapsed && "justify-center"
+                  )}
+                  title="New Invoice"
                 >
-                  <FilePlus className="w-4 h-4 text-green-500" />
-                  <span>New Invoice</span>
+                  <FilePlus className="w-6 h-6 text-green-500" />
+                  {!isCollapsed && <span>New Invoice</span>}
                 </Link>
                 <Link
                   href="/customers/create"
-                  className="flex items-center gap-2 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm"
+                  className={cn(
+                    "flex items-center gap-2 p-2 rounded-md transition-colors text-sm group",
+                    "hover:bg-purple-50 dark:hover:bg-purple-900/20",
+                    isCollapsed && "justify-center"
+                  )}
+                  title="New Customer"
                 >
-                  <UserPlus className="w-4 h-4 text-purple-500" />
-                  <span>New Customer</span>
+                  <UserPlus className="w-6 h-6 text-purple-500" />
+                  {!isCollapsed && <span>New Customer</span>}
                 </Link>
                 <Link
-                  href="/documents"
-                  className="flex items-center gap-2 p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm"
+                  href="/custom-orders/create"
+                  className={cn(
+                    "flex items-center gap-2 p-2 rounded-md transition-colors text-sm group",
+                    "hover:bg-indigo-50 dark:hover:bg-indigo-900/20",
+                    isCollapsed && "justify-center"
+                  )}
+                  title="New Custom Order"
                 >
-                  <FileCheck className="w-4 h-4 text-amber-500" />
-                  <span>Documents</span>
+                  <PackagePlus className="w-6 h-6 text-indigo-500" />
+                  {!isCollapsed && <span>Custom Order</span>}
                 </Link>
               </div>
             </div>

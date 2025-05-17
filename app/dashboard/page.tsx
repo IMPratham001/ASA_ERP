@@ -223,14 +223,7 @@ export default function DashboardPage() {
               />
             ))}
           </div>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <input
-              type="search"
-              placeholder="Search..."
-              className="rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm"
-            />
-          </div>
+          
         </div>
       </div>
 
@@ -329,25 +322,16 @@ export default function DashboardPage() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span>API Health</span>
-                <span className="flex items-center">
-                  <Check className="h-4 w-4 text-green-500 mr-2" />
-                  Operational
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Database</span>
-                <span className="flex items-center">
-                  <Check className="h-4 w-4 text-green-500 mr-2" />
-                  Connected
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Cache</span>
-                <span className="flex items-center">
-                  <Check className="h-4 w-4 text-green-500 mr-2" />
-                  Synced
-                </span>
+                <span>System Status</span>
+                <div className="flex items-center gap-2">
+                  <div 
+                    className={cn(
+                      "h-3 w-3 rounded-full animate-pulse",
+                      isLoading ? "bg-yellow-500" : error ? "bg-red-500" : "bg-green-500"
+                    )}
+                    title={error ? "System Error" : "System Operational"}
+                  />
+                </div>
               </div>
             </div>
           </CardContent>
