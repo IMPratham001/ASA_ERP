@@ -15,12 +15,13 @@ export const metadata: Metadata = {
   description: "Advanced ERP System",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const token = cookies().get('token');
+  const cookieStore = cookies();
+  const token = await cookieStore.get('token');
   const isLoggedIn = !!token;
 
   return (
