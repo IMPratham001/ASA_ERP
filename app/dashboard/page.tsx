@@ -103,12 +103,19 @@ export default function DashboardPage() {
 
   // Store performance data
   const storePerformance = {
-    labels: ['Sales', 'Customer Satisfaction', 'Inventory', 'Employee Performance', 'Revenue Growth'],
+    labels: ['Sales', 'Customer Satisfaction', 'Inventory', 'Employee Performance', 'Revenue Growth', 'Order Fulfillment', 'Customer Retention'],
     datasets: [{
       label: 'Current Period',
-      data: [85, 75, 90, 80, 70],
+      data: [85, 75, 90, 80, 70, 88, 92],
       backgroundColor: 'rgba(45, 52, 54, 0.2)',
       borderColor: 'rgba(45, 52, 54, 1)',
+      fill: true
+    },
+    {
+      label: 'Previous Period',
+      data: [80, 70, 85, 75, 65, 82, 88],
+      backgroundColor: 'rgba(52, 152, 219, 0.2)',
+      borderColor: 'rgba(52, 152, 219, 1)',
       fill: true
     }]
   };
@@ -116,7 +123,10 @@ export default function DashboardPage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+          <StoreSwitcher />
+        </div>
         <div className="flex items-center space-x-4">
           <div className="flex space-x-2">
             {notifications.map(notification => (
