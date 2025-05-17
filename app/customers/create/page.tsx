@@ -3,26 +3,23 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { customerAPI } from "@/lib/api/laravel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
 
 export default function CreateCustomer() {
   const router = useRouter();
   const [customerType, setCustomerType] = useState("business");
   const [allowPortalAccess, setAllowPortalAccess] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [customer, setCustomer] = useState({
     customerType: "business",
     salutation: "",
@@ -59,17 +56,37 @@ export default function CreateCustomer() {
       phone: "",
       fax: ""
     },
-    contactPersons: [],
     remarks: ""
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!customer.displayName) {
+      toast({
+        title: "Error",
+        description: "Display name is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
     try {
-      // Add API call here
+      await customerAPI.create(customer);
+      toast({
+        title: "Success",
+        description: "Customer created successfully"
+      });
       router.push("/customers");
     } catch (error) {
       console.error("Error creating customer:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create customer",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -79,7 +96,9 @@ export default function CreateCustomer() {
         <h1 className="text-2xl font-bold">Add Customer</h1>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => router.back()}>Cancel</Button>
-          <Button onClick={handleSubmit}>Save</Button>
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? "Creating..." : "Save"}
+          </Button>
         </div>
       </div>
 
@@ -107,12 +126,17 @@ export default function CreateCustomer() {
               <div>
                 <Label>Primary Contact</Label>
                 <div className="flex gap-2 mt-2">
-                  <Input 
-                    placeholder="Salutation" 
-                    className="w-1/4" 
-                    value={customer.salutation}
-                    onChange={(e) => setCustomer({...customer, salutation: e.target.value})}
-                  />
+                  <Select onValueChange={(value) => setCustomer({...customer, salutation: value})}>
+                    <SelectTrigger className="w-[100px]">
+                      <SelectValue placeholder="Title" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="mr">Mr.</SelectItem>
+                      <SelectItem value="mrs">Mrs.</SelectItem>
+                      <SelectItem value="ms">Ms.</SelectItem>
+                      <SelectItem value="dr">Dr.</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Input 
                     placeholder="First Name"
                     value={customer.firstName}
@@ -131,6 +155,7 @@ export default function CreateCustomer() {
                   className="mt-2"
                   value={customer.companyName}
                   onChange={(e) => setCustomer({...customer, companyName: e.target.value})}
+                  disabled={customerType === "individual"}
                 />
               </div>
             </div>
@@ -187,8 +212,6 @@ export default function CreateCustomer() {
             <TabsList>
               <TabsTrigger value="other-details">Other Details</TabsTrigger>
               <TabsTrigger value="address">Address</TabsTrigger>
-              <TabsTrigger value="contact-persons">Contact Persons</TabsTrigger>
-              <TabsTrigger value="custom-fields">Custom Fields</TabsTrigger>
               <TabsTrigger value="remarks">Remarks</TabsTrigger>
             </TabsList>
 
@@ -197,16 +220,17 @@ export default function CreateCustomer() {
                 <div>
                   <Label>Currency*</Label>
                   <Select 
-                    defaultValue="usd"
+                    defaultValue="USD"
                     onValueChange={(value) => setCustomer({...customer, currency: value})}
                   >
                     <SelectTrigger className="mt-2">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="usd">USD</SelectItem>
-                      <SelectItem value="eur">EUR</SelectItem>
-                      <SelectItem value="gbp">GBP</SelectItem>
+                      <SelectItem value="USD">USD - US Dollar</SelectItem>
+                      <SelectItem value="EUR">EUR - Euro</SelectItem>
+                      <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                      <SelectItem value="INR">INR - Indian Rupee</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -223,26 +247,11 @@ export default function CreateCustomer() {
                       <SelectItem value="due_on_receipt">Due on Receipt</SelectItem>
                       <SelectItem value="net15">Net 15</SelectItem>
                       <SelectItem value="net30">Net 30</SelectItem>
+                      <SelectItem value="net45">Net 45</SelectItem>
+                      <SelectItem value="net60">Net 60</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-
-              <div>
-                <Label>Portal Language</Label>
-                <Select 
-                  defaultValue="english"
-                  onValueChange={(value) => setCustomer({...customer, portalLanguage: value})}
-                >
-                  <SelectTrigger className="mt-2">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="english">English</SelectItem>
-                    <SelectItem value="spanish">Spanish</SelectItem>
-                    <SelectItem value="french">French</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -321,22 +330,14 @@ export default function CreateCustomer() {
                       })}
                     />
                     <Input 
-                      placeholder="Fax"
-                      value={customer.billingAddress.fax}
+                      placeholder="Phone"
+                      value={customer.billingAddress.phone}
                       onChange={(e) => setCustomer({
                         ...customer, 
-                        billingAddress: {...customer.billingAddress, fax: e.target.value}
+                        billingAddress: {...customer.billingAddress, phone: e.target.value}
                       })}
                     />
                   </div>
-                  <Input 
-                    placeholder="Phone"
-                    value={customer.billingAddress.phone}
-                    onChange={(e) => setCustomer({
-                      ...customer, 
-                      billingAddress: {...customer.billingAddress, phone: e.target.value}
-                    })}
-                  />
                 </div>
 
                 <div className="space-y-4">
@@ -344,7 +345,7 @@ export default function CreateCustomer() {
                     <h3 className="font-medium">Shipping Address</h3>
                     <Button 
                       variant="link" 
-                      size="sm"
+                      type="button"
                       onClick={() => setCustomer({
                         ...customer,
                         shippingAddress: {...customer.billingAddress}
@@ -413,40 +414,16 @@ export default function CreateCustomer() {
                       })}
                     />
                     <Input 
-                      placeholder="Fax"
-                      value={customer.shippingAddress.fax}
+                      placeholder="Phone"
+                      value={customer.shippingAddress.phone}
                       onChange={(e) => setCustomer({
                         ...customer, 
-                        shippingAddress: {...customer.shippingAddress, fax: e.target.value}
+                        shippingAddress: {...customer.shippingAddress, phone: e.target.value}
                       })}
                     />
                   </div>
-                  <Input 
-                    placeholder="Phone"
-                    value={customer.shippingAddress.phone}
-                    onChange={(e) => setCustomer({
-                      ...customer, 
-                      shippingAddress: {...customer.shippingAddress, phone: e.target.value}
-                    })}
-                  />
                 </div>
               </div>
-            </TabsContent>
-
-            <TabsContent value="contact-persons" className="mt-4">
-              <Button variant="link" className="mb-4">+ Add Contact Person</Button>
-              <div className="grid grid-cols-6 gap-4 text-sm font-medium">
-                <div>SALUTATION</div>
-                <div>FIRST NAME</div>
-                <div>LAST NAME</div>
-                <div>EMAIL</div>
-                <div>WORK PHONE</div>
-                <div>MOBILE</div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="custom-fields" className="mt-4">
-              <p className="text-sm text-muted-foreground">No custom fields available</p>
             </TabsContent>
 
             <TabsContent value="remarks" className="mt-4">
