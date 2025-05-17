@@ -1,3 +1,5 @@
+"use client";
+
 import { create } from 'zustand';
 import { customerAPI } from '@/lib/api/laravel';
 
@@ -9,6 +11,19 @@ interface Customer {
   address?: string;
   status: string;
   invoices?: Invoice[];
+}
+
+interface CustomOrder {
+  id: number;
+  customerId: number;
+  category: string;
+  specifications: string;
+  materials: string[];
+  artisanId?: number;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  dueDate: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Invoice {
@@ -76,15 +91,6 @@ interface ActivityLog {
   userId: string;
 }
 
-interface TimeEntry {
-  id: string;
-  staffId: string;
-  projectId: string;
-  startTime: string;
-  duration: number;
-  description: string;
-}
-
 interface Payment {
   id: string;
   invoiceId: string;
@@ -95,6 +101,7 @@ interface Payment {
 
 interface State {
   customers: Customer[];
+  customOrders: CustomOrder[];
   invoices: Invoice[];
   products: Product[];
   timeEntries: TimeEntry[];
@@ -109,6 +116,10 @@ interface Actions {
   updateCustomer: (id: number, customer: Partial<Customer>) => Promise<void>;
   deleteCustomer: (id: number) => Promise<void>;
 
+  addCustomOrder: (order: Omit<CustomOrder, 'id'>) => Promise<void>;
+  updateCustomOrder: (id: number, order: Partial<CustomOrder>) => Promise<void>;
+  fetchCustomOrders: () => Promise<void>;
+
   fetchInvoices: () => Promise<void>;
   addInvoice: (invoice: Omit<Invoice, 'id'>) => Promise<void>;
   updateInvoice: (id: number, invoice: Partial<Invoice>) => Promise<void>;
@@ -119,8 +130,9 @@ interface Actions {
   updateStock: (id: number, quantity: number) => Promise<void>;
 }
 
-export const useStore = create<State & Actions>((set, get) => ({
+export const useStore = create<State & Actions>((set) => ({
   customers: [],
+  customOrders: [],
   invoices: [],
   products: [],
   timeEntries: [],
@@ -172,6 +184,43 @@ export const useStore = create<State & Actions>((set, get) => ({
         customers: state.customers.filter(c => c.id !== id),
         loading: false
       }));
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  addCustomOrder: async (order) => {
+    set({ loading: true, error: null });
+    try {
+      // Replace with actual API call
+      const newOrder = { id: Date.now(), ...order };
+      set((state) => ({
+        customOrders: [...state.customOrders, newOrder],
+        loading: false
+      }));
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  updateCustomOrder: async (id, order) => {
+    set({ loading: true, error: null });
+    try {
+      set((state) => ({
+        customOrders: state.customOrders.map(o => o.id === id ? { ...o, ...order } : o),
+        loading: false
+      }));
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  fetchCustomOrders: async () => {
+    set({ loading: true, error: null });
+    try {
+      // Replace with actual API call
+      const orders = [];
+      set({ customOrders: orders, loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
     }
@@ -297,34 +346,3 @@ export const useStore = create<State & Actions>((set, get) => ({
     }
   },
 }));
-interface TimeEntry {
-  id: number;
-  staff_id: number;
-  project_id: number;
-  start_time: string;
-  end_time: string;
-  description: string;
-}
-
-interface StaffMember {
-  id: number;
-  name: string;
-  role: string;
-  timeEntries?: TimeEntry[];
-}
-interface Payment {
-  id: number;
-  invoice_id: number;
-  amount: number;
-  payment_date: string;
-  payment_method: string;
-  status: 'pending' | 'completed' | 'failed';
-  transaction_id: string;
-}
-
-// Add to Invoice interface
-interface Invoice {
-  id: number;
-  // ... existing fields ...
-  payments?: Payment[];
-}

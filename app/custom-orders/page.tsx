@@ -1,12 +1,11 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useStore } from "@/lib/store/store";
-import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
@@ -14,9 +13,43 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CustomerSelect } from "@/components/billing/customer-select";
 import { useForm } from "react-hook-form";
+import { CalendarIcon, Search, Filter, MoreVertical } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+
+const statusColors = {
+  pending: "bg-yellow-100 text-yellow-800",
+  in_progress: "bg-blue-100 text-blue-800",
+  completed: "bg-green-100 text-green-800",
+  cancelled: "bg-red-100 text-red-800",
+};
 
 export default function CustomOrdersPage() {
+  const { customers, customOrders, loading, addCustomOrder, fetchCustomOrders } = useStore();
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const form = useForm();
+
+  useEffect(() => {
+    fetchCustomOrders();
+  }, []);
+
+  const handleSubmit = form.handleSubmit((data) => {
+    addCustomOrder({
+      ...data,
+      status: "pending",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+  });
+
+  const filteredOrders = customOrders.filter((order) => {
+    const matchesStatus = filterStatus === "all" || order.status === filterStatus;
+    const matchesSearch = searchTerm === "" || 
+      order.specifications.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
   return (
     <div className="p-6 space-y-6">
@@ -31,7 +64,7 @@ export default function CustomOrdersPage() {
               <DialogTitle>New Custom Order</DialogTitle>
             </DialogHeader>
             <Form {...form}>
-              <div className="grid gap-4 py-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <CustomerSelect />
                 <FormField
                   name="category"
@@ -73,11 +106,62 @@ export default function CustomOrdersPage() {
                     </FormItem>
                   )}
                 />
-                {/* Add more fields for artisan assignment, delivery date, etc. */}
-              </div>
+                <FormField
+                  name="dueDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Due Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline">
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value ? format(field.value, "PPP") : "Pick a date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-end space-x-2">
+                  <Button type="submit">Create Order</Button>
+                </div>
+              </form>
             </Form>
           </DialogContent>
         </Dialog>
+      </div>
+
+      <div className="flex space-x-4 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search orders..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-[180px]">
+            <Filter className="mr-2 h-4 w-4" />
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <Card>
@@ -89,13 +173,31 @@ export default function CustomOrdersPage() {
                 <TableHead>Customer</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Artisan</TableHead>
                 <TableHead>Due Date</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {/* Custom orders will be mapped here */}
+              {filteredOrders.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell>#{order.id}</TableCell>
+                  <TableCell>
+                    {customers.find((c) => c.id === order.customerId)?.name}
+                  </TableCell>
+                  <TableCell>{order.category}</TableCell>
+                  <TableCell>
+                    <Badge className={statusColors[order.status]}>
+                      {order.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{format(new Date(order.dueDate), "PPP")}</TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="sm">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </CardContent>
