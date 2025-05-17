@@ -6,7 +6,8 @@ channel = "stable-24_05"
 packages = ["php83"]
 
 [deployment]
-run = ["sh", "-c", "npm run dev"]
+run = ["sh", "-c", "npm start"]
+build = ["sh", "-c", "npm run build"]
 
 [[ports]]
 localPort = 3000
@@ -20,7 +21,7 @@ localPort = 5555
 externalPort = 3000
 
 [workflows]
-runButton = "Full Stack Dev"
+runButton = "Production"
 
 [[workflows.workflow]]
 name = "Dev Server"
@@ -69,3 +70,20 @@ author = 38304816
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "php artisan serve"
+
+[[workflows.workflow]]
+name = "Production"
+author = 38304816
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm start"
