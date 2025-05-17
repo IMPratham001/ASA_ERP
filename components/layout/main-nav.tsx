@@ -206,32 +206,6 @@ const Tooltip = ({
     </div>
   );
 };
-  const [show, setShow] = useState(false);
-
-  return (
-    <div
-      className="relative flex"
-      onMouseEnter={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
-    >
-      {children}
-      {show && (
-        <div
-          className={cn(
-            "absolute z-50 px-2 py-1 text-xs font-medium text-white bg-slate-800 rounded-md whitespace-nowrap",
-            side === "right" && "left-full ml-2",
-            side === "left" && "right-full mr-2",
-            side === "top" &&
-              "bottom-full mb-2 left-1/2 transform -translate-x-1/2",
-            side === "bottom" &&
-              "top-full mt-2 left-1/2 transform -translate-x-1/2",
-          )}
-        >
-          {content}
-        </div>
-      )}
-    </div>
-  );
 };
 
 export function Sidebar() {
