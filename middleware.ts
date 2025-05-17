@@ -6,6 +6,7 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('token');
   const isLoginPage = request.nextUrl.pathname === '/auth/login';
   const isApiRoute = request.nextUrl.pathname.startsWith('/api/');
+  const isPublicRoute = isLoginPage || isApiRoute;
 
   // Allow API routes to pass through
   if (isApiRoute) {
@@ -18,7 +19,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Redirect to login if not logged in and trying to access protected route
-  if (!token && !isLoginPage) {
+  if (!token && !isPublicRoute) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 

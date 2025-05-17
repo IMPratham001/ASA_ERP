@@ -43,7 +43,7 @@ export async function POST(req: Request) {
 
     // Create response
     const response = NextResponse.json(
-      { success: true },
+      { success: true, user: userData },
       { status: 200 }
     );
 
