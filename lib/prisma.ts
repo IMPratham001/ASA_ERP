@@ -8,11 +8,17 @@ const globalForPrisma = global as unknown as {
 export const prisma = globalForPrisma.prisma ?? 
   new PrismaClient({
     log: ['error'],
-    errorFormat: 'minimal',
-    connectionTimeout: 30000,
-    pool: {
-      min: 2,
-      max: 10
+    errorFormat: 'pretty',
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL
+      }
+    },
+    connection: {
+      pool: {
+        min: 2,
+        max: 10
+      }
     }
   });
 
