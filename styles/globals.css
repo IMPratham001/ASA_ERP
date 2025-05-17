@@ -52,11 +52,26 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border transition-colors duration-200;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-200;
   }
+}
+
+/* Theme transition utilities */
+.theme-transition {
+  @apply transition-all duration-200;
+}
+
+/* Enhanced dark mode card styles */
+.dark .card-gradient {
+  @apply bg-gradient-to-br from-gray-800/50 to-gray-900/50;
+}
+
+/* Enhanced light mode card styles */
+.light .card-gradient {
+  @apply bg-gradient-to-br from-gray-50 to-gray-100/50;
 }
 
 .side-nav {

@@ -11,6 +11,13 @@ export function Overview() {
     labels: [],
     datasets: []
   });
+  const [selectedStore, setSelectedStore] = useState('all');
+  const stores = [
+    { id: 'all', name: 'All Stores' },
+    { id: 'store1', name: 'Main Store' },
+    { id: 'store2', name: 'Branch A' },
+    { id: 'store3', name: 'Branch B' }
+  ];
 
   useEffect(() => {
     // Fetch data from API
