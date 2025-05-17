@@ -21,7 +21,7 @@ localPort = 5555
 externalPort = 3000
 
 [workflows]
-runButton = "Production"
+runButton = "Full Stack Dev"
 
 [[workflows.workflow]]
 name = "Dev Server"
@@ -43,11 +43,11 @@ mode = "parallel"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "npm install && npm run dev"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd laravel-backend && php artisan serve --host=0.0.0.0 --port=8000"
+args = "cd laravel-backend && composer install && php artisan serve --host=0.0.0.0 --port=8000"
 
 [[workflows.workflow]]
 name = "Full Stack Dev"

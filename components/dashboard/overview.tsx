@@ -1,24 +1,47 @@
+
 "use client";
 
-import { Bar, Line } from "react-chartjs-2";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Overview as OverviewCard } from "@/components/ui/overview";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
+import { Chart as ChartJS } from "chart.js/auto";
 
 export function Overview() {
+  const [data, setData] = useState({
+    labels: [],
+    datasets: []
+  });
+
+  useEffect(() => {
+    // Fetch data from API
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/dashboard/stats");
+        const json = await response.json();
+        setData(json);
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Overview</CardTitle>
-        <CardDescription>Sales overview for current period</CardDescription>
       </CardHeader>
       <CardContent>
-        <OverviewCard />
+        <div className="h-[300px]">
+          <Line
+            data={data}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+            }}
+          />
+        </div>
       </CardContent>
     </Card>
   );
