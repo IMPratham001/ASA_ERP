@@ -124,14 +124,70 @@ export default function CreateCustomer() {
 
             {customerType === "business" ? (
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Company Name*</Label>
-                  <Input 
-                    className="mt-2"
-                    required
-                    value={customer.companyName}
-                    onChange={(e) => setCustomer({...customer, companyName: e.target.value})}
-                  />
+                <div className="space-y-4">
+                  <div>
+                    <Label>Company Name*</Label>
+                    <Input 
+                      className="mt-2"
+                      required
+                      value={customer.companyName}
+                      onChange={(e) => setCustomer({...customer, companyName: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label>GST Number</Label>
+                    <Input 
+                      className="mt-2"
+                      value={customer.gstNumber}
+                      onChange={(e) => setCustomer({...customer, gstNumber: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label>PAN Number</Label>
+                    <Input 
+                      className="mt-2"
+                      value={customer.panNumber}
+                      onChange={(e) => setCustomer({...customer, panNumber: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label>Business Type</Label>
+                    <Select onValueChange={(value) => setCustomer({...customer, businessType: value})}>
+                      <SelectTrigger className="mt-2">
+                        <SelectValue placeholder="Select business type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="sole_proprietorship">Sole Proprietorship</SelectItem>
+                        <SelectItem value="partnership">Partnership</SelectItem>
+                        <SelectItem value="llp">LLP</SelectItem>
+                        <SelectItem value="private_limited">Private Limited</SelectItem>
+                        <SelectItem value="public_limited">Public Limited</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Industry</Label>
+                    <Select onValueChange={(value) => setCustomer({...customer, industry: value})}>
+                      <SelectTrigger className="mt-2">
+                        <SelectValue placeholder="Select industry" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="retail">Retail</SelectItem>
+                        <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                        <SelectItem value="services">Services</SelectItem>
+                        <SelectItem value="technology">Technology</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Tax Registration Number</Label>
+                    <Input 
+                      className="mt-2"
+                      value={customer.taxRegistrationNumber}
+                      onChange={(e) => setCustomer({...customer, taxRegistrationNumber: e.target.value})}
+                    />
+                  </div>
                 </div>
                 <div>
                   <Label>Primary Contact Person</Label>

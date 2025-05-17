@@ -22,6 +22,11 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->enum('customer_type', ['business', 'individual'])->default('business');
             $table->string('company_name')->nullable();
+            $table->string('gst_number')->nullable();
+            $table->string('pan_number')->nullable();
+            $table->string('business_type')->nullable();
+            $table->string('industry')->nullable();
+            $table->string('tax_registration_number')->nullable();
             $table->string('primary_contact')->nullable();
             $table->string('salutation')->nullable();
             $table->string('first_name')->nullable();
