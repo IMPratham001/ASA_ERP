@@ -1,18 +1,18 @@
-
 "use client";
 
-import React from 'react';
+import * as React from 'react';
 import { useDropzone } from 'react-dropzone';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 import { Upload } from 'lucide-react';
 
 interface ImageUploadProps {
-  value: string[];
-  onChange: (value: string[]) => void;
+  value?: string[];
+  onChange?: (value: string[]) => void;
   onUpload?: (files: File[]) => void;
+  className?: string;
 }
 
-export function ImageUpload({ value, onChange, onUpload }: ImageUploadProps) {
+export function ImageUpload({ value = [], onChange, onUpload, className }: ImageUploadProps) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg', '.gif']
@@ -21,13 +21,15 @@ export function ImageUpload({ value, onChange, onUpload }: ImageUploadProps) {
       if (onUpload) {
         onUpload(acceptedFiles);
       }
-      const newImages = acceptedFiles.map(file => URL.createObjectURL(file));
-      onChange([...value, ...newImages]);
+      if (onChange) {
+        const newImages = acceptedFiles.map(file => URL.createObjectURL(file));
+        onChange([...value, ...newImages]);
+      }
     }
   });
 
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", className)}>
       <div
         {...getRootProps()}
         className={cn(
@@ -38,7 +40,7 @@ export function ImageUpload({ value, onChange, onUpload }: ImageUploadProps) {
         <input {...getInputProps()} />
         <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
         <p className="mt-2 text-sm text-muted-foreground">
-          Drag & drop images here, or click to select files
+          {isDragActive ? "Drop images here" : "Drag & drop images here, or click to select"}
         </p>
       </div>
       {value.length > 0 && (
@@ -53,43 +55,6 @@ export function ImageUpload({ value, onChange, onUpload }: ImageUploadProps) {
           ))}
         </div>
       )}
-    </div>
-  );
-}
-"use client";
-
-import React from 'react';
-import { useDropzone } from 'react-dropzone';
-import { cn } from '@/lib/utils';
-import { Upload } from 'lucide-react';
-
-interface ImageUploadProps {
-  onUpload: (files: File[]) => void;
-  className?: string;
-}
-
-export function ImageUpload({ onUpload, className }: ImageUploadProps) {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif']
-    },
-    onDrop: onUpload
-  });
-
-  return (
-    <div
-      {...getRootProps()}
-      className={cn(
-        "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer",
-        isDragActive ? "border-primary bg-muted/50" : "border-muted",
-        className
-      )}
-    >
-      <input {...getInputProps()} />
-      <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-      <p className="mt-2 text-sm text-muted-foreground">
-        {isDragActive ? "Drop images here" : "Drag & drop images here, or click to select"}
-      </p>
     </div>
   );
 }
