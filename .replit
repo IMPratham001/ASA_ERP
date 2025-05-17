@@ -43,11 +43,11 @@ mode = "parallel"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm install && npm run dev"
+args = "npm install && npx prisma generate && npm run dev"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd laravel-backend && composer install && php artisan serve --host=0.0.0.0 --port=8000"
+args = "cd laravel-backend && composer install && php artisan migrate:fresh --seed && php artisan serve --host=0.0.0.0 --port=8000"
 
 [[workflows.workflow]]
 name = "Full Stack Dev"
