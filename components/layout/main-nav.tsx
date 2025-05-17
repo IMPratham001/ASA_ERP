@@ -155,6 +155,16 @@ const sidebarItems = [
         label: "Trial Balance",
         href: "/finance/trial-balance",
         icon: BarChart2
+      },
+      {
+        label: "Financial Reports",
+        href: "/finance/reports",
+        icon: BarChart2
+      },
+      {
+        label: "Budget Management",
+        href: "/finance/budget",
+        icon: BarChart2
       }
     ]
   },
