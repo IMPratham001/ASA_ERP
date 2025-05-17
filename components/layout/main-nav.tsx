@@ -1,7 +1,3 @@
-` tags. I will ensure that the indentation and structure are preserved, and that no forbidden words or placeholders are included. I will pay close attention to detail to avoid skipping any necessary parts of the original code.
-
-```
-<replit_final_file>
 "use client";
 
 import Link from "next/link";
@@ -93,7 +89,7 @@ export function Sidebar() {
     },
   ];
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <>
@@ -126,7 +122,7 @@ export function Sidebar() {
       <motion.nav
         className={cn(
           "fixed top-0 left-0 h-full w-64 z-50 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 lg:translate-x-0",
-          isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         )}
         initial={false}
       >
@@ -150,7 +146,7 @@ export function Sidebar() {
                     pathname === item.href
                       ? "bg-slate-50 dark:bg-slate-800/50"
                       : "hover:bg-slate-50 dark:hover:bg-slate-800/50",
-                    item.color
+                    item.color,
                   )}
                 >
                   <item.icon className="h-5 w-5 mr-3" />
@@ -167,7 +163,7 @@ export function Sidebar() {
                           "flex items-center px-6 py-2 text-sm",
                           pathname === subItem.href
                             ? "text-primary"
-                            : "text-muted-foreground"
+                            : "text-muted-foreground",
                         )}
                       >
                         {subItem.label}
