@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -45,12 +46,12 @@ export function ImageUpload({ value = [], onChange, onUpload, className }: Image
       </div>
       {value.length > 0 && (
         <div className="grid grid-cols-3 gap-4">
-          {value.map((image, index) => (
+          {value.map((url, index) => (
             <img
               key={index}
-              src={image}
-              alt={`Uploaded ${index + 1}`}
-              className="rounded-lg object-cover w-full aspect-square"
+              src={url}
+              alt={`Upload ${index + 1}`}
+              className="rounded-lg w-full h-32 object-cover"
             />
           ))}
         </div>
