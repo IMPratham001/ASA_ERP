@@ -1,16 +1,11 @@
 
 "use client";
 
-"use client";
-
-import React, { Component, ErrorInfo, ReactNode } from "react";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { Component, ErrorInfo, ReactNode } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 
 interface Props {
   children: ReactNode;
-  fallback?: ReactNode;
 }
 
 interface State {
@@ -32,29 +27,13 @@ class ErrorBoundary extends Component<Props, State> {
     console.error("Uncaught error:", error, errorInfo);
   }
 
-  private handleRetry = () => {
-    this.setState({ hasError: false, error: null });
-  };
-
   public render() {
     if (this.state.hasError) {
       return (
-        <Alert variant="destructive" className="my-4">
-          <AlertCircle className="h-4 w-4" />
+        <Alert variant="destructive">
           <AlertTitle>Something went wrong</AlertTitle>
-          <AlertDescription className="mt-2">
-            <p className="text-sm mb-4">
-              {this.state.error?.message || "An unexpected error occurred"}
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={this.handleRetry}
-              className="gap-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Try again
-            </Button>
+          <AlertDescription>
+            {this.state.error?.message || "An unexpected error occurred"}
           </AlertDescription>
         </Alert>
       );
