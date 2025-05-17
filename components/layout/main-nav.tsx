@@ -53,12 +53,6 @@ const sidebarItems = [
     color: "text-purple-600 dark:text-purple-400",
   },
   {
-    label: "Document Vault",
-    icon: FileText,
-    href: "/document-vault",
-    color: "text-amber-600 dark:text-amber-400",
-  },
-  {
     label: "Activity Logs",
     icon: Clock,
     href: "/logs",
@@ -132,7 +126,7 @@ const sidebarItems = [
   {
     label: "Documents",
     icon: FileText,
-    href: "/documents/all",
+    href: "/documents",
     color: "text-purple-600 dark:text-purple-400",
   },
   {
