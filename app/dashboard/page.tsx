@@ -11,7 +11,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { StoreSwitcher } from "@/components/shared/store-switcher";
+import { StoreSwitcher } from "@/components/store-switcher";
 import { Overview } from "@/components/dashboard/overview";
 import { RecentSales } from "@/components/dashboard/recent-sales";
 import { Line, Doughnut, Bar, Radar, Pie, PolarArea } from "react-chartjs-2";
@@ -125,27 +125,55 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    fetchDashboardData();
-    const interval = setInterval(fetchDashboardData, 300000);
-    return () => clearInterval(interval);
+    if (typeof window !== 'undefined') {
+      fetchDashboardData();
+      const interval = setInterval(fetchDashboardData, 300000);
+      return () => clearInterval(interval);
+    }
   }, [timeframe]);
 
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const response = await api.get(`/dashboard/stats?timeframe=${timeframe}`);
-      if (response.data?.status === "success") {
-        setDashboardData(response.data.data);
+      if (response.data) {
+        setDashboardData(response.data.data || response.data);
         setLastRefreshed(new Date());
       }
     } catch (err) {
-      setError(err.message);
+      console.error("Dashboard data fetch error:", err);
+      setError(err?.response?.data?.message || err?.message || "Failed to fetch dashboard data");
+      // Set default data on error
+      setDashboardData({
+        overview: {
+          totalRevenue: 0,
+          customers: 0,
+          orders: 0,
+          inventory: 0,
+        },
+        recentSales: [],
+        monthlyRevenue: {},
+        topProducts: [],
+        metrics: {
+          conversionRate: 0,
+          averageOrderValue: 0,
+          cartAbandonment: 0,
+          customerLifetimeValue: 0,
+          returnRate: 0,
+          netPromotorScore: 0,
+        },
+        productCategories: {},
+        customerSegments: {},
+        salesChannels: {},
+        trafficSources: {},
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const [notifications, setNotifications] = useState([
+  const [notifications] = useState([
     {
       id: 1,
       type: "success",

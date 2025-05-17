@@ -3,12 +3,12 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api',
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Accept': 'application/json',
-    'Content-Type': 'application/json'
-  },
-  withCredentials: true
+    'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest'
+  }
 });
 
 api.interceptors.request.use((config) => {
