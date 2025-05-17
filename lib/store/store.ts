@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { customerAPI } from '@/lib/api/laravel';
 
@@ -8,18 +9,13 @@ interface Customer {
   phone?: string;
   address?: string;
   status: string;
-}
-
-interface State {
-  customers: Customer[];
-  invoices: Invoice[];
-  loading: boolean;
-  error: string | null;
+  invoices?: Invoice[];
 }
 
 interface Invoice {
   id: number;
   customer_id: number;
+  customer?: Customer;
   invoice_number: string;
   status: 'draft' | 'pending' | 'paid' | 'cancelled';
   subtotal: number;
@@ -31,11 +27,34 @@ interface Invoice {
 }
 
 interface InvoiceItem {
+  id: number;
+  invoice_id: number;
   product_id: number;
+  product?: Product;
   quantity: number;
   price: number;
   discount: number;
   tax: number;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  sku: string;
+  description: string;
+  price: number;
+  stock: number;
+  category: string;
+  images: string[];
+  status: 'active' | 'inactive';
+}
+
+interface State {
+  customers: Customer[];
+  invoices: Invoice[];
+  products: Product[];
+  loading: boolean;
+  error: string | null;
 }
 
 interface Actions {
@@ -43,10 +62,21 @@ interface Actions {
   addCustomer: (customer: Omit<Customer, 'id'>) => Promise<void>;
   updateCustomer: (id: number, customer: Partial<Customer>) => Promise<void>;
   deleteCustomer: (id: number) => Promise<void>;
+  
+  fetchInvoices: () => Promise<void>;
+  addInvoice: (invoice: Omit<Invoice, 'id'>) => Promise<void>;
+  updateInvoice: (id: number, invoice: Partial<Invoice>) => Promise<void>;
+  
+  fetchProducts: () => Promise<void>;
+  addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
+  updateProduct: (id: number, product: Partial<Product>) => Promise<void>;
+  updateStock: (id: number, quantity: number) => Promise<void>;
 }
 
-export const useStore = create<State & Actions>((set) => ({
+export const useStore = create<State & Actions>((set, get) => ({
   customers: [],
+  invoices: [],
+  products: [],
   loading: false,
   error: null,
 
@@ -78,7 +108,7 @@ export const useStore = create<State & Actions>((set) => ({
     try {
       const updatedCustomer = await customerAPI.update(id, customer);
       set((state) => ({
-        customers: state.customers.map(c => c.id === id ? updatedCustomer : c),
+        customers: state.customers.map(c => c.id === id ? { ...c, ...updatedCustomer } : c),
         loading: false
       }));
     } catch (error: any) {
@@ -92,6 +122,126 @@ export const useStore = create<State & Actions>((set) => ({
       await customerAPI.delete(id);
       set((state) => ({
         customers: state.customers.filter(c => c.id !== id),
+        loading: false
+      }));
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  fetchInvoices: async () => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch('/api/invoices');
+      const invoices = await response.json();
+      set({ invoices, loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  addInvoice: async (invoice) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch('/api/invoices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(invoice),
+      });
+      const newInvoice = await response.json();
+      
+      // Update customer's invoices
+      set((state) => ({
+        invoices: [...state.invoices, newInvoice],
+        customers: state.customers.map(c => 
+          c.id === invoice.customer_id 
+            ? { ...c, invoices: [...(c.invoices || []), newInvoice] }
+            : c
+        ),
+        loading: false
+      }));
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  updateInvoice: async (id, invoice) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch(`/api/invoices/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(invoice),
+      });
+      const updatedInvoice = await response.json();
+      
+      set((state) => ({
+        invoices: state.invoices.map(inv => inv.id === id ? updatedInvoice : inv),
+        loading: false
+      }));
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  fetchProducts: async () => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch('/api/products');
+      const products = await response.json();
+      set({ products, loading: false });
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  addProduct: async (product) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product),
+      });
+      const newProduct = await response.json();
+      set((state) => ({
+        products: [...state.products, newProduct],
+        loading: false
+      }));
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  updateProduct: async (id, product) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch(`/api/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product),
+      });
+      const updatedProduct = await response.json();
+      set((state) => ({
+        products: state.products.map(p => p.id === id ? updatedProduct : p),
+        loading: false
+      }));
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  updateStock: async (id, quantity) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch(`/api/products/${id}/stock`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity }),
+      });
+      const updatedProduct = await response.json();
+      set((state) => ({
+        products: state.products.map(p => p.id === id ? updatedProduct : p),
         loading: false
       }));
     } catch (error: any) {
