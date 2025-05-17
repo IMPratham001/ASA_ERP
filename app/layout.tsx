@@ -30,10 +30,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ErrorBoundary>
-            <div className="flex min-h-screen">
+            <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
               <Sidebar />
-              <div className="flex-1 ml-[280px]">
-                <main className="h-screen overflow-y-auto p-8">
+              <div className="flex-1">
+                <main className="h-screen overflow-y-auto p-4 md:p-8">
                   {children}
                 </main>
               </div>
