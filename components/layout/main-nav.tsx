@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -36,7 +36,6 @@ import {
   Info,
 } from "lucide-react";
 
-// Configuration for navigation items
 const sidebarItems = [
   {
     label: "Dashboard",
@@ -164,6 +163,16 @@ export function Sidebar() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: "New Order",
+      message: "Order #12345 received",
+      time: "5 min ago",
+      read: false,
+    },
+    // Add more notifications as needed
+  ]);
 
   useEffect(() => {
     setMounted(true);
@@ -188,21 +197,20 @@ export function Sidebar() {
       return;
     }
 
-    const results = [];
-    sidebarItems.forEach((item) => {
+    const results = sidebarItems.flatMap((item) => {
+      const matches = [];
       if (item.label.toLowerCase().includes(query.toLowerCase())) {
-        results.push(item);
+        matches.push(item);
       }
       if (item.subItems) {
-        item.subItems.forEach((subItem) => {
-          if (subItem.label.toLowerCase().includes(query.toLowerCase())) {
-            results.push({
-              ...subItem,
-              parentLabel: item.label,
-            });
-          }
-        });
+        matches.push(...item.subItems.filter((subItem) =>
+          subItem.label.toLowerCase().includes(query.toLowerCase())
+        ).map(subItem => ({
+          ...subItem,
+          parentLabel: item.label,
+        })));
       }
+      return matches;
     });
 
     setSearchResults(results);

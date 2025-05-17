@@ -40,6 +40,7 @@ import {
   ChevronRight,
   Download,
   LineChart,
+  ShoppingCart,
 } from "lucide-react";
 
 // Register chart components
