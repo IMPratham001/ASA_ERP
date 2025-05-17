@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { Check, ChevronDown, Store } from 'lucide-react';
+import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -36,7 +37,13 @@ export function StoreSwitcher({ className, onStoreChange }: StoreSwitcherProps) 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="w-[200px] justify-between">
+        <Button 
+          variant="outline" 
+          role="combobox"
+          aria-expanded={false}
+          aria-label="Select store"
+          className={cn("w-[200px] justify-between", className)}
+        >
           <div className="flex items-center gap-2">
             <div 
               className="w-4 h-4 rounded-full"
