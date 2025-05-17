@@ -134,6 +134,34 @@ const sidebarItems = [
     color: "text-sky-600 dark:text-sky-400",
   },
   {
+    label: "Finance",
+    icon: CreditCard,
+    href: "/finance",
+    color: "text-emerald-600 dark:text-emerald-400",
+    subItems: [
+      {
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        href: "/finance/dashboard",
+      },
+      {
+        label: "Chart of Accounts",
+        icon: FileText,
+        href: "/finance/accounts",
+      },
+      {
+        label: "Journal Entries",
+        icon: FileText,
+        href: "/finance/journal",
+      },
+      {
+        label: "Trial Balance",
+        icon: BarChart2,
+        href: "/finance/trial-balance",
+      },
+    ],
+  },
+  {
     label: "Settings",
     icon: Settings,
     href: "/settings",
