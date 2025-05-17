@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    // Demo authentication logic
+    // Demo authentication logic 
     let isValid = false;
     let userData = null;
 
@@ -41,13 +41,12 @@ export async function POST(req: Request) {
     // Generate JWT token
     const token = sign(userData, JWT_SECRET, { expiresIn: "7d" });
 
-    // Create response
     const response = NextResponse.json(
       { success: true, user: userData },
       { status: 200 }
     );
 
-    // Set cookie
+    // Set secure cookie
     cookies().set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
