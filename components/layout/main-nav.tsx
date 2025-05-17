@@ -34,6 +34,12 @@ import {
   MessageSquare,
   HelpCircle,
   Info,
+  Key,
+  Shield,
+  Radio,
+  Activity,
+  History,
+  ScrollText,
 } from "lucide-react";
 
 // Configuration for navigation items
