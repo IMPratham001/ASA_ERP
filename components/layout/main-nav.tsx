@@ -458,30 +458,52 @@ export function Sidebar() {
             </div>
           </nav>
 
-          <div className="mt-auto p-4 border-t border-slate-200 dark:border-slate-700">
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                {theme === "dark" ? (
-                  <Sun className="w-5 h-5 text-amber-500" />
-                ) : (
-                  <Moon className="w-5 h-5 text-slate-600" />
-                )}
-              </button>
-
-              <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                <ChevronRight
-                  className={cn(
-                    "w-5 h-5 text-slate-600 dark:text-slate-400 transition-transform",
-                    isCollapsed && "rotate-180"
+          <div className="mt-auto border-t border-slate-200 dark:border-slate-700">
+            {!isCollapsed && (
+              <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                    <User className="w-5 h-5 text-primary-foreground" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm">John Doe</span>
+                    <span className="text-xs text-muted-foreground">admin@example.com</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => {/* Handle logout */}}
+                  className="mt-3 w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+            <div className="p-4">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  {theme === "dark" ? (
+                    <Sun className="w-5 h-5 text-amber-500" />
+                  ) : (
+                    <Moon className="w-5 h-5 text-slate-600" />
                   )}
-                />
-              </button>
+                </button>
+
+                <button
+                  onClick={() => setIsCollapsed(!isCollapsed)}
+                  className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <ChevronRight
+                    className={cn(
+                      "w-5 h-5 text-slate-600 dark:text-slate-400 transition-transform",
+                      isCollapsed && "rotate-180"
+                    )}
+                  />
+                </button>
+              </div>
             </div>
           </div>
         </div>
