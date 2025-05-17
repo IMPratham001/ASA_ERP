@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -71,9 +72,7 @@ export function TrialBalance() {
           <TableRow className="font-bold">
             <TableCell colSpan={3}>Total</TableCell>
             <TableCell className="text-right">₹{totalDebits.toFixed(2)}</TableCell>
-            <TableCell className="text-right">
-              ₹{totalCredits.toFixed(2)}
-            </TableCell>
+            <TableCell className="text-right">₹{totalCredits.toFixed(2)}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
