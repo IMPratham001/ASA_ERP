@@ -397,11 +397,15 @@ export function Sidebar() {
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
-                {theme === "dark" ? (
-                  <Sun className="w-5 h-5 text-amber-500" />
-                ) : (
-                  <Moon className="w-5 h-5 text-slate-600" />
-                )}
+                {mounted && (
+    <>
+      {theme === "dark" ? (
+        <Sun className="w-5 h-5 text-amber-500" />
+      ) : (
+        <Moon className="w-5 h-5 text-slate-600" />
+      )}
+    </>
+  )}
               </button>
 
               <button

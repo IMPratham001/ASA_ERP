@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Sidebar } from "@/components/layout/main-nav";
+import { StoreSwitcher } from "@/components/shared/store-switcher";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { UserGuide } from "@/components/shared/user-guide";
