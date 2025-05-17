@@ -95,7 +95,7 @@ const sidebarItems = [
       {
         label: "Categories",
         icon: FileCheck,
-        href: "/items/categories",
+        href: "/categories",
       },
     ],
   },
