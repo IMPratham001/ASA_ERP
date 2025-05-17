@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -34,22 +35,86 @@ model Customer {
 }
 
 model Product {
-  id          String @id @default(cuid())
+  id              String            @id @default(cuid())
+  name            String
+  sku             String            @unique
+  description     String?           @db.Text
+  price           Float
+  stock           Int              @default(0)
+  minStock        Int              @default(5)
+  category        Category          @relation(fields: [categoryId], references: [id])
+  categoryId      String
+  brand           Brand             @relation(fields: [brandId], references: [id])
+  brandId         String
+  attributes      ProductAttribute[]
+  variations      ProductVariation[]
+  images          ProductImage[]
+  warehouse       String?
+  taxClass        String?
+  metaTitle       String?
+  metaDescription String?          @db.Text
+  relatedProducts Product[]        @relation("ProductRelations")
+  relatedTo       Product[]        @relation("ProductRelations")
+  customFields    Json?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model ProductAttribute {
+  id        String   @id @default(cuid())
+  name      String
+  value     String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+}
+
+model ProductVariation {
+  id        String   @id @default(cuid())
+  sku       String   @unique
+  price     Float
+  stock     Int      @default(0)
+  color     String?
+  size      String?
+  material  String?
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  order     Int      @default(0)
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+}
+
+model Category {
+  id          String     @id @default(cuid())
   name        String
-  sku         String @unique
-  price       Float
-  stock       Int    @default(0)
-  minStock    Int    @default(5)
-  category    String
-  storeId     String
+  slug        String     @unique
+  description String?    @db.Text
+  products    Product[]
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  parentId    String?
+  children    Category[] @relation("CategoryHierarchy")
+}
+
+model Brand {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?   @db.Text
+  logo        String?
+  products    Product[]
 }
 
 model Invoice {
-  id           String   @id @default(cuid())
-  customerId   String
-  storeId      String
-  total        Float
-  status       String   @default("pending")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id         String   @id @default(cuid())
+  customerId String
+  storeId    String
+  total      Float
+  status     String   @default("pending")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
