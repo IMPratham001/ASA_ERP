@@ -18,7 +18,7 @@ import { toast } from "@/hooks/use-toast";
 export default function CreateCustomer() {
   const router = useRouter();
   const [customerType, setCustomerType] = useState("business");
-  const [allowPortalAccess, setAllowPortalAccess] = useState(false);
+  
   const [loading, setLoading] = useState(false);
   const [customer, setCustomer] = useState({
     customerType: "business",
@@ -254,16 +254,7 @@ export default function CreateCustomer() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="portal-access"
-                  checked={allowPortalAccess}
-                  onCheckedChange={setAllowPortalAccess}
-                />
-                <Label htmlFor="portal-access">
-                  Allow portal access for this customer
-                </Label>
-              </div>
+              
             </TabsContent>
 
             <TabsContent value="address" className="mt-4">

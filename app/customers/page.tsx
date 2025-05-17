@@ -40,7 +40,7 @@ export default function CustomersPage() {
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Button>
+          <Button onClick={() => router.push('/customers/create')}>
             <Plus className="h-4 w-4 mr-2" />
             New Customer
           </Button>
