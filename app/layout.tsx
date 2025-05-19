@@ -20,7 +20,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const token = await cookies().get('token');
+  const cookieStore = cookies();
+  const token = await cookieStore.get('token');
   const isLoggedIn = !!token;
 
   return (
