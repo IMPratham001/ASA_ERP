@@ -153,20 +153,40 @@ export default function InventoryPage() {
   useEffect(() => {
     let barcodeBuffer = '';
     let lastKeyTime = Date.now();
+    const SCANNER_DELAY = 30; // Typical barcode scanner delay between characters
 
-    const handleKeyPress = (e) => {
+    const handleKeyPress = (e: KeyboardEvent) => {
       const currentTime = Date.now();
+      
+      // If the delay between keystrokes is too long, reset buffer
+      // This helps distinguish between manual typing and scanner input
       if (currentTime - lastKeyTime > 100) {
         barcodeBuffer = '';
       }
       lastKeyTime = currentTime;
 
-      if (e.key === 'Enter') {
-        handleBarcodeScanned(barcodeBuffer);
-        barcodeBuffer = '';
-      } else {
-        barcodeBuffer += e.key;
+      // Ignore if modifier keys are pressed (likely manual input)
+      if (e.ctrlKey || e.altKey || e.metaKey) {
+        return;
       }
+
+      // Add character to buffer
+      if (e.key !== 'Enter') {
+        barcodeBuffer += e.key;
+        return;
+      }
+
+      // Process barcode when Enter is pressed
+      if (barcodeBuffer.length > 5) { // Minimum barcode length check
+        handleBarcodeScanned(barcodeBuffer);
+        // Show toast notification
+        toast({
+          title: "Barcode Scanned",
+          description: `Scanned barcode: ${barcodeBuffer}`,
+        });
+      }
+      
+      barcodeBuffer = ''; // Reset buffer
     };
 
     window.addEventListener('keypress', handleKeyPress);
