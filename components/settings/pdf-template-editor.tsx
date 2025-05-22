@@ -109,12 +109,20 @@ export default function PDFTemplateEditor() {
           <Eye className="w-4 h-4 mr-2" />
           Preview
         </Button>
-        <Button onClick={() => {
-          if (validateForm()) {
-            // Save template
+        <Button onClick={async () => {
+          try {
+            if (validateForm()) {
+              await saveTemplate(template);
+              toast({
+                title: "Success",
+                description: "Template saved successfully"
+              });
+            }
+          } catch (error) {
             toast({
-              title: "Success",
-              description: "Template saved successfully"
+              title: "Error",
+              description: "Failed to save template",
+              variant: "destructive"
             });
           }
         }}>

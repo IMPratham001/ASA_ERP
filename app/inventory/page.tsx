@@ -53,6 +53,8 @@ import {
   ArrowUpDown,
   Download,
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { BarcodeScanner } from "@/components/ui/barcode-scanner";
 
 export default function InventoryPage() {
   const {
@@ -112,6 +114,8 @@ export default function InventoryPage() {
     success: boolean;
   } | null>(null);
 
+  const { toast } = useToast();
+
   const handleBarcodeScanned = (barcode) => {
     const product = products.find(p => p.sku === barcode);
     if (product) {
@@ -121,7 +125,7 @@ export default function InventoryPage() {
         price: product.price,
         tax: product.tax || 0
       });
-      
+
       setLastScanned({
         barcode,
         timestamp: Date.now(),
@@ -129,12 +133,14 @@ export default function InventoryPage() {
       });
 
       // Show toast notification
+
       toast({
         title: "Product Scanned",
         description: `Added ${product.name} to inventory`,
         variant: "success"
       });
-      
+
+
       // Add to inventory if not exists
       if (!inventory.some(item => item.productId === product.id)) {
         addInventoryItem({
@@ -146,6 +152,12 @@ export default function InventoryPage() {
           lastUpdated: new Date().toISOString(),
         });
       }
+    } else {
+         toast({
+          title: "Product Not Found",
+          description: `No product found with barcode: ${barcode}`,
+          variant: "destructive"
+        });
     }
   };
 
@@ -157,7 +169,7 @@ export default function InventoryPage() {
 
     const handleKeyPress = (e: KeyboardEvent) => {
       const currentTime = Date.now();
-      
+
       // If the delay between keystrokes is too long, reset buffer
       // This helps distinguish between manual typing and scanner input
       if (currentTime - lastKeyTime > 100) {
@@ -180,18 +192,20 @@ export default function InventoryPage() {
       if (barcodeBuffer.length > 5) { // Minimum barcode length check
         handleBarcodeScanned(barcodeBuffer);
         // Show toast notification
+
         toast({
           title: "Barcode Scanned",
           description: `Scanned barcode: ${barcodeBuffer}`,
         });
+
       }
-      
+
       barcodeBuffer = ''; // Reset buffer
     };
 
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
-  }, []);
+  }, [products, inventory, addInventoryItem, toast, newProduct]);
 
   const handleAddProduct = () => {
     if (newProduct.productId) {
@@ -237,18 +251,6 @@ export default function InventoryPage() {
     // Apply sorting
     return [...filtered].sort((a, b) => {
       // Handle special case for product name which is in a different object
-
-      {/* Barcode Scan Feedback */}
-      {lastScanned && (Date.now() - lastScanned.timestamp < 3000) && (
-        <div className={`fixed bottom-4 right-4 p-4 rounded-lg shadow-lg transform transition-all duration-500 ${
-          lastScanned.success ? 'bg-green-500' : 'bg-red-500'
-        }`}>
-          <div className="text-white">
-            <p className="font-medium">Barcode Scanned</p>
-            <p className="text-sm opacity-90">{lastScanned.barcode}</p>
-          </div>
-        </div>
-      )}
 
       if (sortConfig.key === "name") {
         const productA = products.find((p) => p.id === a.productId)?.name || "";
@@ -448,6 +450,7 @@ export default function InventoryPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <BarcodeScanner onScan={handleBarcodeScanned} />
             </div>
           </div>
 

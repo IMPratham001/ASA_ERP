@@ -59,7 +59,9 @@ export default function CreateInvoicePage() {
     },
   });
 
-  const handleBarcodeScanned = (barcode) => {
+  const { toast } = useToast();
+  
+  const handleBarcodeScanned = (barcode: string) => {
     const product = products.find(p => p.sku === barcode);
     if (product) {
       setItems([...items, {
@@ -70,6 +72,18 @@ export default function CreateInvoicePage() {
         tax: product.tax || 0,
         discount: 0
       }]);
+      
+      toast({
+        title: "Product Added",
+        description: `Added ${product.name} to invoice`,
+        variant: "success"
+      });
+    } else {
+      toast({
+        title: "Product Not Found",
+        description: `No product found with barcode ${barcode}`,
+        variant: "destructive"
+      });
     }
   };
 
