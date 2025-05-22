@@ -8,8 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { StoreSwitcher } from "@/components/shared/store-switcher";
 import {
   BarChart,
   Activity,
@@ -31,11 +29,6 @@ import {
   Store,
 } from "lucide-react";
 import { Line, Bar, Radar, Doughnut } from "react-chartjs-2";
-import api from "@/lib/api/axios";
-import { Overview } from "@/components/dashboard/overview";
-import { RecentSales } from "@/components/dashboard/recent-sales";
-import { Button } from "@/components/ui/button";
-
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -49,19 +42,12 @@ import {
   BarElement,
   RadialLinearScale,
 } from "chart.js";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  ArcElement,
-  BarElement,
-  RadialLinearScale,
-  Title,
-  Tooltip,
-  Legend,
-);
+import { Overview } from "@/components/dashboard/overview";
+import { RecentSales } from "@/components/dashboard/recent-sales";
+import { Button } from "@/components/ui/button";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { StoreSwitcher } from "@/components/shared/store-switcher";
+import api from "@/lib/api/axios";
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState({

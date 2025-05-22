@@ -20,7 +20,6 @@ export function Overview() {
   ];
 
   useEffect(() => {
-    // Fetch data from API
     const fetchData = async () => {
       try {
         const response = await fetch("/api/dashboard/stats");
@@ -32,7 +31,7 @@ export function Overview() {
     };
 
     fetchData();
-  }, []);
+  }, [selectedStore]);
 
   return (
     <Card>
