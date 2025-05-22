@@ -1,12 +1,23 @@
 
-import api from './axios';
+import axios from 'axios';
 
-export const customerAPI = {
-  getAll: () => api.get('/customers'),
-  getById: (id: number) => api.get(`/customers/${id}`),
-  create: (data: any) => api.post('/customers', data),
-  update: (id: number, data: any) => api.put(`/customers/${id}`, data),
-  delete: (id: number) => api.delete(`/customers/${id}`)
-};
+const laravelApi = axios.create({
+  baseURL: 'http://0.0.0.0:8000/api',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  withCredentials: true
+});
 
-export default api;
+laravelApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      window.location.href = '/auth/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default laravelApi;
