@@ -1,35 +1,32 @@
 
-export type Role = 'owner' | 'admin' | 'manager' | 'accountant' | 'inventory_manager' | 'sales_staff' | 'employee';
+import { Role } from '@prisma/client';
 
-export type Permission = 'view' | 'create' | 'edit' | 'delete';
-
-export type ModuleAccess = {
-  module: string;
-  permissions: Permission[];
-};
-
-export type UserPermissions = {
-  canManageUsers: boolean;
-  canManageRoles: boolean;
-  canManagePermissions: boolean;
-  canViewReports: boolean;
-  canManageInventory: boolean;
-  canManageSales: boolean;
-  canManageFinance: boolean;
-  canManageSettings: boolean;
-  storeAccess: string[];
-  departmentAccess: string[];
-  moduleAccess: ModuleAccess[];
-};
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
 
 export interface User {
   id: string;
   email: string;
   name: string;
   role: Role;
-  permissions: UserPermissions;
-  stores: string[];
   emailVerified?: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  permissions: string[];
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData extends LoginCredentials {
+  name: string;
+  role?: Role;
+}
+
+export interface EmailVerification {
+  token: string;
+  userId: string;
+  expiresAt: Date;
 }

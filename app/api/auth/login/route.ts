@@ -1,67 +1,55 @@
-
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    // Demo authentication logic 
-    let isValid = false;
-    let userData = null;
+    const user = await prisma.user.findUnique({ 
+      where: { email },
+      include: { permissions: true }
+    });
 
-    if (email === "admin@example.com" && password === "admin") {
-      isValid = true;
-      userData = {
-        id: "1",
-        email,
-        name: "Super Admin",
-        role: "admin"
-      };
-    } else if (email === "manager@example.com" && password === "manager") {
-      isValid = true;
-      userData = {
-        id: "2",
-        email,
-        name: "Store Manager",
-        role: "manager"
-      };
+    if (!user) {
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
+    const isValid = await compare(password, user.password);
     if (!isValid) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    }
+
+    if (!user.emailVerified) {
+      return NextResponse.json({ error: "Please verify your email" }, { status: 401 });
     }
 
     // Generate JWT token
-    const token = sign(userData, JWT_SECRET, { expiresIn: "7d" });
-
-    const response = NextResponse.json(
-      { success: true, user: userData },
-      { status: 200 }
+    const token = sign(
+      { 
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        permissions: user.permissions 
+      },
+      JWT_SECRET,
+      { expiresIn: "7d" }
     );
 
-    // Set secure cookie
-    const cookieStore = cookies();
-    await cookieStore.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: "/"
-    });
+    return NextResponse.json({ token, user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      permissions: user.permissions
+    }});
 
-    return response;
   } catch (error) {
     console.error("Login error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
