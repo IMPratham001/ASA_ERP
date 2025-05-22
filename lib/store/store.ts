@@ -52,12 +52,16 @@ interface InvoiceItem {
 }
 
 interface Product {
-  id: string;
+  id: number;
   name: string;
+  sku: string;
+  description: string;
+  price: number;
   stock: number;
-  inventory?: {
-    low_stock_threshold: number;
-  };
+  category: string;
+  images: string[];
+  status: 'active' | 'inactive';
+  inventory?: Inventory;
 }
 
 interface Inventory {
@@ -68,6 +72,7 @@ interface Inventory {
   warehouse_location: string;
   last_restock_date: string;
 }
+
 
 
 interface ActivityLog {
