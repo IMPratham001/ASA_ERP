@@ -107,15 +107,52 @@ export default function InventoryPage() {
 
   // Handle adding new product to inventory
   const handleBarcodeScanned = (barcode) => {
-    // Find product by barcode
     const product = products.find(p => p.sku === barcode);
     if (product) {
       setNewProduct({
         ...newProduct,
-        productId: product.id
+        productId: product.id,
+        price: product.price,
+        tax: product.tax || 0
       });
+      
+      // Add to inventory if not exists
+      if (!inventory.some(item => item.productId === product.id)) {
+        addInventoryItem({
+          id: `inv-${Date.now()}`,
+          productId: product.id,
+          quantity: 1,
+          minQuantity: 5,
+          location: "Main Warehouse",
+          lastUpdated: new Date().toISOString(),
+        });
+      }
     }
   };
+
+  // Handle barcode scanner input
+  useEffect(() => {
+    let barcodeBuffer = '';
+    let lastKeyTime = Date.now();
+
+    const handleKeyPress = (e) => {
+      const currentTime = Date.now();
+      if (currentTime - lastKeyTime > 100) {
+        barcodeBuffer = '';
+      }
+      lastKeyTime = currentTime;
+
+      if (e.key === 'Enter') {
+        handleBarcodeScanned(barcodeBuffer);
+        barcodeBuffer = '';
+      } else {
+        barcodeBuffer += e.key;
+      }
+    };
+
+    window.addEventListener('keypress', handleKeyPress);
+    return () => window.removeEventListener('keypress', handleKeyPress);
+  }, []);
 
   const handleAddProduct = () => {
     if (newProduct.productId) {

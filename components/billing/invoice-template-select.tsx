@@ -24,3 +24,34 @@ export function InvoiceTemplateSelect({ value, onChange }: { value: string; onCh
     </Select>
   );
 }
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+export function InvoiceTemplateSelect({ value, onChange }) {
+  const templates = [
+    { id: "modern", name: "Modern" },
+    { id: "classic", name: "Classic" },
+    { id: "minimal", name: "Minimal" },
+    { id: "professional", name: "Professional" }
+  ];
+
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger>
+        <SelectValue placeholder="Select template" />
+      </SelectTrigger>
+      <SelectContent>
+        {templates.map((template) => (
+          <SelectItem key={template.id} value={template.id}>
+            {template.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
