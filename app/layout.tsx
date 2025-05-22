@@ -4,8 +4,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { cookies } from 'next/headers';
 import { Sidebar } from "@/components/layout/sidebar";
+import { cookies } from 'next/headers';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,18 +14,18 @@ export const metadata: Metadata = {
   description: "Advanced admin dashboard built with Next.js",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const cookieStore = cookies();
-  const token = cookieStore.get('token');
+  const token = await cookieStore.get('token');
   const isLoggedIn = !!token?.value;
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
