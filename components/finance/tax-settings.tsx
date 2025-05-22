@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -27,46 +28,90 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, Plus } from "lucide-react";
 
 export function TaxSettings() {
-  const { taxRates, addTaxRate, updateTaxRate } = useAccountingStore();
+  const { taxRates, addTaxRate, updateTaxRate, deleteTaxRate } = useAccountingStore();
   const [newTax, setNewTax] = useState<Partial<TaxRate>>({
     name: "",
     rate: 0,
     type: "gst",
     isActive: true,
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleAddTax = () => {
-    if (!newTax.name || newTax.rate === undefined) return;
+  const validateTax = (): boolean => {
+    const newErrors: Record<string, string> = {};
 
-    const taxRate: TaxRate = {
-      id: Math.random().toString(),
-      name: newTax.name,
-      rate: newTax.rate,
-      type: newTax.type || "gst",
-      isActive: true,
-      components:
-        newTax.type === "gst"
-          ? {
-              cgst: newTax.rate / 2,
-              sgst: newTax.rate / 2,
-              igst: newTax.rate,
-            }
-          : undefined,
-    };
+    if (!newTax.name) {
+      newErrors.name = "Name is required";
+    }
+    if (newTax.rate === undefined || newTax.rate < 0 || newTax.rate > 100) {
+      newErrors.rate = "Rate must be between 0 and 100";
+    }
+    if (!newTax.type) {
+      newErrors.type = "Type is required";
+    }
 
-    addTaxRate(taxRate);
-    setNewTax({
-      name: "",
-      rate: 0,
-      type: "gst",
-      isActive: true,
-    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const toggleTaxStatus = (id: string, currentStatus: boolean) => {
-    updateTaxRate(id, { isActive: !currentStatus });
+  const handleAddTax = async () => {
+    if (!validateTax()) return;
+
+    try {
+      const taxRate: TaxRate = {
+        id: Math.random().toString(),
+        name: newTax.name!,
+        rate: newTax.rate!,
+        type: newTax.type || "gst",
+        isActive: true,
+        components: newTax.type === "gst" 
+          ? {
+              cgst: newTax.rate! / 2,
+              sgst: newTax.rate! / 2,
+              igst: newTax.rate!,
+            }
+          : undefined,
+      };
+
+      await addTaxRate(taxRate);
+      setNewTax({
+        name: "",
+        rate: 0,
+        type: "gst",
+        isActive: true,
+      });
+      toast({
+        title: "Success",
+        description: "Tax rate added successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add tax rate",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleTaxStatus = async (id: string, currentStatus: boolean) => {
+    try {
+      await updateTaxRate(id, { isActive: !currentStatus });
+      toast({
+        title: "Success",
+        description: "Tax status updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update tax status",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -75,33 +120,54 @@ export function TaxSettings() {
         <h3 className="text-lg font-medium">Tax Settings</h3>
         <Dialog>
           <DialogTrigger asChild>
-            <Button>Add Tax Rate</Button>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Tax Rate
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add New Tax Rate</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <Input
-                placeholder="Tax Name"
-                value={newTax.name}
-                onChange={(e) => setNewTax({ ...newTax, name: e.target.value })}
-              />
-              <Input
-                type="number"
-                placeholder="Rate (%)"
-                value={newTax.rate}
-                onChange={(e) =>
-                  setNewTax({ ...newTax, rate: parseFloat(e.target.value) })
-                }
-              />
+              <div>
+                <Input
+                  placeholder="Tax Name"
+                  value={newTax.name}
+                  onChange={(e) => setNewTax({ ...newTax, name: e.target.value })}
+                  className={errors.name ? "border-red-500" : ""}
+                />
+                {errors.name && (
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errors.name}</AlertDescription>
+                  </Alert>
+                )}
+              </div>
+
+              <div>
+                <Input
+                  type="number"
+                  placeholder="Rate (%)"
+                  value={newTax.rate}
+                  onChange={(e) => setNewTax({ ...newTax, rate: parseFloat(e.target.value) })}
+                  className={errors.rate ? "border-red-500" : ""}
+                />
+                {errors.rate && (
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errors.rate}</AlertDescription>
+                  </Alert>
+                )}
+              </div>
+
               <Select
                 value={newTax.type}
                 onValueChange={(value: "gst" | "vat" | "other") =>
                   setNewTax({ ...newTax, type: value })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className={errors.type ? "border-red-500" : ""}>
                   <SelectValue placeholder="Select Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -110,7 +176,8 @@ export function TaxSettings() {
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
-              <Button onClick={handleAddTax}>Add Tax Rate</Button>
+              
+              <Button onClick={handleAddTax} className="w-full">Add Tax Rate</Button>
             </div>
           </DialogContent>
         </Dialog>

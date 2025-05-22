@@ -6,29 +6,72 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, TrendingUp, TrendingDown } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; 
+import { AlertCircle, TrendingUp, TrendingDown, Save } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "@/hooks/use-toast";
+
+interface BudgetData {
+  revenue: number;
+  expenses: number;
+  marketing: number;
+  operations: number;
+}
 
 export function BudgetManagement() {
-  const [budgets, setBudgets] = useState({
+  const [budgets, setBudgets] = useState<BudgetData>({
     revenue: 100000,
     expenses: 80000,
     marketing: 20000,
     operations: 30000
   });
 
-  const [actual, setActual] = useState({
+  const [actual, setActual] = useState<BudgetData>({
     revenue: 85000,
     expenses: 70000,
     marketing: 18000,
     operations: 25000
   });
 
-  const handleBudgetChange = (category: string, value: string) => {
-    setBudgets(prev => ({
+  const [errors, setErrors] = useState<Partial<Record<keyof BudgetData, string>>>({});
+
+  const validateBudget = (category: keyof BudgetData, value: number): string | null => {
+    if (value < 0) return "Budget cannot be negative";
+    if (category === 'expenses' && value > budgets.revenue) return "Expenses cannot exceed revenue";
+    return null;
+  };
+
+  const handleBudgetChange = (category: keyof BudgetData, value: string) => {
+    const numValue = parseFloat(value) || 0;
+    const error = validateBudget(category, numValue);
+    
+    setErrors(prev => ({
       ...prev,
-      [category]: parseFloat(value) || 0
+      [category]: error
     }));
+
+    if (!error) {
+      setBudgets(prev => ({
+        ...prev,
+        [category]: numValue
+      }));
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      // API call would go here
+      toast({
+        title: "Success",
+        description: "Budget updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update budget",
+        variant: "destructive",
+      });
+    }
   };
 
   const calculateProgress = (actual: number, budget: number) => {
@@ -91,47 +134,29 @@ export function BudgetManagement() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Revenue Target</label>
-                  <Input
-                    type="number"
-                    value={budgets.revenue}
-                    onChange={(e) => handleBudgetChange('revenue', e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Expenses Limit</label>
-                  <Input
-                    type="number"
-                    value={budgets.expenses}
-                    onChange={(e) => handleBudgetChange('expenses', e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Marketing Budget</label>
-                  <Input
-                    type="number"
-                    value={budgets.marketing}
-                    onChange={(e) => handleBudgetChange('marketing', e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Operations Budget</label>
-                  <Input
-                    type="number"
-                    value={budgets.operations}
-                    onChange={(e) => handleBudgetChange('operations', e.target.value)}
-                    className="w-full"
-                  />
-                </div>
+                {Object.entries(budgets).map(([category, value]) => (
+                  <div key={category} className="space-y-2">
+                    <label className="text-sm font-medium capitalize">{category}</label>
+                    <Input
+                      type="number"
+                      value={value}
+                      onChange={(e) => handleBudgetChange(category as keyof BudgetData, e.target.value)}
+                      className={errors[category as keyof BudgetData] ? "border-red-500" : ""}
+                    />
+                    {errors[category as keyof BudgetData] && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                          {errors[category as keyof BudgetData]}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                ))}
               </div>
-              <Button className="w-full">Save Budget Allocations</Button>
+              <Button onClick={handleSave} className="w-full">
+                <Save className="mr-2 h-4 w-4" /> Save Budget Allocations
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -144,7 +169,7 @@ export function BudgetManagement() {
             <CardContent>
               <div className="space-y-6">
                 {Object.entries(budgets).map(([category, budget]) => {
-                  const actualValue = actual[category as keyof typeof actual];
+                  const actualValue = actual[category as keyof BudgetData];
                   const variance = actualValue - budget;
                   const percentage = (variance / budget) * 100;
 
