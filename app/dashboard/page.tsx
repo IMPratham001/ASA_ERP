@@ -80,7 +80,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await api.get("/dashboard/stats");
+        const response = await api.get("/api/mock/dashboard/stats");
         if (response.data?.status === "success") {
           setDashboardData(response.data.data);
           setIsLoading(false);
@@ -153,6 +153,17 @@ export default function DashboardPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      {isLoading && (
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+        </div>
+      )}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+      {!isLoading && !error && (
       <div className="flex items-center justify-between space-y-2">
         <div className="flex items-center gap-4">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
@@ -337,6 +348,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+    )}
     </div>
   );
 }
