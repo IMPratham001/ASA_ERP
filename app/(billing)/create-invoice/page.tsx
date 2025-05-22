@@ -27,34 +27,51 @@ import { CustomerSelect } from "@/components/billing/customer-select";
 import { ProductTable } from "@/components/billing/product-table";
 import { InvoiceSummary } from "@/components/billing/invoice-summary";
 import { StoreSelect } from "@/components/billing/store-select";
-import { PrinterIcon, Save } from "lucide-react";
+import { PrinterIcon, Save, QrCode, FileText, Send } from "lucide-react";
 
 const formSchema = z.object({
-  invoiceType: z.enum(["retail", "wholesale", "tax"]),
-  templateId: z.string().default("modern"),
-  customerId: z.string(),
-  storeId: z.string(),
-  currency: z.string().default("USD"),
-  paymentMode: z.enum(["cash", "upi", "card", "credit", "razorpay"]),
-  dueDate: z.date(),
-  isRecurring: z.boolean().default(false),
-  recurringFrequency: z.enum(["monthly", "quarterly", "yearly"]).optional(),
-  approvalRequired: z.boolean().default(false),
-  customFields: z.record(z.string()).default({}),
+  invoiceType: z.enum(["retail", "wholesale", "tax"]).optional(),
+  templateId: z.string().default("modern").optional(),
+  customerId: z.string().optional(),
+  storeId: z.string().optional(),
+  currency: z.string().default("USD").optional(),
+  paymentMode: z.enum(["cash", "upi", "card", "credit", "razorpay"]).optional(),
+  dueDate: z.date().optional(),
+  isRecurring: z.boolean().default(false).optional(),
+  recurringFrequency: z.enum(["monthly", "quarterly", "yearly"]).optional().optional(),
+  approvalRequired: z.boolean().default(false).optional(),
+  customFields: z.record(z.string()).default({}).optional(),
   note: z.string().optional(),
 });
 
 export default function CreateInvoicePage() {
-  const { user } = useStore();
+  const { user, customers, products, createInvoice } = useStore();
   const [items, setItems] = useState([]);
+  const [scannedBarcode, setScannedBarcode] = useState("");
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       invoiceType: "retail",
       note: "",
+      customerId: "",
+      dueDate: "",
     },
   });
+
+  const handleBarcodeScanned = (barcode) => {
+    const product = products.find(p => p.sku === barcode);
+    if (product) {
+      setItems([...items, {
+        id: Math.random().toString(),
+        productId: product.id,
+        quantity: 1,
+        price: product.price,
+        tax: product.tax || 0,
+        discount: 0
+      }]);
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -77,22 +94,37 @@ export default function CreateInvoicePage() {
         }))
       };
 
-      const response = await invoices.create(invoiceData);
+      // const response = await invoices.create(invoiceData);
 
-      toast({
-        title: "Success",
-        description: "Invoice created successfully",
-      });
+      // toast({
+      //   title: "Success",
+      //   description: "Invoice created successfully",
+      // });
 
-      router.push(`/invoices/${response.invoice.id}`);
+      // router.push(`/invoices/${response.invoice.id}`);
 
     } catch (error) {
       console.error("Form submission error:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create invoice",
-        variant: "destructive"
+      // toast({
+      //   title: "Error",
+      //   description: error instanceof Error ? error.message : "Failed to create invoice",
+      //   variant: "destructive"
+      // });
+    }
+  };
+
+  const handleCreateInvoice = async (data) => {
+    try {
+      const invoice = await createInvoice({
+        ...data,
+        items,
+        status: "draft",
+        total: items.reduce((sum, item) => sum + (item.quantity * item.price), 0),
       });
+
+      // Handle success
+    } catch (error) {
+      console.error("Error creating invoice:", error);
     }
   };
 
@@ -110,6 +142,14 @@ export default function CreateInvoicePage() {
           </Button>
           <Button onClick={form.handleSubmit(onSubmit)}>
             <Save className="mr-2 h-4 w-4" />
+            Save Invoice
+          </Button>
+          <Button variant="outline" onClick={() => handleBarcodeScanned(scannedBarcode)}>
+            <QrCode className="w-4 h-4 mr-2" />
+            Scan Barcode
+          </Button>
+          <Button onClick={form.handleSubmit(handleCreateInvoice)}>
+            <Save className="w-4 h-4 mr-2" />
             Save Invoice
           </Button>
         </div>
@@ -173,7 +213,6 @@ export default function CreateInvoicePage() {
                       value={field.value}
                       onChange={field.onChange}
                     />
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -207,6 +246,20 @@ export default function CreateInvoicePage() {
 
               <FormField
                 control={form.control}
+                name="dueDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Due Date</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="note"
                 render={({ field }) => (
                   <FormItem className="col-span-full">
@@ -217,6 +270,18 @@ export default function CreateInvoicePage() {
                     <FormMessage />
                   </FormItem>
                 )}
+              />
+
+              <Input
+                placeholder="Scan barcode..."
+                value={scannedBarcode}
+                onChange={(e) => setScannedBarcode(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleBarcodeScanned(scannedBarcode);
+                    setScannedBarcode('');
+                  }
+                }}
               />
             </CardContent>
           </Card>

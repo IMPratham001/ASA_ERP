@@ -106,11 +106,23 @@ export default function InventoryPage() {
   };
 
   // Handle adding new product to inventory
+  const handleBarcodeScanned = (barcode) => {
+    // Find product by barcode
+    const product = products.find(p => p.sku === barcode);
+    if (product) {
+      setNewProduct({
+        ...newProduct,
+        productId: product.id
+      });
+    }
+  };
+
   const handleAddProduct = () => {
     if (newProduct.productId) {
       addInventoryItem({
         id: `inv-${Date.now()}`,
         productId: newProduct.productId,
+        barcode: products.find(p => p.id === newProduct.productId)?.sku,
         quantity: parseInt(newProduct.quantity),
         minQuantity: parseInt(newProduct.minQuantity),
         location: newProduct.location,
