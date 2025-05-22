@@ -1,45 +1,32 @@
-'use client';
 
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { LoadingSpinner } from '@/components/shared/loading-states';
+"use client";
 
-interface PreviewProps {
-  templateId: string;
-  data: Record<string, any>;
-}
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
-export function TemplatePreview({ templateId, data }: PreviewProps) {
-  const [pdfUrl, setPdfUrl] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+export function TemplatePreview() {
+  const [scale, setScale] = useState(1);
 
-  useEffect(() => {
-    const generatePreview = async () => {
-      try {
-        const response = await fetch(`/api/invoices/preview/${templateId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        const blob = await response.blob();
-        setPdfUrl(URL.createObjectURL(blob));
-      } catch (error) {
-        console.error('Preview generation failed:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    generatePreview();
-  }, [templateId, data]);
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+  const zoomIn = () => setScale(prev => Math.min(prev + 0.1, 2));
+  const zoomOut = () => setScale(prev => Math.max(prev - 0.1, 0.5));
 
   return (
-    <Card className="w-full h-[600px]">
-      <iframe src={pdfUrl} className="w-full h-full" />
-    </Card>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-medium">Template Preview</h3>
+        <div className="space-x-2">
+          <Button onClick={zoomOut} variant="outline" size="sm">-</Button>
+          <Button onClick={zoomIn} variant="outline" size="sm">+</Button>
+        </div>
+      </div>
+      <Card className="p-4 overflow-auto h-[600px]">
+        <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+          <div className="w-[794px] h-[1123px] bg-white shadow-lg">
+            {/* Preview content will be rendered here */}
+          </div>
+        </div>
+      </Card>
+    </div>
   );
 }

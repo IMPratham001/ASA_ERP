@@ -1,29 +1,13 @@
-import * as z from 'zod';
 
-export const accountSchema = z.object({
-  code: z.string().min(3).max(10),
-  name: z.string().min(3).max(100),
-  type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']),
-  balance: z.number().min(0),
-  description: z.string().optional(),
-});
-
-export const journalEntrySchema = z.object({
-  date: z.date(),
-  description: z.string().min(5),
-  entries: z.array(z.object({
-    accountId: z.string(),
-    debit: z.number().min(0),
-    credit: z.number().min(0),
-  })).min(2),
-});
+import * as z from "zod";
 
 export const budgetSchema = z.object({
-  period: z.enum(['monthly', 'quarterly', 'annual']),
-  amount: z.number().positive(),
-  category: z.string(),
+  category: z.string().min(1, "Category is required"),
+  amount: z.number().min(0, "Amount must be positive"),
+  period: z.enum(["monthly", "quarterly", "yearly"]),
   startDate: z.date(),
   endDate: z.date(),
+  status: z.enum(["active", "inactive"]),
 });
 
 export const taxSettingsSchema = z.object({
