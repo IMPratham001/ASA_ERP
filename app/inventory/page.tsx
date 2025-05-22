@@ -106,6 +106,12 @@ export default function InventoryPage() {
   };
 
   // Handle adding new product to inventory
+  const [lastScanned, setLastScanned] = useState<{
+    barcode: string;
+    timestamp: number;
+    success: boolean;
+  } | null>(null);
+
   const handleBarcodeScanned = (barcode) => {
     const product = products.find(p => p.sku === barcode);
     if (product) {
@@ -114,6 +120,19 @@ export default function InventoryPage() {
         productId: product.id,
         price: product.price,
         tax: product.tax || 0
+      });
+      
+      setLastScanned({
+        barcode,
+        timestamp: Date.now(),
+        success: true
+      });
+
+      // Show toast notification
+      toast({
+        title: "Product Scanned",
+        description: `Added ${product.name} to inventory`,
+        variant: "success"
       });
       
       // Add to inventory if not exists
@@ -198,6 +217,19 @@ export default function InventoryPage() {
     // Apply sorting
     return [...filtered].sort((a, b) => {
       // Handle special case for product name which is in a different object
+
+      {/* Barcode Scan Feedback */}
+      {lastScanned && (Date.now() - lastScanned.timestamp < 3000) && (
+        <div className={`fixed bottom-4 right-4 p-4 rounded-lg shadow-lg transform transition-all duration-500 ${
+          lastScanned.success ? 'bg-green-500' : 'bg-red-500'
+        }`}>
+          <div className="text-white">
+            <p className="font-medium">Barcode Scanned</p>
+            <p className="text-sm opacity-90">{lastScanned.barcode}</p>
+          </div>
+        </div>
+      )}
+
       if (sortConfig.key === "name") {
         const productA = products.find((p) => p.id === a.productId)?.name || "";
         const productB = products.find((p) => p.id === b.productId)?.name || "";
