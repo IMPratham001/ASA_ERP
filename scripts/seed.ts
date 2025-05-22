@@ -4,39 +4,94 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  // Add products
-  const products = await Promise.all([
-    prisma.product.create({
+  // Create demo stores
+  const stores = await Promise.all([
+    prisma.store.create({
       data: {
-        name: 'Laptop',
-        sku: 'LAP-001',
-        price: 999.99,
-        inventory: {
-          create: {
-            quantity: 50,
-            minQuantity: 10,
-            location: 'Main Warehouse'
-          }
-        }
+        name: 'Main Store',
+        location: 'New York',
+        status: 'active',
       }
     }),
-    prisma.product.create({
+    prisma.store.create({
       data: {
-        name: 'Smartphone',
-        sku: 'PHN-001',
-        price: 599.99,
-        inventory: {
-          create: {
-            quantity: 100,
-            minQuantity: 20,
-            location: 'Main Warehouse'
-          }
-        }
+        name: 'Branch Store',
+        location: 'Los Angeles',
+        status: 'active',
       }
     })
-  ])
+  ]);
 
-  console.log('Added products:', products)
+  // Create demo customers
+  const customers = await Promise.all([
+    prisma.customer.create({
+      data: {
+        name: 'John Smith',
+        email: 'john@example.com',
+        phone: '+1-555-0123',
+        address: '123 Main St, New York, NY',
+        detailsStatus: 'verified',
+        verifiedBy: 'admin',
+        verifiedAt: new Date(),
+      }
+    }),
+    prisma.customer.create({
+      data: {
+        name: 'Sarah Johnson',
+        email: 'sarah@example.com',
+        phone: '+1-555-0124',
+        address: '456 Park Ave, Los Angeles, CA',
+        detailsStatus: 'verified',
+        verifiedBy: 'admin',
+        verifiedAt: new Date(),
+      }
+    })
+  ]);
+
+  // Create demo users
+  const users = await Promise.all([
+    prisma.user.create({
+      data: {
+        email: 'admin@example.com',
+        name: 'Admin User',
+        role: 'admin',
+      }
+    }),
+    prisma.user.create({
+      data: {
+        email: 'staff@example.com',
+        name: 'Staff User',
+        role: 'staff',
+      }
+    })
+  ]);
+
+  // Create demo invoices
+  const invoices = await Promise.all([
+    prisma.invoice.create({
+      data: {
+        customerId: customers[0].id,
+        storeId: stores[0].id,
+        total: 1299.99,
+        status: 'paid',
+      }
+    }),
+    prisma.invoice.create({
+      data: {
+        customerId: customers[1].id,
+        storeId: stores[1].id,
+        total: 899.99,
+        status: 'pending',
+      }
+    })
+  ]);
+
+  console.log({
+    stores,
+    customers,
+    users,
+    invoices
+  });
 }
 
 main()
