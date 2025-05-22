@@ -1,7 +1,5 @@
 
-"use client";
-
-import { useState } from "react";
+import React from "react";
 import { useAccountingStore } from "@/lib/store/accounting";
 import {
   Table,
@@ -15,19 +13,17 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export function TrialBalance() {
-  const { accounts, getTrialBalance } = useAccountingStore();
-  const [asOfDate, setAsOfDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
+  const { getTrialBalance } = useAccountingStore();
+  const trialBalance = React.useMemo(() => getTrialBalance(date), [date, getTrialBalance]);
 
-  const trialBalance = accounts.map(account => ({
-    account,
-    balance: getTrialBalance(asOfDate).find(b => b.account.id === account.id)?.balance || 0
-  }));
+  const totalDebits = React.useMemo(() => 
+    trialBalance.reduce((sum, { balance }) => 
+      sum + (balance > 0 ? balance : 0), 0), [trialBalance]);
 
-  const totalDebits = trialBalance.reduce((sum, { balance }) => 
-    sum + (balance > 0 ? balance : 0), 0);
-    
-  const totalCredits = trialBalance.reduce((sum, { balance }) => 
-    sum + (balance < 0 ? Math.abs(balance) : 0), 0);
+  const totalCredits = React.useMemo(() => 
+    trialBalance.reduce((sum, { balance }) => 
+      sum + (balance < 0 ? Math.abs(balance) : 0), 0), [trialBalance]);
 
   return (
     <div className="space-y-4">
@@ -36,8 +32,8 @@ export function TrialBalance() {
         <div className="flex items-center gap-2">
           <Input
             type="date"
-            value={asOfDate}
-            onChange={(e) => setAsOfDate(e.target.value)}
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
             className="w-40"
           />
           <Button variant="outline">Export PDF</Button>
