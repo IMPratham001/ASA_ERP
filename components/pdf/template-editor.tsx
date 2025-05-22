@@ -2,6 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { TemplateVersionControl } from './template-version-control';
+import { DynamicFieldManager } from './dynamic-field-manager';
+import { LanguageSelector } from './language-selector';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
@@ -90,7 +93,13 @@ export function PDFTemplateEditor() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-4">
+        <LanguageSelector />
+        <DynamicFieldManager />
+      </div>
+      <div className="space-y-4">
+        <TemplateVersionControl />
       <Card>
         <CardHeader>
           <CardTitle>Template Editor</CardTitle>
