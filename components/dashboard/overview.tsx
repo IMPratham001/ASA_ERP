@@ -1,89 +1,38 @@
-
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState } from "react";
-import { Line } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { useStore } from "@/lib/store/store";
+import { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
+import { Chart } from '@/components/ui/chart';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
-export function Overview() {
-  const [chartData, setChartData] = useState({
+export function DashboardOverview() {
+  const [data, setData] = useState({
     labels: [],
     datasets: []
   });
-  const store = useStore();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await store.fetchProducts();
-        const products = store.products;
-        const lowStockItems = products.filter(p => p.stock <= (p.inventory?.low_stock_threshold || 10));
-        
-        const response = await fetch("/api/mock/dashboard/stats");
-        const data = await response.json();
-        
-        setChartData({
-          labels: data.labels,
-          datasets: [
-            {
-              label: 'Sales',
-              data: data.sales,
-              borderColor: 'rgb(75, 192, 192)',
-              tension: 0.1
-            },
-            {
-              label: 'Revenue',
-              data: data.revenue,
-              borderColor: 'rgb(53, 162, 235)',
-              tension: 0.1
-            }
-          ]
+    // Fetch data from API
+    fetch('/api/mock/dashboard/stats')
+      .then(res => res.json())
+      .then(data => {
+        setData({
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'Sales',
+            data: data.monthlySales || [],
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+          }]
         });
-      } catch (error) {
-        console.error("Failed to fetch stats:", error);
-      }
-    };
-
-    fetchData();
+      });
   }, []);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Overview</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[300px]">
-          <Line
-            data={chartData}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  position: 'top' as const,
-                },
-                title: {
-                  display: true,
-                  text: 'Sales & Revenue Overview'
-                }
-              }
-            }}
-          />
-        </div>
-      </CardContent>
+    <Card className="p-4">
+      <h2 className="text-xl font-bold mb-4">Overview</h2>
+      <div className="w-full h-[300px]">
+        <Chart data={data} />
+      </div>
     </Card>
   );
 }

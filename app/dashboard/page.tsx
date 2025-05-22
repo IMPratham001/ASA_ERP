@@ -1,5 +1,5 @@
-
-"use client";
+typescript jsx
+'use client';
 
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -48,6 +48,9 @@ import {
   BarElement,
   RadialLinearScale,
 } from "chart.js";
+import { CalendarDateRangePicker } from "@/components/ui/date-range-picker";
+import { Chart } from "@/components/ui/chart";
+import { CardDescription } from "@/components/ui/card";
 
 ChartJS.register(
   CategoryScale,
@@ -75,15 +78,7 @@ export default function DashboardPage() {
         }
       }
     }
-    return {};
-  });
-
-  useEffect(() => {
-    localStorage.setItem('dashboardData', JSON.stringify({
-      data: dashboardData,
-      timestamp: Date.now()
-    }));
-  }, [dashboardData]);
+    return {
     overview: {
       totalRevenue: 0,
       customers: 0,
@@ -93,7 +88,16 @@ export default function DashboardPage() {
     recentSales: [],
     monthlyRevenue: {},
     topProducts: [],
+  };
   });
+
+  useEffect(() => {
+    localStorage.setItem('dashboardData', JSON.stringify({
+      data: dashboardData,
+      timestamp: Date.now()
+    }));
+  }, [dashboardData]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -189,6 +193,9 @@ export default function DashboardPage() {
               <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
               <StoreSwitcher />
             </div>
+            <div className="flex items-center space-x-2">
+              <CalendarDateRangePicker />
+            </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -198,7 +205,7 @@ export default function DashboardPage() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">$45,231.89</div>
+                <div className="text-2xl font-bold">${dashboardData.overview.totalRevenue}</div>
                 <p className="text-xs text-muted-foreground">+20.1% from last month</p>
                 <div className="mt-4 h-1 w-full bg-gradient-to-r from-blue-500 to-purple-500 rounded" />
               </CardContent>
@@ -210,7 +217,7 @@ export default function DashboardPage() {
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">+2350</div>
+                <div className="text-2xl font-bold">{dashboardData.overview.customers}</div>
                 <p className="text-xs text-muted-foreground">+180.1% from last month</p>
                 <div className="mt-4 h-1 w-full bg-gradient-to-r from-green-500 to-emerald-500 rounded" />
               </CardContent>
@@ -222,7 +229,7 @@ export default function DashboardPage() {
                 <ShoppingCart className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">+12,234</div>
+                <div className="text-2xl font-bold">{dashboardData.overview.orders}</div>
                 <p className="text-xs text-muted-foreground">+19% from last month</p>
                 <div className="mt-4 h-1 w-full bg-gradient-to-r from-orange-500 to-red-500 rounded" />
               </CardContent>
@@ -300,7 +307,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <span>System Status</span>
                     <div className="flex items-center gap-2">
-                      <div 
+                      <div
                         className={cn(
                           "h-3 w-3 rounded-full animate-pulse",
                           isLoading ? "bg-yellow-500" : error ? "bg-red-500" : "bg-green-500"
