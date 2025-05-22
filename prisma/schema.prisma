@@ -24,13 +24,17 @@ model Store {
 }
 
 model Customer {
-  id        String   @id @default(cuid())
-  name      String
-  email     String?
-  phone     String?
-  address   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(cuid())
+  name            String
+  email           String?
+  phone           String?
+  address         String?
+  detailsStatus   String   @default("pending_details") // pending_details, verified, incomplete
+  verifiedBy      String?  // Admin who verified the details
+  verifiedAt      DateTime?
+  requiredFields  Json?    // List of missing required fields
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Product {

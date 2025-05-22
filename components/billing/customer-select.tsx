@@ -51,11 +51,31 @@ export function CustomerSelect({ customers = [], onSelect, selectedId }: Custome
   });
   const selectedCustomer = customers.find(c => c.id === selectedId);
 
-    const handleAddCustomer = () => {
-    // Will be integrated with API later
-    console.log("New customer:", newCustomer);
-    setDialogOpen(false);
-    setNewCustomer({ name: "", phone: "", email: "", gstin: "" });
+    const handleAddCustomer = async () => {
+    try {
+      const response = await customerAPI.create({
+        ...newCustomer,
+        status: 'pending_details', // Indicates admin needs to verify complete details
+        customerType: 'individual',
+      });
+      
+      if (response.data) {
+        onSelect(response.data.id);
+        toast({
+          title: "Success",
+          description: "Customer added successfully. Details pending admin verification.",
+        });
+      }
+      
+      setDialogOpen(false);
+      setNewCustomer({ name: "", phone: "", email: "", gstin: "" });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add customer",
+        variant: "destructive",
+      });
+    }
   };
 
 
