@@ -52,6 +52,15 @@ export function CustomerSelect({ customers = [], onSelect, selectedId }: Custome
   const selectedCustomer = customers.find(c => c.id === selectedId);
 
     const handleAddCustomer = async () => {
+    if (!newCustomer.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Customer name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+    setLoading(true);
     try {
       const response = await customerAPI.create({
         ...newCustomer,

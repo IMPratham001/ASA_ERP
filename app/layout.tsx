@@ -21,8 +21,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const cookieStore = cookies();
-  const token = await cookieStore.get('token');
-  const isLoggedIn = !!token;
+  const token = cookieStore.get('token');
+  const isLoggedIn = !!token?.value;
 
   return (
     <html lang="en" suppressHydrationWarning>
