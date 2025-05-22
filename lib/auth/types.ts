@@ -1,44 +1,35 @@
-import { Role, Permission, ModuleAccess } from '@prisma/client';
 
-export interface Session {
-  id: string;
-  userId: string;
-  token: string;
-  refreshToken: string;
-  expiresAt: Date;
-  ipAddress: string;
-  userAgent: string;
-  isValid: boolean;
-}
+export type Role = 'owner' | 'admin' | 'manager' | 'accountant' | 'inventory_manager' | 'sales_staff' | 'employee';
 
-export interface UserAuth {
+export type Permission = 'view' | 'create' | 'edit' | 'delete';
+
+export type ModuleAccess = {
+  module: string;
+  permissions: Permission[];
+};
+
+export type UserPermissions = {
+  canManageUsers: boolean;
+  canManageRoles: boolean;
+  canManagePermissions: boolean;
+  canViewReports: boolean;
+  canManageInventory: boolean;
+  canManageSales: boolean;
+  canManageFinance: boolean;
+  canManageSettings: boolean;
+  storeAccess: string[];
+  departmentAccess: string[];
+  moduleAccess: ModuleAccess[];
+};
+
+export interface User {
   id: string;
   email: string;
-  password: string; // Hashed
-  twoFactorEnabled: boolean;
-  twoFactorSecret?: string;
-  status: 'active' | 'inactive' | 'suspended';
-  resetToken?: string;
-  resetTokenExpiry?: Date;
-  roles: Role[];
-  permissions: Permission[];
-  lastLogin?: Date;
-  lastIp?: string;
-}
-
-export interface LoginHistory {
-  id: string;
-  userId: string;
-  timestamp: Date;
-  ipAddress: string;
-  userAgent: string;
-  success: boolean;
-}
-
-export interface CustomRole {
-  id: string;
   name: string;
-  description: string;
-  permissions: Permission[];
-  moduleAccess: ModuleAccess[];
+  role: Role;
+  permissions: UserPermissions;
+  stores: string[];
+  emailVerified?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
