@@ -1,14 +1,13 @@
 
+'use client';
+
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Sidebar } from "@/components/layout/main-nav";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { cookies } from 'next/headers';
-import { headers } from 'next/headers';
-import { NextPage } from 'next';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,18 +16,17 @@ export const metadata: Metadata = {
   description: "Advanced ERP System",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const token = await cookieStore.get('token');
+  const token = cookies().get('token');
   const isLoggedIn = !!token?.value;
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
+      <body className={inter.className}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
