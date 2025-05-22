@@ -1,25 +1,26 @@
 
 'use client';
 
-import * as React from 'react';
+import React from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 
-interface ErrorBoundaryState {
+interface Props {
+  children: React.ReactNode;
+}
+
+interface State {
   hasError: boolean;
   error?: Error;
 }
 
-export class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  ErrorBoundaryState
-> {
-  constructor(props: { children: React.ReactNode }) {
+export class ErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+  static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
@@ -32,10 +33,10 @@ export class ErrorBoundary extends React.Component<
             {this.state.error?.message}
             <Button
               variant="outline"
-              onClick={() => window.location.reload()}
+              onClick={() => this.setState({ hasError: false })}
               className="mt-4"
             >
-              Retry
+              Try again
             </Button>
           </AlertDescription>
         </Alert>

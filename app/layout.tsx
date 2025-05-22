@@ -1,3 +1,4 @@
+
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -6,6 +7,8 @@ import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { cookies } from 'next/headers';
+import { headers } from 'next/headers';
+import { NextPage } from 'next';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,24 +28,22 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning data-supressed-warning={true}>
+      <body className={inter.className} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <ErrorBoundary>
-            <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
-              {isLoggedIn && <Sidebar />}
-              <div className="flex-1">
-                <main className="h-screen overflow-y-auto p-4 md:p-8">
-                  {children}
-                </main>
-              </div>
+          <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
+            {isLoggedIn && <Sidebar />}
+            <div className="flex-1">
+              <main className="h-screen overflow-y-auto p-4 md:p-8">
+                {children}
+              </main>
             </div>
-            <Toaster />
-          </ClientErrorBoundary>
+          </div>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
