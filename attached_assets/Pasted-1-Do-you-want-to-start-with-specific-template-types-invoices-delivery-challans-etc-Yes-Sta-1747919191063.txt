@@ -1,0 +1,98 @@
+1. Do you want to start with specific template types (invoices, delivery challans, etc.)?
+✅ Yes. Start with the most essential templates that cover majority use-cases:
+
+Sales Invoice
+
+Delivery Challan
+
+Estimate/Quotation
+
+Product Barcode Label
+
+Purchase Invoice
+
+Payment Receipt
+
+Ledger/Account Statement
+
+(Optional Phase 2: Credit Note, Debit Note, Return Vouchers)
+
+2. Should we implement the drag-and-drop editor first or start with HTML-based templates?
+🔰 Start with HTML-based templates with JSON or Blade variables for dynamic fields.
+👉 Later (Phase 2), add a drag-and-drop visual builder with a live preview, especially useful for users without coding knowledge.
+
+3. What data fields need to be available in the templates?
+Include a comprehensive set of dynamic fields, grouped below:
+
+Company/Store Info:
+{company_name}, {address}, {gstin}, {phone}, {email}, {logo}
+
+Customer Info:
+{customer_name}, {address}, {contact}, {gstin}, {city}, {state}
+
+Invoice Info:
+{invoice_number}, {invoice_date}, {due_date}, {challan_number}, {estimate_number}
+
+Product Info (Loop):
+{product_name}, {product_code}, {barcode}, {rate}, {quantity}, {amount}, {hsn_code}, {gst_percent}, {discount}
+
+Totals:
+{subtotal}, {discount_total}, {tax_total}, {grand_total}, {amount_in_words}
+
+Footer & Notes:
+{terms_conditions}, {signature_area}, {footer_note}
+
+Custom Fields (for all modules) should also be supported dynamically.
+
+🔶 Barcode Functionality
+1. Do you have specific barcode scanner hardware in mind?
+🎯 Support standard USB barcode scanners (plug-and-play like Honeywell, Zebra, TVS).
+In future, support mobile camera barcode scanning via JS library like QuaggaJS or ZXing for mobile users.
+
+2. What barcode format do you prefer (EAN-13, Code128, QR)?
+✅ Start with Code128 for product labeling and inventory.
+🔲 Add EAN-13 support for products sold in retail.
+🟩 QR Code should be available optionally (Phase 2), useful for linking to product URLs, manuals, or external pages.
+
+3. Should we implement both auto-generation and manual entry first?
+✔ Yes:
+
+Auto-generation: Default format with customizable prefix, suffix, and numbering rules.
+
+Manual entry: For imported or pre-barcoded products (especially if using external packaging).
+
+🔶 Thermal Printer Integration
+1. What thermal printer models do you plan to support?
+Support the most widely used models:
+
+TSC TE244 / TTP Series
+
+TVS LP46 / LP45
+
+Zebra ZD220 / GK420T
+
+(Support via ESC/POS, ZPL, or USB Printing API)
+
+2. Do you need specific label sizes/formats?
+Yes, support standard barcode label formats:
+
+1.5 x 1 inch (most common)
+
+2 x 1 inch
+
+2 x 2 inch
+
+Roll-type or continuous roll support
+➡️ Option to customize layout and label content (company logo, MRP, SKU, barcode, name).
+
+3. Should we implement batch printing first or single label printing?
+🎯 Implement batch printing first, since it's essential for production.
+✅ Also keep single label printing for ad-hoc entries or corrections.
+
+🔶 Multilingual Support
+1. Should we start with all languages (Gujarati, Hindi, English) or implement one first?
+✔ Start with English as default.
+➡️ Add Gujarati & Hindi in the next phase (should be toggleable per user or document).
+
+2. Do you need right-to-left support for any languages?
+❌ No need for right-to-left (RTL) support initially, as Gujarati, Hindi, and English are all LTR (left-to-right).
