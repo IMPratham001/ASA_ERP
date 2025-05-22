@@ -4,7 +4,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAccountingStore } from "@/lib/store/accounting";
 import { useState, useEffect } from "react";
-import { Line } from "react-chartjs-2";
+import { Line, Bar, Pie } from "react-chartjs-2";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Chart as ChartJS,
@@ -12,10 +12,13 @@ import {
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend
 } from 'chart.js';
+import { Loader2 } from "lucide-react";
 
 // Register Chart.js components
 ChartJS.register(
@@ -23,6 +26,8 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend
@@ -30,10 +35,19 @@ ChartJS.register(
 
 export function FinancialReports() {
   const { accounts, getAccountBalance } = useAccountingStore();
+  const [isLoading, setIsLoading] = useState(true);
   const [dateRange, setDateRange] = useState({
     from: new Date(),
     to: new Date()
   });
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const calculateTotals = () => {
     const assets = accounts
@@ -57,22 +71,42 @@ export function FinancialReports() {
 
   const totals = calculateTotals();
 
-  const chartData = {
+  const revenueExpenseData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
       {
         label: 'Revenue',
         data: [30000, 35000, 32000, 38000, 42000, 45000],
         borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.5)',
         tension: 0.1
       },
       {
         label: 'Expenses',
         data: [25000, 28000, 26000, 30000, 32000, 35000],
         borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.5)',
         tension: 0.1
       }
     ]
+  };
+
+  const balanceSheetData = {
+    labels: ['Assets', 'Liabilities', 'Equity'],
+    datasets: [{
+      data: [totals.assets, totals.liabilities, totals.assets - totals.liabilities],
+      backgroundColor: [
+        'rgba(75, 192, 192, 0.5)',
+        'rgba(255, 99, 132, 0.5)',
+        'rgba(54, 162, 235, 0.5)'
+      ],
+      borderColor: [
+        'rgb(75, 192, 192)',
+        'rgb(255, 99, 132)',
+        'rgb(54, 162, 235)'
+      ],
+      borderWidth: 1
+    }]
   };
 
   const chartOptions = {
@@ -85,8 +119,21 @@ export function FinancialReports() {
           color: 'rgba(0,0,0,0.1)'
         }
       }
+    },
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+      }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -95,74 +142,75 @@ export function FinancialReports() {
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+        <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="details">Detailed Reports</TabsTrigger>
+          <TabsTrigger value="income">Income Statement</TabsTrigger>
+          <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>Balance Sheet Summary</CardTitle>
+                <CardTitle>Revenue vs Expenses</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-2 bg-muted/50 rounded">
-                    <span>Total Assets</span>
-                    <span className="font-semibold">₹{totals.assets.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-muted/50 rounded">
-                    <span>Total Liabilities</span>
-                    <span className="font-semibold">₹{totals.liabilities.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
-                    <span className="font-medium">Net Worth</span>
-                    <span className="font-bold text-primary">₹{(totals.assets - totals.liabilities).toLocaleString()}</span>
-                  </div>
+                <div className="h-[300px]">
+                  <Line data={revenueExpenseData} options={chartOptions} />
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Income Statement</CardTitle>
+                <CardTitle>Balance Sheet Overview</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-2 bg-muted/50 rounded">
-                    <span>Total Revenue</span>
-                    <span className="font-semibold text-green-600">₹{totals.revenue.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-muted/50 rounded">
-                    <span>Total Expenses</span>
-                    <span className="font-semibold text-red-600">₹{totals.expenses.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-primary/10 rounded">
-                    <span className="font-medium">Net Income</span>
-                    <span className="font-bold text-primary">₹{(totals.revenue - totals.expenses).toLocaleString()}</span>
-                  </div>
+                <div className="h-[300px]">
+                  <Pie data={balanceSheetData} />
                 </div>
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
 
+        <TabsContent value="income">
           <Card>
             <CardHeader>
-              <CardTitle>Financial Performance</CardTitle>
+              <CardTitle>Income Statement Analysis</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
-                <Line data={chartData} options={chartOptions} />
+              <div className="h-[400px]">
+                <Bar
+                  data={{
+                    labels: ['Revenue', 'Expenses', 'Net Income'],
+                    datasets: [{
+                      label: 'Amount',
+                      data: [totals.revenue, totals.expenses, totals.revenue - totals.expenses],
+                      backgroundColor: [
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(54, 162, 235, 0.5)'
+                      ],
+                      borderColor: [
+                        'rgb(75, 192, 192)',
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)'
+                      ],
+                      borderWidth: 1
+                    }]
+                  }}
+                  options={chartOptions}
+                />
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="details">
+        <TabsContent value="balance">
           <Card>
             <CardHeader>
-              <CardTitle>Detailed Financial Analysis</CardTitle>
+              <CardTitle>Balance Sheet Details</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">

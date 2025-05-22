@@ -30,10 +30,11 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Plus } from "lucide-react";
+import { AlertCircle, Plus, Loader2 } from "lucide-react";
 
 export function TaxSettings() {
   const { taxRates, addTaxRate, updateTaxRate, deleteTaxRate } = useAccountingStore();
+  const [isLoading, setIsLoading] = useState(false);
   const [newTax, setNewTax] = useState<Partial<TaxRate>>({
     name: "",
     rate: 0,
@@ -45,7 +46,7 @@ export function TaxSettings() {
   const validateTax = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!newTax.name) {
+    if (!newTax.name?.trim()) {
       newErrors.name = "Name is required";
     }
     if (newTax.rate === undefined || newTax.rate < 0 || newTax.rate > 100) {
@@ -61,7 +62,8 @@ export function TaxSettings() {
 
   const handleAddTax = async () => {
     if (!validateTax()) return;
-
+    
+    setIsLoading(true);
     try {
       const taxRate: TaxRate = {
         id: Math.random().toString(),
@@ -95,6 +97,8 @@ export function TaxSettings() {
         description: "Failed to add tax rate",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -177,7 +181,20 @@ export function TaxSettings() {
                 </SelectContent>
               </Select>
               
-              <Button onClick={handleAddTax} className="w-full">Add Tax Rate</Button>
+              <Button 
+                onClick={handleAddTax} 
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  'Add Tax Rate'
+                )}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
