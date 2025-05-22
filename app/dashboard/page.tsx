@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from "react";
@@ -27,7 +28,6 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    // Fetch dashboard data
     const fetchData = async () => {
       try {
         const response = await fetch('/api/mock/dashboard/stats');

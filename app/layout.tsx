@@ -1,19 +1,17 @@
 
-'use client';
-
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Sidebar } from "@/components/layout/main-nav";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { cookies } from 'next/headers';
+import { Sidebar } from "@/components/layout/sidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ASA-ERP",
-  description: "Advanced ERP System",
+  title: "Admin Dashboard",
+  description: "Advanced admin dashboard built with Next.js",
 };
 
 export default function RootLayout({
@@ -21,7 +19,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const token = cookies().get('token');
+  const cookieStore = cookies();
+  const token = cookieStore.get('token');
   const isLoggedIn = !!token?.value;
 
   return (
