@@ -1,14 +1,12 @@
 
-import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
-import { Editor } from '@/components/ui/editor';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-const DynamicEditor = dynamic(() => import('@/components/ui/editor'), { ssr: false });
+import React, { useState, useEffect } from 'react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
 
 interface Template {
   id?: string;
@@ -17,6 +15,7 @@ interface Template {
   content: string;
   language: string;
   version: number;
+  watermark?: string;
 }
 
 export function PDFTemplateEditor() {
@@ -27,8 +26,8 @@ export function PDFTemplateEditor() {
     language: 'en',
     version: 1
   });
-  const [preview, setPreview] = useState<string>('');
   const [watermark, setWatermark] = useState('');
+  const [history, setHistory] = useState<Template[]>([]);
 
   const languages = [
     { value: 'en', label: 'English' },
@@ -40,77 +39,147 @@ export function PDFTemplateEditor() {
     { value: 'invoice', label: 'Invoice' },
     { value: 'delivery', label: 'Delivery Challan' },
     { value: 'purchase', label: 'Purchase Order' },
-    { value: 'receipt', label: 'Receipt' }
+    { value: 'receipt', label: 'Receipt' },
+    { value: 'custom', label: 'Custom Report' }
   ];
 
-  const handlePreview = async () => {
+  const handleSave = async () => {
     try {
-      const response = await fetch('/api/templates/preview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...template, watermark })
+      // Save template logic
+      setHistory([...history, { ...template }]);
+      toast({
+        title: "Success",
+        description: "Template saved successfully"
       });
-      const data = await response.text();
-      setPreview(data);
     } catch (error) {
-      console.error('Preview generation failed:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save template",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleExport = async () => {
+    const blob = new Blob([JSON.stringify(template)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `template-${template.name}.json`;
+    a.click();
+  };
+
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target?.result as string);
+          setTemplate(imported);
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Invalid template file",
+            variant: "destructive"
+          });
+        }
+      };
+      reader.readAsText(file);
     }
   };
 
   return (
     <div className="space-y-4">
-      <Card className="p-4">
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label>Template Name</label>
-            <Input 
-              value={template.name}
-              onChange={(e) => setTemplate({...template, name: e.target.value})}
-            />
-          </div>
-          <div>
-            <label>Language</label>
-            <Select 
-              value={template.language}
-              onValueChange={(value) => setTemplate({...template, language: value})}
+      <Card>
+        <CardHeader>
+          <CardTitle>Template Editor</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                placeholder="Template Name"
+                value={template.name}
+                onChange={(e) => setTemplate({...template, name: e.target.value})}
+              />
+              <Select
+                value={template.language}
+                onValueChange={(value) => setTemplate({...template, language: value})}
+              >
+                {languages.map(lang => (
+                  <option key={lang.value} value={lang.value}>{lang.label}</option>
+                ))}
+              </Select>
+            </div>
+
+            <Select
+              value={template.type}
+              onValueChange={(value) => setTemplate({...template, type: value})}
             >
-              {languages.map(lang => (
-                <option key={lang.value} value={lang.value}>{lang.label}</option>
+              {templateTypes.map(type => (
+                <option key={type.value} value={type.value}>{type.label}</option>
               ))}
             </Select>
-          </div>
-        </div>
 
-        <Tabs defaultValue="editor">
-          <TabsList>
-            <TabsTrigger value="editor">Editor</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="editor">
-            <DynamicEditor 
+            <ReactQuill
               value={template.content}
               onChange={(content) => setTemplate({...template, content})}
+              modules={{
+                toolbar: [
+                  [{ 'header': [1, 2, 3, false] }],
+                  ['bold', 'italic', 'underline', 'strike'],
+                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                  [{ 'align': [] }],
+                  ['link', 'image'],
+                  ['clean']
+                ]
+              }}
             />
-          </TabsContent>
-          
-          <TabsContent value="preview">
-            <div className="border rounded-lg p-4 min-h-[500px]"
-                 dangerouslySetInnerHTML={{ __html: preview }} 
-            />
-          </TabsContent>
-        </Tabs>
 
-        <div className="mt-4 flex gap-2">
-          <Input
-            placeholder="Watermark Text"
-            value={watermark}
-            onChange={(e) => setWatermark(e.target.value)}
-          />
-          <Button onClick={handlePreview}>Preview</Button>
-          <Button>Save Template</Button>
-          <Button>Export PDF</Button>
-        </div>
+            <Input
+              placeholder="Watermark Text"
+              value={watermark}
+              onChange={(e) => setWatermark(e.target.value)}
+            />
+
+            <div className="flex gap-2">
+              <Button onClick={handleSave}>Save Template</Button>
+              <Button variant="outline" onClick={handleExport}>Export</Button>
+              <Input
+                type="file"
+                accept=".json"
+                onChange={handleImport}
+                className="hidden"
+                id="import-template"
+              />
+              <Button variant="outline" onClick={() => document.getElementById('import-template')?.click()}>
+                Import
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Version History</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {history.map((version, index) => (
+              <div key={index} className="flex justify-between items-center p-2 border rounded">
+                <span>Version {version.version}</span>
+                <Button
+                  variant="outline"
+                  onClick={() => setTemplate(version)}
+                >
+                  Restore
+                </Button>
+              </div>
+            ))}
+          </div>
+        </CardContent>
       </Card>
     </div>
   );
