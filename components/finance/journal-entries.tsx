@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from "react";
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface JournalEntry {
   accountId: string;
@@ -84,66 +84,87 @@ export function JournalEntries() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Journal Entry</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Account</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Debit</TableHead>
-              <TableHead>Credit</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {entries.map((entry, index) => (
-              <TableRow key={index}>
-                <TableCell>
-                  <select
-                    className="w-full p-2 border rounded"
-                    value={entry.accountId}
-                    onChange={(e) => handleEntryChange(index, 'accountId', e.target.value)}
-                  >
-                    <option value="">Select Account</option>
-                    {accounts.map(account => (
-                      <option key={account.id} value={account.id}>
-                        {account.name}
-                      </option>
-                    ))}
-                  </select>
-                </TableCell>
-                <TableCell>
-                  <Input
-                    value={entry.description}
-                    onChange={(e) => handleEntryChange(index, 'description', e.target.value)}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Input
-                    type="number"
-                    value={entry.debit}
-                    onChange={(e) => handleEntryChange(index, 'debit', parseFloat(e.target.value) || 0)}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Input
-                    type="number"
-                    value={entry.credit}
-                    onChange={(e) => handleEntryChange(index, 'credit', parseFloat(e.target.value) || 0)}
-                  />
-                </TableCell>
+    <div className="space-y-6">
+      <Card className="p-6">
+        <CardHeader>
+          <CardTitle>New Journal Entry</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-4 gap-4">
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Account" />
+              </SelectTrigger>
+              <SelectContent>
+                {accounts.map(account => (
+                  <SelectItem key={account.id} value={account.id}>
+                    {account.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input type="number" placeholder="Debit Amount" />
+            <Input type="number" placeholder="Credit Amount" />
+            <Button onClick={handleAddEntry}>Add Entry</Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="p-6">
+        <CardHeader>
+          <CardTitle>Journal Entries</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Account</TableHead>
+                <TableHead>Debit</TableHead>
+                <TableHead>Credit</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <div className="flex justify-between mt-4">
-          <Button onClick={handleAddEntry}>Add Line</Button>
-          <Button onClick={handleSave}>Save Journal Entry</Button>
-        </div>
-      </CardContent>
-    </Card>
+            </TableHeader>
+            <TableBody>
+              {entries.map((entry, index) => (
+                <TableRow key={index}>
+                  <TableCell>{new Date().toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <select
+                      className="w-full p-2 border rounded"
+                      value={entry.accountId}
+                      onChange={(e) => handleEntryChange(index, 'accountId', e.target.value)}
+                    >
+                      <option value="">Select Account</option>
+                      {accounts.map(account => (
+                        <option key={account.id} value={account.id}>
+                          {account.name}
+                        </option>
+                      ))}
+                    </select>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={entry.debit}
+                      onChange={(e) => handleEntryChange(index, 'debit', parseFloat(e.target.value) || 0)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={entry.credit}
+                      onChange={(e) => handleEntryChange(index, 'credit', parseFloat(e.target.value) || 0)}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <div className="flex justify-between mt-4">
+            <Button onClick={handleSave}>Save Journal Entry</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
