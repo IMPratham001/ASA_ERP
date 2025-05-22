@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -91,6 +90,8 @@ export function PDFTemplateEditor() {
       reader.readAsText(file);
     }
   };
+
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

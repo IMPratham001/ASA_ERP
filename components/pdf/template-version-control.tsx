@@ -2,45 +2,62 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { History, RotateCcw } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Clock, Save } from 'lucide-react';
 
 interface Version {
   id: string;
-  version: number;
-  timestamp: string;
-  changes: string;
+  name: string;
+  date: string;
 }
 
 export function TemplateVersionControl() {
   const [versions, setVersions] = useState<Version[]>([]);
+  const [versionName, setVersionName] = useState('');
 
-  const handleRestore = (versionId: string) => {
-    // Implement version restore logic
-    console.log("Restoring version:", versionId);
+  const saveVersion = () => {
+    if (!versionName) return;
+    const newVersion = {
+      id: Date.now().toString(),
+      name: versionName,
+      date: new Date().toISOString()
+    };
+    setVersions([newVersion, ...versions]);
+    setVersionName('');
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Version History</CardTitle>
+        <CardTitle>Version Control</CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[300px]">
-          {versions.map((version) => (
-            <div key={version.id} className="flex items-center justify-between p-4 border-b">
-              <div>
-                <div className="font-medium">Version {version.version}</div>
-                <div className="text-sm text-gray-500">{version.timestamp}</div>
-                <div className="text-sm">{version.changes}</div>
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Version name"
+              value={versionName}
+              onChange={(e) => setVersionName(e.target.value)}
+            />
+            <Button onClick={saveVersion}>
+              <Save className="h-4 w-4 mr-2" /> Save
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {versions.map((version) => (
+              <div key={version.id} className="flex items-center justify-between p-2 border rounded">
+                <div>
+                  <div className="font-medium">{version.name}</div>
+                  <div className="text-sm text-muted-foreground flex items-center">
+                    <Clock className="h-4 w-4 mr-1" />
+                    {new Date(version.date).toLocaleString()}
+                  </div>
+                </div>
+                <Button variant="outline" size="sm">Restore</Button>
               </div>
-              <Button variant="outline" onClick={() => handleRestore(version.id)}>
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Restore
-              </Button>
-            </div>
-          ))}
-        </ScrollArea>
+            ))}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

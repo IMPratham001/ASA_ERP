@@ -1,20 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus } from "lucide-react";
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { Plus, Trash } from 'lucide-react';
 
 export function DynamicFieldManager() {
-  const fields = [
-    { id: 'customer_name', label: 'Customer Name', type: 'text' },
-    { id: 'invoice_date', label: 'Invoice Date', type: 'date' },
-    { id: 'invoice_number', label: 'Invoice Number', type: 'number' },
-  ];
+  const [fields, setFields] = useState<Array<{id: string, name: string, type: string}>>([]);
 
-  const handleDragEnd = (result: any) => {
-    // Implement drag and drop logic
+  const addField = () => {
+    setFields([...fields, { id: Date.now().toString(), name: '', type: 'text' }]);
+  };
+
+  const removeField = (id: string) => {
+    setFields(fields.filter(field => field.id !== id));
   };
 
   return (
@@ -23,34 +22,28 @@ export function DynamicFieldManager() {
         <CardTitle>Dynamic Fields</CardTitle>
       </CardHeader>
       <CardContent>
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="fields">
-            {(provided) => (
-              <div {...provided.droppableProps} ref={provided.innerRef}>
-                {fields.map((field, index) => (
-                  <Draggable key={field.id} draggableId={field.id} index={index}>
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className="flex items-center gap-2 p-2 mb-2 border rounded"
-                      >
-                        <span>{field.label}</span>
-                        <span className="text-sm text-gray-500">({field.type})</span>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-        <Button className="mt-4">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Field
-        </Button>
+        <div className="space-y-4">
+          {fields.map((field) => (
+            <div key={field.id} className="flex items-center gap-2">
+              <Input 
+                placeholder="Field name"
+                value={field.name}
+                onChange={(e) => {
+                  const newFields = fields.map(f => 
+                    f.id === field.id ? { ...f, name: e.target.value } : f
+                  );
+                  setFields(newFields);
+                }}
+              />
+              <Button variant="destructive" size="icon" onClick={() => removeField(field.id)}>
+                <Trash className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <Button onClick={addField} className="w-full">
+            <Plus className="h-4 w-4 mr-2" /> Add Field
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
