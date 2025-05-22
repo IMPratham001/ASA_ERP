@@ -1,7 +1,6 @@
+'use client';
 
-"use client";
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -9,6 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { CalendarDateRangePicker } from "@/components/ui/date-range-picker";
 import { StoreSwitcher } from "@/components/shared/store-switcher";
 import {
   BarChart,
@@ -169,6 +170,10 @@ export default function DashboardPage() {
               <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
               <StoreSwitcher />
             </div>
+            <div className="flex items-center space-x-2">
+              <CalendarDateRangePicker />
+              <Button>Download</Button>
+            </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -280,7 +285,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <span>System Status</span>
                     <div className="flex items-center gap-2">
-                      <div 
+                      <div
                         className={cn(
                           "h-3 w-3 rounded-full animate-pulse",
                           isLoading ? "bg-yellow-500" : error ? "bg-red-500" : "bg-green-500"
