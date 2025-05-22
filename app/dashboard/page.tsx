@@ -1,7 +1,6 @@
+'use client';
 
-"use client";
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -9,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { StoreSwitcher } from "@/components/shared/store-switcher";
 import {
   BarChart,
@@ -34,6 +34,7 @@ import { Line, Bar, Radar, Doughnut } from "react-chartjs-2";
 import api from "@/lib/api/axios";
 import { Overview } from "@/components/dashboard/overview";
 import { RecentSales } from "@/components/dashboard/recent-sales";
+import { Button } from "@/components/ui/button";
 
 import {
   Chart as ChartJS,
@@ -76,6 +77,7 @@ export default function DashboardPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dateRange, setDateRange] = useState({ from: new Date(), to: new Date() });
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -168,6 +170,15 @@ export default function DashboardPage() {
             <div className="flex items-center gap-4">
               <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
               <StoreSwitcher />
+            </div>
+            <div className="flex items-center space-x-2">
+              <DateRangePicker
+                from={dateRange.from}
+                to={dateRange.to}
+                onFromChange={(date) => setDateRange(prev => ({ ...prev, from: date }))}
+                onToChange={(date) => setDateRange(prev => ({ ...prev, to: date }))}
+              />
+              <Button>Download</Button>
             </div>
           </div>
 
