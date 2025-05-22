@@ -62,8 +62,6 @@ ChartJS.register(
   Legend,
 );
 
-'use client';
-
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState({
     overview: {
