@@ -13,8 +13,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Toaster } from "@/components/ui/toaster";
 
 interface JournalEntry {
   accountId: string;
@@ -85,6 +86,7 @@ export function JournalEntries() {
 
   return (
     <div className="space-y-6">
+      <Toaster />
       <Card className="p-6">
         <CardHeader>
           <CardTitle>New Journal Entry</CardTitle>
