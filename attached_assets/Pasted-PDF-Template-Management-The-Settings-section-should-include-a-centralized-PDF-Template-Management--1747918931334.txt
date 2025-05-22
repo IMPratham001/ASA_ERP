@@ -1,0 +1,65 @@
+PDF Template Management:
+
+The Settings section should include a centralized PDF Template Management Module, allowing administrators to:
+
+View, edit, clone, and delete all existing PDF templates (e.g., invoices, delivery challans, estimates, product labels).
+
+Create custom PDF templates using a drag-and-drop editor or structured HTML-based template builder.
+
+Assign different templates per store, document type, or customer type.
+
+Support multi-language output (Gujarati, Hindi, English).
+
+Preview templates live with sample data before saving.
+
+Barcode Scanner & Thermal Printer Integration:
+
+The ERP should support plug-and-play compatibility with standard barcode scanners and thermal printers.
+
+Barcode scanner should integrate seamlessly in:
+
+Product entry screens (to avoid manual typing).
+
+Sales & Purchase entries (for real-time product retrieval).
+
+Stock adjustments, returns, and internal transfers.
+
+Mandatory Barcode on Product Creation:
+
+Enforce a rule in the product creation module where a barcode is mandatory before a product can be saved.
+
+Allow manual entry or auto-generation of barcodes with configurable formats (e.g., SKU-based, category prefix, etc.).
+
+Include an option to scan an existing barcode and assign it.
+
+Barcode Batch Printing:
+
+Include a dedicated Barcode Printing Module with batch printing capability, similar to Miracle Accounting Software.
+
+Features:
+
+Select multiple products or a whole category.
+
+Input quantity per product for how many labels are needed.
+
+Preview and bulk print to compatible thermal printers (e.g., 2-inch or 3-inch).
+
+Support label layout customization including:
+
+Logo/branding
+
+Product name
+
+Barcode (with EAN/UPC/QR support)
+
+MRP, batch number, expiry (if applicable)
+
+Other Considerations:
+
+Save template preferences per user or user role (admin, manager, warehouse staff).
+
+Logs for barcode generation and printing activity for auditing.
+
+Barcode reprint option from the product list or history logs.
+
+Ensure responsive support for both desktop and mobile environments (especially barcode scanning on mobile).
