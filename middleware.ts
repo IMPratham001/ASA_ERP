@@ -1,26 +1,29 @@
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Define public routes that don't require authentication
 const PUBLIC_PATHS = ['/auth/login', '/api/auth/login'];
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('token');
 
-  // Handle CORS for API routes
+  // Allow API routes to pass through
   if (pathname.startsWith('/api/')) {
-    const response = NextResponse.next();
-    response.headers.set('Access-Control-Allow-Credentials', 'true');
-    response.headers.set('Access-Control-Allow-Origin', '*');
-    response.headers.set('Access-Control-Allow-Methods', 'GET,DELETE,PATCH,POST,PUT');
-    response.headers.set('Access-Control-Allow-Headers', 'Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date');
-
-    if (request.method === 'OPTIONS') {
-      return response;
-    }
+    return NextResponse.next();
   }
 
-  if (!token && !PUBLIC_PATHS.includes(pathname)) {
+  // Check if the path is public
+  const isPublicPath = PUBLIC_PATHS.includes(pathname);
+
+  // If has token and trying to access login page, redirect to dashboard
+  if (token && isPublicPath) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // If no token and trying to access protected route, redirect to login
+  if (!token && !isPublicPath) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 

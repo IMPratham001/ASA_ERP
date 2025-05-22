@@ -1,38 +1,58 @@
-'use client';
 
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Chart } from '@/components/ui/chart';
+"use client";
 
-export function DashboardOverview() {
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
+import { Chart as ChartJS } from "chart.js/auto";
+
+export function Overview() {
   const [data, setData] = useState({
     labels: [],
     datasets: []
   });
+  const [selectedStore, setSelectedStore] = useState('all');
+  const stores = [
+    { id: 'all', name: 'All Stores' },
+    { id: 'store1', name: 'Main Store' },
+    { id: 'store2', name: 'Branch A' },
+    { id: 'store3', name: 'Branch B' }
+  ];
 
   useEffect(() => {
-    // Fetch data from API
-    fetch('/api/mock/dashboard/stats')
-      .then(res => res.json())
-      .then(data => {
-        setData({
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          datasets: [{
-            label: 'Sales',
-            data: data.monthlySales || [],
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1
-          }]
-        });
-      });
+    const fetchData = async () => {
+      const { fetchProducts } = useStore.getState();
+      await fetchProducts();
+      const products = useStore.getState().products;
+      const lowStockItems = products.filter(p => p.stock <= (p.inventory?.low_stock_threshold || 10));
+      try {
+        const response = await fetch("/api/dashboard/stats");
+        const json = await response.json();
+        setData(json);
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
-    <Card className="p-4">
-      <h2 className="text-xl font-bold mb-4">Overview</h2>
-      <div className="w-full h-[300px]">
-        <Chart data={data} />
-      </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Overview</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="h-[300px]">
+          <Line
+            data={data}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+            }}
+          />
+        </div>
+      </CardContent>
     </Card>
   );
 }

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Line } from "react-chartjs-2";
+import React from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,8 +10,9 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend,
+  Legend
 } from 'chart.js';
+import { Line } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -23,6 +24,19 @@ ChartJS.register(
   Legend
 );
 
-export function Chart({ data, options = {} }: any) {
-  return <Line data={data} options={options} />;
+export function Charts({ data }) {
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Analytics',
+      },
+    },
+  };
+
+  return <Line options={options} data={data} />;
 }

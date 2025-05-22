@@ -1,6 +1,5 @@
+
 import { Role, Permission, ModuleAccess, UserPermissions, User } from './types';
-import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
 
 export const DEFAULT_PERMISSIONS: Record<Role, UserPermissions> = {
   owner: {
@@ -142,19 +141,4 @@ export function canAccessModule(user: User | null, module: string): boolean {
   return user.permissions.moduleAccess.some(
     m => m.module === module || m.module === '*'
   );
-}
-
-export async function verifyToken(token: string) {
-  try {
-    const secret = process.env.JWT_SECRET || 'your-secret-key';
-    const decoded = jwt.verify(token, secret);
-    return decoded;
-  } catch (error) {
-    return null;
-  }
-}
-
-export async function checkPermissions(userId: string, requiredPermissions: string[]) {
-  // Implement your permission checking logic here
-  return true;
 }

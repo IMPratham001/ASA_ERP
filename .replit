@@ -25,7 +25,7 @@ localPort = 5555
 externalPort = 3000
 
 [workflows]
-runButton = "Frontend Dev"
+runButton = "Full Stack Dev"
 
 [[workflows.workflow]]
 name = "Dev Server"
@@ -100,12 +100,3 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
-
-[[workflows.workflow]]
-name = "Test"
-author = 38304816
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run test"
