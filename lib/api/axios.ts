@@ -2,7 +2,7 @@ import axios from 'axios';
 import { toast } from '@/hooks/use-toast';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:3000',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

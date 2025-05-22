@@ -62,6 +62,8 @@ ChartJS.register(
   Legend,
 );
 
+'use client';
+
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState({
     overview: {
@@ -80,13 +82,13 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await api.get("/dashboard/stats");
+        const response = await api.get("/api/mock/dashboard/stats");
         if (response.data?.status === "success") {
           setDashboardData(response.data.data);
-          setIsLoading(false);
         }
-      } catch (err) {
-        setError(err.message);
+      } catch (err: any) {
+        setError(err?.response?.data?.message || err?.message || 'Failed to fetch dashboard data');
+      } finally {
         setIsLoading(false);
       }
     };
