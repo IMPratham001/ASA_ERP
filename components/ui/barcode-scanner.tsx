@@ -1,57 +1,43 @@
+"use client";
 
-import React, { useEffect, useRef } from 'react';
-import { BrowserMultiFormatReader } from '@zxing/library';
+import { useEffect, useRef } from 'react';
+import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Button } from './button';
 
 interface BarcodeScannerProps {
-  onScan: (result: string) => void;
-  onError?: (error: Error) => void;
+  onScan: (decodedText: string) => void;
+  onError?: (error: string) => void;
 }
 
 export function BarcodeScanner({ onScan, onError }: BarcodeScannerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   useEffect(() => {
-    const codeReader = new BrowserMultiFormatReader();
-    
-    async function startScanning() {
-      try {
-        const videoInputDevices = await codeReader.listVideoInputDevices();
-        const selectedDeviceId = videoInputDevices[0]?.deviceId;
-        
-        if (selectedDeviceId && videoRef.current) {
-          await codeReader.decodeFromVideoDevice(
-            selectedDeviceId,
-            videoRef.current,
-            (result, err) => {
-              if (result) {
-                onScan(result.getText());
-              }
-              if (err && onError) {
-                onError(err);
-              }
-            }
-          );
-        }
-      } catch (error) {
-        if (onError && error instanceof Error) {
-          onError(error);
-        }
-      }
-    }
+    scannerRef.current = new Html5QrcodeScanner(
+      "reader",
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      /* verbose= */ false
+    );
 
-    startScanning();
+    scannerRef.current.render(
+      (decodedText) => {
+        onScan(decodedText);
+      },
+      (error) => {
+        if (onError) onError(error);
+      }
+    );
 
     return () => {
-      codeReader.reset();
+      if (scannerRef.current) {
+        scannerRef.current.clear();
+      }
     };
   }, [onScan, onError]);
 
   return (
-    <div className="relative w-full max-w-md mx-auto">
-      <video
-        ref={videoRef}
-        className="w-full rounded-lg border border-gray-200"
-      />
+    <div>
+      <div id="reader" className="w-full max-w-md mx-auto"></div>
     </div>
   );
 }

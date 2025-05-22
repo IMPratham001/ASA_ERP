@@ -52,6 +52,7 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.12.1",
     "html-to-pdf-js": "^0.9.3",
+    "html5-qrcode": "^2.3.8",
     "jsbarcode": "^3.11.6",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.344.0",
