@@ -1,30 +1,42 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { verifyToken } from '@/lib/auth/permissions';
 
-// Define public routes that don't require authentication
 const PUBLIC_PATHS = ['/auth/login', '/api/auth/login'];
+const API_PATHS = ['/api/'];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('token');
 
-  // Allow API routes to pass through
+  // CORS headers for API routes
   if (pathname.startsWith('/api/')) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+    response.headers.set('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_APP_URL || '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET,DELETE,PATCH,POST,PUT');
+    response.headers.set('Access-Control-Allow-Headers', 'Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date');
+    
+    if (request.method === 'OPTIONS') {
+      return response;
+    }
   }
 
-  // Check if the path is public
-  const isPublicPath = PUBLIC_PATHS.includes(pathname);
-
-  // If has token and trying to access login page, redirect to dashboard
-  if (token && isPublicPath) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  // If no token and trying to access protected route, redirect to login
-  if (!token && !isPublicPath) {
+  // Security checks
+  if (!token && !PUBLIC_PATHS.includes(pathname)) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
+  }
+
+  if (token) {
+    try {
+      const verified = await verifyToken(token.value);
+      if (!verified && !PUBLIC_PATHS.includes(pathname)) {
+        return NextResponse.redirect(new URL('/auth/login', request.url));
+      }
+    } catch (error) {
+      return NextResponse.redirect(new URL('/auth/login', request.url));
+    }
   }
 
   return NextResponse.next();
