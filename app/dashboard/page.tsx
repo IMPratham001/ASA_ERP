@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -30,9 +31,8 @@ import {
   Store,
 } from "lucide-react";
 import { Line, Bar, Radar, Doughnut } from "react-chartjs-2";
-import api from "@/lib/api/laravel";
+import api from "@/lib/api/axios";
 import { Overview } from "@/components/dashboard/overview";
-import { IntegrationTest } from "@/components/shared/integration-test";
 import { RecentSales } from "@/components/dashboard/recent-sales";
 
 import {
@@ -96,7 +96,6 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Sample data for charts
   const salesPerformance = {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
     datasets: [
@@ -164,191 +163,193 @@ export default function DashboardPage() {
         </div>
       )}
       {!isLoading && !error && (
-      <div className="flex items-center justify-between space-y-2">
-        <div className="flex items-center gap-4">
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-          <StoreSwitcher />
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gradient-to-br from-blue-500/10 to-purple-500/10">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$45,231.89</div>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
-            <div className="mt-4 h-1 w-full bg-gradient-to-r from-blue-500 to-purple-500 rounded" />
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+2350</div>
-            <p className="text-xs text-muted-foreground">+180.1% from last month</p>
-            <div className="mt-4 h-1 w-full bg-gradient-to-r from-green-500 to-emerald-500 rounded" />
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-orange-500/10 to-red-500/10">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Sales</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+12,234</div>
-            <p className="text-xs text-muted-foreground">+19% from last month</p>
-            <div className="mt-4 h-1 w-full bg-gradient-to-r from-orange-500 to-red-500 rounded" />
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-violet-500/10 to-purple-500/10">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Active Stores</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+573</div>
-            <p className="text-xs text-muted-foreground">+201 since last hour</p>
-            <div className="mt-4 h-1 w-full bg-gradient-to-r from-violet-500 to-purple-500 rounded" />
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Sales Performance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Line data={salesPerformance} options={{ responsive: true }} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Category Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Doughnut data={categoryDistribution} options={{ responsive: true }} />
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Hourly Traffic</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Bar data={hourlyTraffic} options={{ responsive: true }} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Performance Metrics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Radar data={performanceMetrics} options={{ responsive: true }} />
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RecentSales />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>System Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span>System Status</span>
-                <div className="flex items-center gap-2">
-                  <div 
-                    className={cn(
-                      "h-3 w-3 rounded-full animate-pulse",
-                      isLoading ? "bg-yellow-500" : error ? "bg-red-500" : "bg-green-500"
-                    )}
-                    title={error ? "System Error" : "System Operational"}
-                  />
-                </div>
-              </div>
+        <>
+          <div className="flex items-center justify-between space-y-2">
+            <div className="flex items-center gap-4">
+              <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+              <StoreSwitcher />
             </div>
-          </CardContent>
-        </Card>
-      </div>
-      {/* Additional Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Products</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {dashboardData.topProducts.slice(0, 3).map((product, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between py-2"
-              >
-                <div className="flex items-center gap-2">
-                  <Package className="h-4 w-4" />
-                  <span>{product.name}</span>
-                </div>
-                <span className="font-medium">{product.revenue}</span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Inventory Alerts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {dashboardData.overview && (
-              <div className="flex items-center justify-between py-2">
-                <span>Total Inventory</span>
-                <span className="text-red-500 font-medium">
-                  {dashboardData.overview.inventory} left
-                </span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card className="bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">$45,231.89</div>
+                <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+                <div className="mt-4 h-1 w-full bg-gradient-to-r from-blue-500 to-purple-500 rounded" />
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {dashboardData.recentSales &&
-              dashboardData.recentSales.slice(0, 3).map((sale, index) => (
-                <div key={index} className="py-2">
-                  <p className="text-sm">Sale ID: {sale.id}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Amount: {sale.amount}
-                  </p>
+            <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">+2350</div>
+                <p className="text-xs text-muted-foreground">+180.1% from last month</p>
+                <div className="mt-4 h-1 w-full bg-gradient-to-r from-green-500 to-emerald-500 rounded" />
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-orange-500/10 to-red-500/10">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Sales</CardTitle>
+                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">+12,234</div>
+                <p className="text-xs text-muted-foreground">+19% from last month</p>
+                <div className="mt-4 h-1 w-full bg-gradient-to-r from-orange-500 to-red-500 rounded" />
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-violet-500/10 to-purple-500/10">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Active Stores</CardTitle>
+                <Package className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">+573</div>
+                <p className="text-xs text-muted-foreground">+201 since last hour</p>
+                <div className="mt-4 h-1 w-full bg-gradient-to-r from-violet-500 to-purple-500 rounded" />
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Sales Performance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Line data={salesPerformance} options={{ responsive: true }} />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Category Distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Doughnut data={categoryDistribution} options={{ responsive: true }} />
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Hourly Traffic</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Bar data={hourlyTraffic} options={{ responsive: true }} />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Performance Metrics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Radar data={performanceMetrics} options={{ responsive: true }} />
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RecentSales />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>System Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span>System Status</span>
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className={cn(
+                          "h-3 w-3 rounded-full animate-pulse",
+                          isLoading ? "bg-yellow-500" : error ? "bg-red-500" : "bg-green-500"
+                        )}
+                        title={error ? "System Error" : "System Operational"}
+                      />
+                    </div>
+                  </div>
                 </div>
-              ))}
-          </CardContent>
-        </Card>
-      </div>
-    )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Card>
+              <CardHeader>
+                <CardTitle>Top Products</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {dashboardData.topProducts.slice(0, 3).map((product, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between py-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Package className="h-4 w-4" />
+                      <span>{product.name}</span>
+                    </div>
+                    <span className="font-medium">{product.revenue}</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Inventory Alerts</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {dashboardData.overview && (
+                  <div className="flex items-center justify-between py-2">
+                    <span>Total Inventory</span>
+                    <span className="text-red-500 font-medium">
+                      {dashboardData.overview.inventory} left
+                    </span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {dashboardData.recentSales &&
+                  dashboardData.recentSales.slice(0, 3).map((sale, index) => (
+                    <div key={index} className="py-2">
+                      <p className="text-sm">Sale ID: {sale.id}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Amount: {sale.amount}
+                      </p>
+                    </div>
+                  ))}
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
     </div>
   );
 }
