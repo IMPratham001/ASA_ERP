@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from "react";
@@ -22,9 +21,18 @@ export default function DashboardPage() {
       totalRevenue: 0,
       sales: 0,
       products: 0,
-      customers: 0
+      customers: 0,
     },
-    recentSales: []
+    recentSales: [],
+    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+    datasets: [
+      {
+        label: 'Sales',
+        data: [65, 59, 80, 81, 56, 55],
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1,
+      },
+    ],
   });
 
   useEffect(() => {
@@ -32,7 +40,11 @@ export default function DashboardPage() {
       try {
         const response = await fetch('/api/mock/dashboard/stats');
         const data = await response.json();
-        setDashboardData(data);
+        setDashboardData(prevData => ({
+          ...prevData,
+          overview: data.overview,
+          recentSales: data.recentSales,
+        }));
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       }
@@ -63,7 +75,7 @@ export default function DashboardPage() {
                 <CardTitle>Sales Overview</CardTitle>
               </CardHeader>
               <CardContent className="pl-2">
-                <Charts />
+                <Charts data={dashboardData} />
               </CardContent>
             </Card>
             <Card className="col-span-3">
