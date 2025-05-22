@@ -1,0 +1,18 @@
+
+import * as z from "zod";
+
+export const budgetSchema = z.object({
+  category: z.string().min(1, "Category is required"),
+  amount: z.number().min(0, "Amount must be positive"),
+  period: z.enum(["monthly", "quarterly", "yearly"]),
+  startDate: z.date(),
+  endDate: z.date(),
+  status: z.enum(["active", "inactive"]),
+});
+
+export const taxSettingsSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  percentage: z.number().min(0).max(100),
+  isDefault: z.boolean(),
+  status: z.enum(["active", "inactive"]),
+});
