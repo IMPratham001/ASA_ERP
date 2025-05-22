@@ -15,11 +15,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from 'next/navigation';
 
 export default function CustomersPage() {
   const { customers } = useStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const router = useRouter();
 
   const filteredCustomers = customers.filter(customer => {
     const matchesSearch = 
