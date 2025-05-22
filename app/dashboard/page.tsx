@@ -62,8 +62,28 @@ ChartJS.register(
   Legend,
 );
 
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 export default function DashboardPage() {
-  const [dashboardData, setDashboardData] = useState({
+  const [dashboardData, setDashboardData] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('dashboardData');
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_DURATION) {
+          return data;
+        }
+      }
+    }
+    return {};
+  });
+
+  useEffect(() => {
+    localStorage.setItem('dashboardData', JSON.stringify({
+      data: dashboardData,
+      timestamp: Date.now()
+    }));
+  }, [dashboardData]);
     overview: {
       totalRevenue: 0,
       customers: 0,

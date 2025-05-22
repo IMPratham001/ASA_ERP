@@ -1,12 +1,27 @@
-
 'use client';
 
 import "@/styles/globals.css";
 import { Inter } from "next/font/google";
-import { Sidebar } from "@/components/layout/main-nav";
-import { ThemeProvider } from "@/components/shared/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
-import { ErrorBoundary } from "@/components/shared/error-boundary";
+import dynamic from 'next/dynamic';
+import { Suspense, lazy } from 'react';
+import { Loading } from '@/components/ui/loading';
+
+const Sidebar = dynamic(() => import("@/components/layout/sidebar"), {
+  loading: () => <Loading />,
+  ssr: false
+});
+
+const ThemeProvider = dynamic(() => import("@/components/shared/theme-provider"), {
+  ssr: true
+});
+
+const Toaster = dynamic(() => import("@/components/ui/toaster"), {
+  ssr: false
+});
+
+const ErrorBoundary = dynamic(() => import("@/components/shared/error-boundary"), {
+  ssr: true
+});
 import { cookies } from 'next/headers';
 
 const inter = Inter({ subsets: ["latin"] });
