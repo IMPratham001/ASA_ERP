@@ -10,7 +10,7 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 } from 'chart.js';
 
 ChartJS.register(
@@ -23,11 +23,6 @@ ChartJS.register(
   Legend
 );
 
-interface ChartProps {
-  data: any;
-  options?: any;
-}
-
-export function Chart({ data, options }: ChartProps) {
+export function Chart({ data, options = {} }: any) {
   return <Line data={data} options={options} />;
 }
