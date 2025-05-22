@@ -5,7 +5,7 @@ import { Inter } from "next/font/google";
 import { Sidebar } from "@/components/layout/main-nav";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import ErrorBoundary from "@/components/shared/error-boundary";
+import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { cookies } from 'next/headers';
 
 const inter = Inter({ subsets: ["latin"] });
