@@ -31,7 +31,7 @@ import { PrinterIcon, Save } from "lucide-react";
 
 const formSchema = z.object({
   invoiceType: z.enum(["retail", "wholesale", "tax"]),
-  templateId: z.string(),
+  templateId: z.string().default("modern"),
   customerId: z.string(),
   storeId: z.string(),
   currency: z.string().default("USD"),
@@ -104,9 +104,9 @@ export default function CreateInvoicePage() {
           <Button variant="outline" onClick={() => form.reset()}>
             Clear
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => window.open(`/api/invoices/preview/${form.getValues().templateId}`, '_blank')}>
             <PrinterIcon className="mr-2 h-4 w-4" />
-            Print Preview
+            PDF Preview
           </Button>
           <Button onClick={form.handleSubmit(onSubmit)}>
             <Save className="mr-2 h-4 w-4" />
