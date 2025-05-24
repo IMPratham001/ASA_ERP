@@ -1,0 +1,79 @@
+You are assisting in the development of ASA ERP (Aanshi Shringar Art). The system uses:
+
+Frontend: Next.js (React)
+
+Backend: Laravel (PHP), Prisma ORM (Node.js), PostgreSQL
+
+Please follow this directive:
+
+✅ Proceed with the following implementations based on my answers:
+🔴 PDF Engine
+Use Lohit Gujarati and Lohit Devanagari fonts for multilingual PDF generation (Gujarati + Hindi support).
+
+Implement dynamic watermarks per PDF template:
+
+Example watermark text: customer name, invoice number, or custom field from template.
+
+Generate QR codes in the format:
+https://asaerp.in/invoice/view/{invoice_id}
+Fallback to plain text if URL not available.
+
+🔵 Financial Engine
+Add support for Recurring Transactions with these intervals:
+Daily, Weekly, Monthly, Quarterly, Yearly
+
+Implement GST logic for:
+
+5%, 12%, 18%, 28%
+
+Handle IGST vs CGST + SGST based on interstate/intrastate flag
+
+🟢 Invoice System
+Setup dashboard section for invoice generation with two templates:
+
+Minimal Template (Quick overview)
+
+Detailed Template (Tax, Terms, Company Details)
+
+Add support for PDF and CSV export
+
+Enable placeholder digital signature support (image upload)
+
+🟣 Real-Time Layer
+Use Laravel WebSockets (self-hosted) instead of Pusher
+
+Store notifications in DB with:
+
+Read/Unread state
+
+Role-based delivery (e.g., only to Admins or Managers)
+
+⚪ Technical Setup
+Use Pest for Laravel testing
+
+Enable query-level caching for key DB queries
+
+Setup Swagger API documentation (password protected for internal use)
+
+🧩 Additional Notes:
+Ensure all implemented features appear in the user interface — either through navigation links, dashboard widgets, or dedicated pages.
+
+Create the following missing files as part of setup:
+
+Laravel broadcasting config (config/broadcasting.php)
+
+WebSocket server setup (websockets.php, middleware, routes)
+
+Font assets directory for PDF
+
+Cache configuration (config/cache.php)
+
+🚀 Once this is complete, update me with:
+
+The new files created
+
+Modified files list
+
+Any missing dependencies or remaining blockers
+
+Ask follow-up questions if anything needs clarification before execution.
