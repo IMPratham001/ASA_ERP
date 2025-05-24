@@ -81,9 +81,10 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await api.get("/dashboard/stats");
-        if (response.data?.status === "success") {
-          setDashboardData(response.data.data);
+        const response = await fetch('/api/mock/dashboard/stats');
+        const data = await response.json();
+        if (data?.status === "success") {
+          setDashboardData(data.data);
         } else {
           setDashboardData({
             overview: {
