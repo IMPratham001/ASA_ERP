@@ -1,0 +1,83 @@
+Complete PDF Generation Service
+
+Create/complete:
+
+app/Services/PDF/TemplateService.php (with multilingual support, QR code, watermarking stubbed)
+
+app/Http/Controllers/API/PDFController.php (methods for generate, preview, download, attach email)
+
+routes/api.php (register PDF-related routes, e.g. /api/pdf/generate, /api/pdf/preview)
+
+resources/fonts/ (add placeholders for Gujarati/Hindi/English fonts)
+
+Stub all dependent helpers/utilities (e.g. QR code generator, watermark utils)
+
+Financial APIs Completion
+
+Create full folder/file scaffolding with placeholders for:
+
+app/Http/Controllers/API/FinanceController.php (all endpoints: journal entries, transactions, ledger, reports)
+
+app/Models/Transaction.php (with all necessary fields, relationships)
+
+Validation Requests:
+app/Http/Requests/StoreTransactionRequest.php
+app/Http/Requests/UpdateTransactionRequest.php
+(stub validation rules for all financial inputs)
+
+routes/api.php (all finance routes: CRUD + reports + exports)
+
+Utilities/helpers for tax calculations, currency formatting (stub files)
+
+Test files for finance API in tests/Feature/FinanceApiTest.php (empty or basic test scaffolds)
+
+Real-Time Updates Preparation
+
+Create WebSocket server scaffold:
+
+Laravel Echo server config files (e.g., config/echo.php)
+
+Events: app/Events/FinancialTransactionCreated.php (empty class stub)
+
+Listeners folder & stub classes (e.g., app/Listeners/NotifyClients.php)
+
+Frontend event subscription endpoints stubbed in API routes for future implementation
+
+Frontend (Next.js)
+PDF Template Editor Setup
+
+Full React component scaffold in:
+components/pdf/TemplateEditor.tsx (with placeholder editor UI, tabs for versions, preview stub)
+
+Add API service methods in:
+lib/api/pdf.ts (stub methods for generate, save, preview)
+
+Connect editor with store/context for future state management
+
+Financial APIs Completion UI
+
+Create component scaffolds:
+components/finance/JournalEntries.tsx
+components/finance/LedgerView.tsx
+components/finance/ReportsBuilder.tsx (empty or skeleton UI)
+
+Create hooks or context providers for finance data management with stubbed API calls
+
+Real-Time Updates Client Setup
+
+Add WebSocket client connection scaffolding in:
+lib/realtime/socket.ts (using Socket.IO or Laravel Echo)
+
+Create React hooks for subscriptions (e.g., hooks/useRealtimeUpdates.ts)
+
+Placeholder UI elements for notifications (e.g., components/shared/LiveNotification.tsx)
+
+Summary:
+Create all files and folders needed now or later (empty/stubbed if not fully implemented)
+
+Ensure API routes, controller methods, validation, and frontend components exist with proper imports/export
+
+Stub out utilities/helpers to avoid future integration blockers
+
+Prepare test file scaffolds for each module for CI integration
+
