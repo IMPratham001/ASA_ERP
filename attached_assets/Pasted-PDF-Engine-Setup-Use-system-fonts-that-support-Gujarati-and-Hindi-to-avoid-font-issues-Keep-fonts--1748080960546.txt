@@ -1,0 +1,54 @@
+PDF Engine Setup
+Use system fonts that support Gujarati and Hindi to avoid font issues.
+
+Keep fonts organized in a dedicated folder inside your backend storage.
+
+Design your watermark system to be dynamic, allowing different watermarks for different document types.
+
+Ensure QR codes can embed various data formats like plain text, URLs, or JSON, and appear correctly in the PDF.
+
+Financial Engine
+Support recurring transactions with flexible frequency options: daily, weekly, and monthly.
+
+Accurately calculate GST, including different tax rates (5%, 12%, 18%, 28%) and manage the split between IGST and CGST+SGST as per location.
+
+Invoice System
+Provide multiple invoice templates with customization options for users.
+
+Enable export of reports in CSV, Excel, and PDF with proper formatting and data integrity.
+
+Integrate digital signatures for authentication and legal compliance of invoices.
+
+Real-Time Layer
+Implement WebSocket integration for real-time features like notifications and live updates.
+
+Store notifications persistently in the database to allow users to view past alerts.
+
+Include user segmentation so notifications can target specific groups efficiently.
+
+Technical & Performance Setup
+Use a modern testing framework like Pest to maintain code quality and simplify testing.
+
+Implement caching strategies at the API and database levels to improve speed and reduce load.
+
+Set up clear API documentation for internal or external use, ensuring ease of integration and maintenance.
+
+Codebase Cleanup & Structure
+Identify and remove any unused or obsolete files and folders to keep the project lean.
+
+Organize your project directories logically, grouping similar files (controllers, services, models) for easy navigation.
+
+Maintain clear documentation covering setup, development guidelines, and module explanations for your team.
+
+Next Step Focus Areas
+Configure key system settings like broadcasting, caching, and CORS early in your project setup.
+
+Develop core services gradually—starting with PDF templates and financial transaction controllers.
+
+Organize your font assets and other static resources in dedicated folders with proper access rights.
+
+Ensure all required third-party packages (PDF generation, WebSocket, testing frameworks) are integrated and configured properly.
+
+Plan for WebSocket server setup and migration of necessary database tables.
+
+Continuously clean and organize your codebase during development to avoid technical debt.
