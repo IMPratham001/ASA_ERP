@@ -1,4 +1,3 @@
-
 import { Role } from '@prisma/client';
 
 export interface AuthResponse {
@@ -11,22 +10,9 @@ export interface User {
   email: string;
   name: string;
   role: Role;
-  emailVerified?: Date;
-  permissions: string[];
 }
 
 export interface LoginCredentials {
   email: string;
   password: string;
-}
-
-export interface RegisterData extends LoginCredentials {
-  name: string;
-  role?: Role;
-}
-
-export interface EmailVerification {
-  token: string;
-  userId: string;
-  expiresAt: Date;
 }
