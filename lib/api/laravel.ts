@@ -1,38 +1,37 @@
-
-import api from './axios';
+import axios from './axios';
+import { API_ROUTES } from './endpoints';
 
 // Auth APIs
 export const authAPI = {
-  login: (data: any) => api.post('/auth/login', data),
-  register: (data: any) => api.post('/auth/register', data),
-  getCurrentUser: () => api.get('/user'),
+  login: (data: any) => axios.post('/auth/login', data),
+  register: (data: any) => axios.post('/auth/register', data),
+  getCurrentUser: () => axios.get('/user'),
 };
 
 // Store APIs
 export const storeAPI = {
-  list: () => api.get('/stores'),
-  create: (data: any) => api.post('/stores', data),
-  update: (id: string, data: any) => api.put(`/stores/${id}`, data),
-  delete: (id: string) => api.delete(`/stores/${id}`),
+  list: () => axios.get('/stores'),
+  create: (data: any) => axios.post('/stores', data),
+  update: (id: string, data: any) => axios.put(`/stores/${id}`, data),
+  delete: (id: string) => axios.delete(`/stores/${id}`),
 };
 
 // Customer APIs
 export const customerAPI = {
-  list: () => api.get('/customers'),
-  create: (data: any) => api.post('/customers', data),
-  update: (id: string, data: any) => api.put(`/customers/${id}`, data),
-  delete: (id: string) => api.delete(`/customers/${id}`),
+  getAll: () => axios.get(API_ROUTES.CUSTOMERS),
+  getById: (id: string) => axios.get(`${API_ROUTES.CUSTOMERS}/${id}`),
+  create: (data: any) => axios.post(API_ROUTES.CUSTOMERS, data),
+  update: (id: string, data: any) => axios.put(`${API_ROUTES.CUSTOMERS}/${id}`, data),
+  delete: (id: string) => axios.delete(`${API_ROUTES.CUSTOMERS}/${id}`)
 };
 
 // Dashboard APIs
 export const dashboardAPI = {
-  getStats: () => api.get('/dashboard/stats'),
+  getStats: () => axios.get('/dashboard/stats'),
 };
 
 // Finance APIs
 export const financeAPI = {
-  getTransactions: () => api.get('/finance/transactions'),
-  createTransaction: (data: any) => api.post('/finance/transactions', data),
-  getBudget: () => api.get('/finance/budget'),
-  updateBudget: (data: any) => api.put('/finance/budget', data),
+  getTransactions: () => axios.get(API_ROUTES.FINANCE.TRANSACTIONS),
+  createTransaction: (data: any) => axios.post(API_ROUTES.FINANCE.TRANSACTIONS, data)
 };

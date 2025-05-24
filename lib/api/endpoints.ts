@@ -1,38 +1,45 @@
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
+    LOGIN: `${BASE_URL}/auth/login`,
+    REGISTER: `${BASE_URL}/auth/register`,
+    LOGOUT: `${BASE_URL}/auth/logout`,
   },
   CUSTOMERS: {
-    LIST: '/customers',
-    CREATE: '/customers',
-    DETAIL: (id: string) => `/customers/${id}`,
-    INVOICES: (id: string) => `/customers/${id}/invoices`,
+    LIST: `${BASE_URL}/customers`,
+    CREATE: `${BASE_URL}/customers`,
+    DETAIL: (id: string) => `${BASE_URL}/customers/${id}`,
+    INVOICES: (id: string) => `${BASE_URL}/customers/${id}/invoices`,
   },
   INVOICES: {
-    LIST: '/invoices',
-    CREATE: '/invoices',
-    DETAIL: (id: string) => `/invoices/${id}`,
-    ITEMS: (id: string) => `/invoices/${id}/items`,
+    LIST: `${BASE_URL}/invoices`,
+    CREATE: `${BASE_URL}/invoices`,
+    DETAIL: (id: string) => `${BASE_URL}/invoices/${id}`,
+    ITEMS: (id: string) => `${BASE_URL}/invoices/${id}/items`,
   },
   PRODUCTS: {
-    LIST: '/products',
-    CREATE: '/products',
-    DETAIL: (id: string) => `/products/${id}`,
-    STOCK: (id: string) => `/products/${id}/stock`,
+    LIST: `${BASE_URL}/products`,
+    CREATE: `${BASE_URL}/products`,
+    DETAIL: (id: string) => `${BASE_URL}/products/${id}`,
+    STOCK: (id: string) => `${BASE_URL}/products/${id}/stock`,
   },
   INVENTORY: {
-    LIST: '/inventory',
-    DETAIL: (id: string) => `/inventory/${id}`,
-    MOVEMENTS: '/inventory/movements',
-    update: (id: number) => `/inventory/${id}`,
-    getByProduct: (productId: number) => `/inventory/product/${productId}`,
-    updateStock: (id: number) => `/inventory/${id}/stock`,
+    LIST: `${BASE_URL}/inventory`,
+    DETAIL: (id: string) => `${BASE_URL}/inventory/${id}`,
+    MOVEMENTS: `${BASE_URL}/inventory/movements`,
+    update: (id: number) => `${BASE_URL}/inventory/${id}`,
+    getByProduct: (productId: number) => `${BASE_URL}/inventory/product/${productId}`,
+    updateStock: (id: number) => `${BASE_URL}/inventory/${id}/stock`,
   },
   DASHBOARD: {
-    STATS: '/dashboard/stats',
-    SALES: '/dashboard/sales',
-    REVENUE: '/dashboard/revenue',
+    STATS: `${BASE_URL}/dashboard/stats`,
+    SALES: `${BASE_URL}/dashboard/sales`,
+    REVENUE: `${BASE_URL}/dashboard/revenue`,
+  },
+  FINANCE: {
+    TRANSACTIONS: `${BASE_URL}/finance/transactions`,
+    REPORTS: `${BASE_URL}/finance/reports`,
+    ACCOUNTS: `${BASE_URL}/finance/accounts`
   }
 };
