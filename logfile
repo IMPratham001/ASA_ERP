@@ -18,3 +18,8 @@
 2025-05-24 10:36:43.353 UTC [11224] LOG:  could not bind IPv6 address "::1": Cannot assign requested address
 2025-05-24 10:36:43.354 UTC [11224] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
 2025-05-24 10:36:43.355 UTC [11224] LOG:  database system is shut down
+2025-05-24 10:42:06.948 UTC [11406] LOG:  starting PostgreSQL 16.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.3.0, 64-bit
+2025-05-24 10:42:06.951 UTC [11406] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-05-24 10:42:06.952 UTC [11406] LOG:  could not bind IPv6 address "::1": Cannot assign requested address
+2025-05-24 10:42:06.953 UTC [11406] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
+2025-05-24 10:42:06.957 UTC [11406] LOG:  database system is shut down
