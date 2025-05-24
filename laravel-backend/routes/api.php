@@ -15,13 +15,36 @@ use App\Http\Controllers\API\{
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 
-// Test endpoint
+// Test endpoints
 Route::get('/test', function() {
     return response()->json([
         'message' => 'API is working',
         'timestamp' => now(),
         'environment' => config('app.env')
     ]);
+});
+
+Route::get('/test-db', function() {
+    try {
+        // Test DB connection
+        DB::connection()->getPdo();
+        
+        // Get users table data
+        $users = \App\Models\User::take(1)->get();
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Database connection successful',
+            'data' => $users,
+            'connection' => DB::connection()->getDatabaseName()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Database connection failed',
+            'error' => $e->getMessage()
+        ], 500);
+    }
 });
 
 // Protected routes

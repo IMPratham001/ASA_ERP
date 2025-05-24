@@ -9,13 +9,19 @@ import { handleApiError } from '@/lib/utils/api';
 export function ApiTest() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
+  const [dbData, setDbData] = useState<any>(null);
 
   useEffect(() => {
     const testConnection = async () => {
       try {
-        const response = await api.get('/test');
+        // Test basic API
+        const apiResponse = await api.get('/test');
+        setMessage(apiResponse.data.message);
+        
+        // Test DB connection
+        const dbResponse = await api.get('/test-db');
+        setDbData(dbResponse.data);
         setStatus('success');
-        setMessage(response.data.message);
       } catch (error) {
         setStatus('error');
         setMessage(handleApiError(error));
@@ -26,9 +32,21 @@ export function ApiTest() {
   }, []);
 
   return (
-    <Alert variant={status === 'error' ? 'destructive' : 'default'}>
-      <p>API Status: {status}</p>
-      <p>{message}</p>
-    </Alert>
+    <div className="space-y-4">
+      <Alert variant={status === 'error' ? 'destructive' : 'default'}>
+        <p>API Status: {status}</p>
+        <p>Message: {message}</p>
+      </Alert>
+      
+      {dbData && (
+        <Alert>
+          <p>Database Status: {dbData.status}</p>
+          <p>Database: {dbData.connection}</p>
+          <pre className="mt-2 text-sm">
+            {JSON.stringify(dbData.data, null, 2)}
+          </pre>
+        </Alert>
+      )}
+    </div>
   );
 }

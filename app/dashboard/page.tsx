@@ -63,6 +63,9 @@ import { StoreSwitcher } from "@/components/shared/store-switcher";
 import api from "@/lib/api/axios";
 import { ApiTest } from '@/components/shared/api-test';
 
+// Add at the start of the dashboard content
+<ApiTest />
+
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState({
     overview: {

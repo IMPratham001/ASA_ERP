@@ -2,6 +2,7 @@
 import axios from 'axios';
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api';
+console.log('API URL:', baseURL); // Debug log
 
 const axiosInstance = axios.create({
   baseURL,
