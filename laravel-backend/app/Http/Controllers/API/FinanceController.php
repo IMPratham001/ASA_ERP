@@ -4,40 +4,50 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Transaction;
 use App\Http\Requests\StoreTransactionRequest;
-use App\Http\Requests\UpdateTransactionRequest;
+use App\Models\Transaction;
+use App\Events\FinancialTransactionCreated;
+use Illuminate\Http\Request;
 
 class FinanceController extends Controller
 {
-    public function index()
-    {
-        return response()->json(['transactions' => Transaction::all()]);
-    }
-
-    public function store(StoreTransactionRequest $request)
+    public function createTransaction(StoreTransactionRequest $request)
     {
         $transaction = Transaction::create($request->validated());
-        event(new \App\Events\FinancialTransactionCreated($transaction));
+        event(new FinancialTransactionCreated($transaction));
         return response()->json($transaction, 201);
     }
 
-    public function show($id)
+    public function getTransactions(Request $request)
     {
-        return response()->json(['transaction' => Transaction::findOrFail($id)]);
+        $transactions = Transaction::with(['account', 'store'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+        return response()->json($transactions);
     }
 
-    public function update(UpdateTransactionRequest $request, $id)
+    public function getDashboardStats()
     {
-        $transaction = Transaction::findOrFail($id);
-        $transaction->update($request->validated());
-        return response()->json($transaction);
+        $stats = [
+            'total_revenue' => Transaction::revenue()->sum('amount'),
+            'total_expenses' => Transaction::expenses()->sum('amount'),
+            'recent_transactions' => Transaction::latest()->take(5)->get(),
+            'cash_flow' => $this->calculateCashFlow()
+        ];
+        return response()->json($stats);
     }
 
-    public function destroy($id)
+    private function calculateCashFlow()
     {
-        Transaction::findOrFail($id)->delete();
-        return response()->json(null, 204);
+        // Weekly cash flow for the last month
+        $start = now()->subMonth();
+        $end = now();
+        
+        return Transaction::whereBetween('created_at', [$start, $end])
+            ->selectRaw('WEEK(created_at) as week')
+            ->selectRaw('SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as inflow')
+            ->selectRaw('SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END) as outflow')
+            ->groupBy('week')
+            ->get();
     }
 }

@@ -1,11 +1,14 @@
-
+typescript jsx
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAccountingStore } from "@/lib/store/accounting";
-import { useState, useEffect } from "react";
+import { useRealtimeUpdates } from "@/hooks/useRealtimeUpdates";
 import { Line, Bar, Pie } from "react-chartjs-2";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { financeAPI } from "@/lib/api/finance/transactions";
+import { toast } from "@/components/ui/toast";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -40,14 +43,44 @@ export function FinancialReports() {
     from: new Date(),
     to: new Date()
   });
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    totalExpenses: 0,
+    cashFlow: [],
+    recentTransactions: []
+  });
+
+  const fetchStats = async () => {
+    try {
+      const response = await financeAPI.getDashboardStats();
+      setStats(response.data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch financial stats",
+        variant: "destructive"
+      });
+    }
+  };
 
   useEffect(() => {
+    fetchStats();
+
     // Simulate data loading
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
+
+  // Subscribe to real-time updates
+  useRealtimeUpdates('finance', 'transaction.created', (data) => {
+    fetchStats(); // Refresh stats when new transaction is created
+    toast({
+      title: "New Transaction",
+      description: `Transaction of ${data.amount} was recorded`,
+    });
+  });
 
   const calculateTotals = () => {
     const assets = accounts

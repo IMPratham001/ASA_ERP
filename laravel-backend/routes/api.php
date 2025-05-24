@@ -2,6 +2,14 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\FinanceController;
+
+// Finance Routes
+Route::prefix('finance')->group(function () {
+    Route::get('/transactions', [FinanceController::class, 'getTransactions']);
+    Route::post('/transactions', [FinanceController::class, 'createTransaction']);
+    Route::get('/dashboard/stats', [FinanceController::class, 'getDashboardStats']);
+});
 use App\Http\Controllers\API\{
     TestController,
     DashboardController,

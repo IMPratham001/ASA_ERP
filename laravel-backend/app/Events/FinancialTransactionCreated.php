@@ -3,6 +3,7 @@
 
 namespace App\Events;
 
+use App\Models\Transaction;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -15,7 +16,7 @@ class FinancialTransactionCreated implements ShouldBroadcast
 
     public $transaction;
 
-    public function __construct($transaction)
+    public function __construct(Transaction $transaction)
     {
         $this->transaction = $transaction;
     }
@@ -23,5 +24,10 @@ class FinancialTransactionCreated implements ShouldBroadcast
     public function broadcastOn()
     {
         return new Channel('finance');
+    }
+
+    public function broadcastAs()
+    {
+        return 'transaction.created';
     }
 }
