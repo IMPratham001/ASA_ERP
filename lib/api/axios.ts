@@ -1,25 +1,29 @@
-
 import axios from 'axios';
+import { toast } from '@/components/ui/use-toast';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api',
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api'}`,
+  withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest'
   },
-  withCredentials: true,
   timeout: 10000,
 });
 
-// Add response interceptor for better error handling
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  response => response,
+  error => {
     if (error.response?.status === 401) {
-      // Handle unauthorized
       window.location.href = '/auth/login';
     }
+    const message = error.response?.data?.message || 'An error occurred';
+    toast({
+      title: 'Error',
+      description: message,
+      variant: 'destructive'
+    });
     return Promise.reject(error);
   }
 );
@@ -48,4 +52,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export { api };
