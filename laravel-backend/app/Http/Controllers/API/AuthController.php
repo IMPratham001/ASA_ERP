@@ -8,18 +8,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     public function login(Request $request)
     {
         try {
-            $request->validate([
+            $credentials = $request->validate([
                 'email' => 'required|email',
                 'password' => 'required',
             ]);
 
-            if (Auth::attempt($request->only('email', 'password'))) {
+            if (Auth::attempt($credentials)) {
                 $user = Auth::user();
                 $token = $user->createToken('auth-token')->plainTextToken;
 
@@ -30,46 +31,45 @@ class AuthController extends Controller
                 ]);
             }
 
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid credentials'
-            ], 401);
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Authentication failed',
-                'error' => $e->getMessage()
+                'message' => $e->getMessage()
+            ], 401);
+        }
+    }
+
+    public function current(Request $request)
+    {
+        try {
+            return response()->json([
+                'status' => 'success',
+                'user' => $request->user()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get user details'
             ], 500);
         }
     }
 
-    public function register(Request $request)
+    public function logout(Request $request)
     {
         try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:8',
-            ]);
-
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
-
+            $request->user()->currentAccessToken()->delete();
             return response()->json([
                 'status' => 'success',
-                'message' => 'User registered successfully',
-                'user' => $user
+                'message' => 'Successfully logged out'
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Registration failed',
-                'error' => $e->getMessage()
+                'message' => 'Failed to logout'
             ], 500);
         }
     }

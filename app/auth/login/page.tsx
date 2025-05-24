@@ -448,28 +448,7 @@ export default function LoginPage() {
               )}
             </Button>
 
-            {/* SSO Option */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white dark:bg-slate-800 px-2 text-slate-500 dark:text-slate-400">
-                  Enterprise Authentication
-                </span>
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleSSOLogin}
-              disabled={loading || isLocked}
-              className="w-full h-11 rounded-lg border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-center"
-            >
-              <Building className="w-5 h-5 mr-2" />
-              Sign in with Corporate SSO
-            </Button>
+            
 
             {/* Help and Support */}
             <div className="absolute bottom-3 right-3">
