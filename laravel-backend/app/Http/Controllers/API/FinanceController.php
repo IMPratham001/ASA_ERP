@@ -16,7 +16,7 @@ class FinanceController extends Controller
     {
         $data = $request->validated();
         
-        // Calculate GST based on rate
+        // Calculate GST based on rate and location
         $gstAmount = $this->calculateGST(
             $data['amount'],
             $data['gst_rate'],
@@ -32,7 +32,7 @@ class FinanceController extends Controller
             'igst_amount' => $gstAmount['igst'],
         ]);
 
-        // If recurring, create schedule
+        // Handle recurring transactions if specified
         if (isset($data['is_recurring']) && $data['is_recurring']) {
             $this->createRecurringSchedule($transaction, $data['frequency']);
         }
@@ -48,7 +48,7 @@ class FinanceController extends Controller
 
         $totalGST = ($amount * $rate) / 100;
 
-        // IGST for inter-state
+        // For inter-state transactions: IGST
         if ($sourceState !== $destState) {
             return [
                 'total' => $totalGST,
@@ -58,13 +58,13 @@ class FinanceController extends Controller
             ];
         }
 
-        // CGST + SGST for intra-state
-        $cgst = $totalGST / 2;
+        // For intra-state transactions: CGST + SGST
+        $halfGST = $totalGST / 2;
         return [
             'total' => $totalGST,
             'igst' => 0,
-            'cgst' => $cgst,
-            'sgst' => $cgst
+            'cgst' => $halfGST,
+            'sgst' => $halfGST
         ];
     }
 

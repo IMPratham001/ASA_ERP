@@ -2,14 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\FinanceController;
-
-// Finance Routes
-Route::prefix('finance')->group(function () {
-    Route::get('/transactions', [FinanceController::class, 'getTransactions']);
-    Route::post('/transactions', [FinanceController::class, 'createTransaction']);
-    Route::get('/dashboard/stats', [FinanceController::class, 'getDashboardStats']);
-});
 use App\Http\Controllers\API\{
     TestController,
     DashboardController,
@@ -17,9 +9,9 @@ use App\Http\Controllers\API\{
     InventoryController,
     InvoiceController,
     PDFController,
-    UserController
+    UserController,
+    FinanceController
 };
-use App\Http\Controllers\API\FinanceController;
 
 // CORS middleware
 header('Access-Control-Allow-Origin: *');
@@ -29,12 +21,6 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 // API Routes
 Route::middleware(['api'])->group(function () {
     // Auth routes
-
-Route::group(['middleware' => ['auth:sanctum']], function () {
-    Route::post('/transactions', [FinanceController::class, 'storeTransaction']);
-    Route::get('/transactions/recurring', [FinanceController::class, 'getRecurringTransactions']);
-    Route::post('/transactions/{id}/stop-recurring', [FinanceController::class, 'stopRecurring']);
-});
 
     Route::post('/auth/login', [UserController::class, 'login']);
     Route::post('/auth/logout', [UserController::class, 'logout']);
@@ -51,15 +37,22 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::prefix('pdf')->group(function () {
             Route::post('/generate', [PDFController::class, 'generate']);
             Route::post('/preview', [PDFController::class, 'preview']);
-            Route::post('/download', [PDFController::class, 'download']);
+            Route::get('/templates', [PDFController::class, 'templates']);
+            Route::post('/templates', [PDFController::class, 'storeTemplate']);
+        });
+
+        // Finance routes
+        Route::prefix('finance')->group(function () {
+            Route::post('/transactions', [FinanceController::class, 'storeTransaction']);
+            Route::get('/transactions', [FinanceController::class, 'index']);
+            Route::get('/transactions/recurring', [FinanceController::class, 'getRecurringTransactions']);
+            Route::post('/transactions/{id}/stop-recurring', [FinanceController::class, 'stopRecurring']);
         });
 
         Route::get('/user', function (Request $request) {
             return $request->user();
         });
 
-        // Finance routes
-        Route::apiResource('finance/transactions', FinanceController::class);
         Route::get('finance/reports/trial-balance', [FinanceController::class, 'trialBalance']);
         Route::get('finance/reports/income-statement', [FinanceController::class, 'incomeStatement']);
         Route::get('finance/reports/balance-sheet', [FinanceController::class, 'balanceSheet']);

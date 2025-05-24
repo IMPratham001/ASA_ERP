@@ -12,13 +12,23 @@ class TemplateService
     private $pdf;
     private $fonts = [
         'gujarati' => 'Lohit-Gujarati.ttf',
-        'hindi' => 'Lohit-Devanagari.ttf'
+        'hindi' => 'Lohit-Devanagari.ttf',
+        'english' => 'DejaVuSans.ttf'
     ];
 
     public function __construct()
     {
         $this->pdf = new TCPDF();
+        $this->initializePDF();
         $this->registerFonts();
+    }
+
+    private function initializePDF()
+    {
+        $this->pdf->SetCreator('ASA ERP');
+        $this->pdf->SetAuthor('Aanshi Shringar Art');
+        $this->pdf->SetTitle('Document');
+        $this->pdf->SetAutoPageBreak(true, 15);
     }
 
     private function registerFonts()
@@ -27,6 +37,18 @@ class TemplateService
             $fontPath = storage_path('fonts/' . $font);
             $this->pdf->AddFont($name, '', $fontPath, true);
         }
+    }
+
+    public function setFont($language, $size = 12)
+    {
+        $fontMap = [
+            'gu' => 'gujarati',
+            'hi' => 'hindi',
+            'en' => 'english'
+        ];
+        
+        $font = $fontMap[$language] ?? 'english';
+        $this->pdf->SetFont($font, '', $size);
     }
 
     public function addWatermark($text, $options = [])
@@ -41,8 +63,8 @@ class TemplateService
         $options = array_merge($defaults, $options);
         
         $this->pdf->SetAlpha($options['alpha']);
-        $this->pdf->SetFont('helvetica', '', $options['size']);
         $this->pdf->SetTextColor($options['color'][0], $options['color'][1], $options['color'][2]);
+        $this->pdf->SetFontSize($options['size']);
         
         $this->pdf->StartTransform();
         $this->pdf->Rotate($options['angle'], $this->pdf->getPageWidth()/2, $this->pdf->getPageHeight()/2);
@@ -54,13 +76,11 @@ class TemplateService
 
     public function addQRCode($data, $x = 0, $y = 0, $w = 30, $h = 30)
     {
-        // Convert data to URL if it's not already
         if (!filter_var($data, FILTER_VALIDATE_URL)) {
             if (is_array($data)) {
                 $data = json_encode($data);
             }
-            // Create ASA ERP URL format
-            $data = 'https://asaerp.in/invoice/view/' . urlencode($data);
+            $data = 'https://asaerp.in/view/' . urlencode($data);
         }
         
         $style = [
@@ -76,39 +96,21 @@ class TemplateService
         $this->pdf->write2DBarcode($data, 'QRCODE,H', $x, $y, $w, $h, $style);
     }
 
-    public function setFont($language, $size = 12)
-    {
-        switch (strtolower($language)) {
-            case 'gujarati':
-                $this->pdf->SetFont('gujarati', '', $size);
-                break;
-            case 'hindi':
-                $this->pdf->SetFont('hindi', '', $size);
-                break;
-            default:
-                $this->pdf->SetFont('helvetica', '', $size);
-        }
-    }
-
     public function generate($template, $data)
     {
-        // Initialize PDF
-        $this->pdf->SetCreator('ASA ERP');
-        $this->pdf->SetAuthor('Aanshi Shringar Art');
-        
-        // Add a page
         $this->pdf->AddPage();
         
-        // Add watermark if specified
         if (isset($data['watermark'])) {
             $this->addWatermark($data['watermark']);
         }
+
+        if (isset($data['language'])) {
+            $this->setFont($data['language']);
+        }
         
-        // Process template with data
         $html = view($template, $data)->render();
         $this->pdf->writeHTML($html, true, false, true, false, '');
         
-        // Add QR code if specified
         if (isset($data['qr_data'])) {
             $this->addQRCode($data['qr_data']);
         }
