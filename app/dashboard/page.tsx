@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from 'react';
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -55,12 +55,12 @@ ChartJS.register(
   BarElement,
   RadialLinearScale
 );
-import { Overview } from "@/components/dashboard/overview";
+import { Overview } from '@/components/dashboard/overview';
 import { RecentSales } from "@/components/dashboard/recent-sales";
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { StoreSwitcher } from "@/components/shared/store-switcher";
-import api from "@/lib/api/axios";
+import { api } from '@/lib/api/axios';
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState({
@@ -81,10 +81,10 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch('/api/mock/dashboard/stats');
-        const data = await response.json();
-        if (data?.status === "success") {
-          setDashboardData(data.data);
+        setIsLoading(true);
+        const response = await api.get('/dashboard/stats');
+        if (response.data?.status === "success") {
+          setDashboardData(response.data.data);
         } else {
           setDashboardData({
             overview: {
@@ -98,7 +98,7 @@ export default function DashboardPage() {
             topProducts: []
           });
         }
-        setIsLoading(false);
+        setError(null);
       } catch (err) {
         console.error("Dashboard data fetch error:", err);
         // Fallback to demo data on error
@@ -113,7 +113,8 @@ export default function DashboardPage() {
           monthlyRevenue: {},
           topProducts: []
         });
-        setError(null);
+        setError(err.message);
+      } finally {
         setIsLoading(false);
       }
     };
