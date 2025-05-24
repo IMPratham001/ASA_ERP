@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 const isDev = process.env.NODE_ENV === 'development';
 const API_URL = isDev ? 'http://0.0.0.0:8000/api' : process.env.NEXT_PUBLIC_API_URL;
