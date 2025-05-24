@@ -1,26 +1,28 @@
 import axios from 'axios';
 import { toast } from '@/components/ui/use-toast';
 
-const isDev = process.env.NODE_ENV === 'development';
-const API_URL = isDev ? 'http://0.0.0.0:8000/api' : process.env.NEXT_PUBLIC_API_URL;
-
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api'}`,
+  withCredentials: true,
   headers: {
     'Accept': 'application/json',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest'
   },
-  withCredentials: true
+  timeout: 10000,
 });
 
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const message = error.response?.data?.error || error.message || 'An error occurred';
+  response => response,
+  error => {
+    if (error.response?.status === 401) {
+      window.location.href = '/auth/login';
+    }
+    const message = error.response?.data?.message || 'An error occurred';
     toast({
-      title: "Error",
+      title: 'Error',
       description: message,
-      variant: "destructive",
+      variant: 'destructive'
     });
     return Promise.reject(error);
   }
@@ -50,4 +52,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export { api };
