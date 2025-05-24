@@ -1,0 +1,20 @@
+2025-05-24 10:35:51.359 UTC [10673] LOG:  starting PostgreSQL 16.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.3.0, 64-bit
+2025-05-24 10:35:51.362 UTC [10673] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-05-24 10:35:51.363 UTC [10673] LOG:  could not bind IPv6 address "::1": Cannot assign requested address
+2025-05-24 10:35:51.364 UTC [10673] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
+2025-05-24 10:35:51.365 UTC [10673] LOG:  database system is shut down
+2025-05-24 10:36:09.905 UTC [10947] LOG:  starting PostgreSQL 16.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.3.0, 64-bit
+2025-05-24 10:36:09.910 UTC [10947] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-05-24 10:36:09.912 UTC [10947] LOG:  could not bind IPv6 address "::1": Cannot assign requested address
+2025-05-24 10:36:09.913 UTC [10947] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
+2025-05-24 10:36:09.915 UTC [10947] LOG:  database system is shut down
+2025-05-24 10:36:41.966 UTC [11147] LOG:  starting PostgreSQL 16.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.3.0, 64-bit
+2025-05-24 10:36:41.969 UTC [11147] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-05-24 10:36:41.970 UTC [11147] LOG:  could not bind IPv6 address "::1": Cannot assign requested address
+2025-05-24 10:36:41.971 UTC [11147] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
+2025-05-24 10:36:41.972 UTC [11147] LOG:  database system is shut down
+2025-05-24 10:36:43.349 UTC [11224] LOG:  starting PostgreSQL 16.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 13.3.0, 64-bit
+2025-05-24 10:36:43.352 UTC [11224] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-05-24 10:36:43.353 UTC [11224] LOG:  could not bind IPv6 address "::1": Cannot assign requested address
+2025-05-24 10:36:43.354 UTC [11224] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
+2025-05-24 10:36:43.355 UTC [11224] LOG:  database system is shut down
