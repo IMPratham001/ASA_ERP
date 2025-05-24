@@ -4,79 +4,96 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreTransactionRequest;
 use App\Models\Transaction;
-use App\Events\FinancialTransactionCreated;
+use App\Http\Requests\StoreTransactionRequest;
 use Illuminate\Http\Request;
 
 class FinanceController extends Controller
 {
-    public function createTransaction(StoreTransactionRequest $request)
+    private $gstRates = [5, 12, 18, 28];
+
+    public function storeTransaction(StoreTransactionRequest $request)
     {
         $data = $request->validated();
         
-        if ($data['is_recurring'] ?? false) {
-            $schedule = $this->createRecurringSchedule($data);
-            $data['schedule_id'] = $schedule->id;
-        }
-
-        // Handle GST calculations
-        if ($data['has_gst']) {
-            $data = $this->calculateGST($data);
-        }
-
-        $transaction = Transaction::create($data);
-        event(new FinancialTransactionCreated($transaction));
+        // Calculate GST based on rate
+        $gstAmount = $this->calculateGST(
+            $data['amount'],
+            $data['gst_rate'],
+            $data['source_state'],
+            $data['destination_state']
+        );
         
+        $transaction = Transaction::create([
+            ...$data,
+            'gst_amount' => $gstAmount['total'],
+            'cgst_amount' => $gstAmount['cgst'],
+            'sgst_amount' => $gstAmount['sgst'],
+            'igst_amount' => $gstAmount['igst'],
+        ]);
+
+        // If recurring, create schedule
+        if (isset($data['is_recurring']) && $data['is_recurring']) {
+            $this->createRecurringSchedule($transaction, $data['frequency']);
+        }
+
         return response()->json($transaction, 201);
     }
 
-    protected function calculateGST($data)
+    private function calculateGST($amount, $rate, $sourceState, $destState)
     {
-        $amount = $data['amount'];
-        $gstRate = $data['gst_rate'];
-        $isInterstate = $data['is_interstate'] ?? false;
-
-        if ($isInterstate) {
-            $data['igst'] = $amount * ($gstRate / 100);
-        } else {
-            $data['cgst'] = $amount * ($gstRate / 200);
-            $data['sgst'] = $amount * ($gstRate / 200);
+        if (!in_array($rate, $this->gstRates)) {
+            throw new \InvalidArgumentException('Invalid GST rate');
         }
 
-        return $data;
-    }
+        $totalGST = ($amount * $rate) / 100;
 
-    public function getTransactions(Request $request)
-    {
-        $transactions = Transaction::with(['account', 'store'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-        return response()->json($transactions);
-    }
+        // IGST for inter-state
+        if ($sourceState !== $destState) {
+            return [
+                'total' => $totalGST,
+                'igst' => $totalGST,
+                'cgst' => 0,
+                'sgst' => 0
+            ];
+        }
 
-    public function getDashboardStats()
-    {
-        $stats = [
-            'total_revenue' => Transaction::revenue()->sum('amount'),
-            'total_expenses' => Transaction::expenses()->sum('amount'),
-            'recent_transactions' => Transaction::latest()->take(5)->get(),
-            'cash_flow' => $this->calculateCashFlow()
+        // CGST + SGST for intra-state
+        $cgst = $totalGST / 2;
+        return [
+            'total' => $totalGST,
+            'igst' => 0,
+            'cgst' => $cgst,
+            'sgst' => $cgst
         ];
-        return response()->json($stats);
     }
 
-    private function calculateCashFlow()
+    private function createRecurringSchedule($transaction, $frequency)
     {
-        // Weekly cash flow for the last month
-        $start = now()->subMonth();
-        $end = now();
-        
-        return Transaction::whereBetween('created_at', [$start, $end])
-            ->selectRaw('WEEK(created_at) as week')
-            ->selectRaw('SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as inflow')
-            ->selectRaw('SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END) as outflow')
-            ->groupBy('week')
-            ->get();
+        $validFrequencies = ['daily', 'weekly', 'monthly'];
+        if (!in_array($frequency, $validFrequencies)) {
+            throw new \InvalidArgumentException('Invalid frequency');
+        }
+
+        // Create recurring schedule based on frequency
+        $schedule = new \App\Models\RecurringSchedule([
+            'transaction_id' => $transaction->id,
+            'frequency' => $frequency,
+            'next_date' => $this->calculateNextDate($frequency),
+            'is_active' => true
+        ]);
+
+        $schedule->save();
+    }
+
+    private function calculateNextDate($frequency)
+    {
+        $now = now();
+        return match($frequency) {
+            'daily' => $now->addDay(),
+            'weekly' => $now->addWeek(),
+            'monthly' => $now->addMonth(),
+            default => $now
+        };
     }
 }

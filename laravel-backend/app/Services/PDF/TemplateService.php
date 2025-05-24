@@ -1,117 +1,118 @@
+
 <?php
 
 namespace App\Services\PDF;
 
 use TCPDF;
-use QRCode;
-use Exception;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
 class TemplateService
 {
-    protected $pdf;
-    protected $lang;
-    protected $fonts;
-    protected $fontPaths;
+    private $pdf;
+    private $fonts = [
+        'gujarati' => 'Lohit-Gujarati.ttf',
+        'hindi' => 'Lohit-Devanagari.ttf'
+    ];
 
-    public function __construct($lang = 'en')
+    public function __construct()
     {
         $this->pdf = new TCPDF();
-        $this->lang = $lang;
-        $this->fontPaths = [
-            'hi' => storage_path('fonts/Lohit-Devanagari.ttf'),
-            'gu' => storage_path('fonts/Lohit-Gujarati.ttf'),
-        ];
-        $this->fonts = [
-            'en' => 'helvetica',
-            'hi' => 'lohit_hi',
-            'gu' => 'lohit_gu'
-        ];
-        
-        // Register custom fonts
         $this->registerFonts();
     }
 
-    protected function registerFonts()
+    private function registerFonts()
     {
-        foreach ($this->fontPaths as $lang => $path) {
-            $fontName = "lohit_$lang";
-            $this->pdf->AddFont($fontName, '', $path, true);
+        foreach ($this->fonts as $name => $font) {
+            $fontPath = storage_path('fonts/' . $font);
+            $this->pdf->AddFont($name, '', $fontPath, true);
         }
     }
 
-    public function generatePDF(array $data, string $template, array $options = [])
+    public function addWatermark($text, $options = [])
     {
-        try {
-            $this->initializePDF($options);
-            $this->applyTemplate($template, $data);
-
-            if (!empty($options['watermark'])) {
-                $this->addWatermark($options['watermark']);
-            }
-
-            if (!empty($options['qr'])) {
-                $this->addQRCode($options['qr']);
-            }
-
-            return $this->pdf->Output('', 'S');
-        } catch (Exception $e) {
-            throw new Exception("PDF generation failed: " . $e->getMessage());
-        }
-    }
-
-    protected function initializePDF(array $options)
-    {
-        $this->pdf->SetCreator('ASA ERP');
-        $this->pdf->SetAuthor($options['author'] ?? 'System');
-        $this->pdf->SetFont($this->fonts[$this->lang]);
-
-        if (!empty($options['margins'])) {
-            $this->pdf->SetMargins(
-                $options['margins']['left'] ?? 15,
-                $options['margins']['top'] ?? 15,
-                $options['margins']['right'] ?? 15
-            );
-        }
-    }
-
-    protected function applyTemplate(string $template, array $data)
-    {
-        // Add dynamic content based on template and data
-        $this->pdf->AddPage();
-        $this->pdf->writeHTML($this->parseTemplate($template, $data));
-    }
-
-    protected function parseTemplate(string $template, array $data)
-    {
-        // Replace placeholders with actual data
-        foreach ($data as $key => $value) {
-            $template = str_replace('{{' . $key . '}}', $value, $template);
-        }
-        return $template;
-    }
-
-    protected function addWatermark(string $text)
-    {
-        // Implement watermark logic
-        $this->pdf->SetAlpha(0.2);
-        $this->pdf->Rotate(45);
-        $this->pdf->Text(60, 60, $text);
-        $this->pdf->Rotate(0);
+        $defaults = [
+            'alpha' => 0.2,
+            'color' => [128, 128, 128],
+            'size' => 40,
+            'angle' => 45,
+        ];
+        
+        $options = array_merge($defaults, $options);
+        
+        $this->pdf->SetAlpha($options['alpha']);
+        $this->pdf->SetFont('helvetica', '', $options['size']);
+        $this->pdf->SetTextColor($options['color'][0], $options['color'][1], $options['color'][2]);
+        
+        $this->pdf->StartTransform();
+        $this->pdf->Rotate($options['angle'], $this->pdf->getPageWidth()/2, $this->pdf->getPageHeight()/2);
+        $this->pdf->Text(0, $this->pdf->getPageHeight()/2, $text);
+        $this->pdf->StopTransform();
+        
         $this->pdf->SetAlpha(1);
     }
 
-    protected function addQRCode(string $data)
+    public function addQRCode($data, $x = 0, $y = 0, $w = 30, $h = 30)
     {
-        // Implement QR code generation
+        // Convert data to URL if it's not already
+        if (!filter_var($data, FILTER_VALIDATE_URL)) {
+            if (is_array($data)) {
+                $data = json_encode($data);
+            }
+            // Create ASA ERP URL format
+            $data = 'https://asaerp.in/invoice/view/' . urlencode($data);
+        }
+        
         $style = [
-            'border' => 2,
-            'vpadding' => 'auto',
-            'hpadding' => 'auto',
+            'border' => false,
+            'vpadding' => 0,
+            'hpadding' => 0,
             'fgcolor' => [0, 0, 0],
-            'bgcolor' => [255, 255, 255]
+            'bgcolor' => false,
+            'module_width' => 1,
+            'module_height' => 1,
         ];
+        
+        $this->pdf->write2DBarcode($data, 'QRCODE,H', $x, $y, $w, $h, $style);
+    }
 
-        $this->pdf->write2DBarcode($data, 'QRCODE,H', 15, 15, 30, 30, $style);
+    public function setFont($language, $size = 12)
+    {
+        switch (strtolower($language)) {
+            case 'gujarati':
+                $this->pdf->SetFont('gujarati', '', $size);
+                break;
+            case 'hindi':
+                $this->pdf->SetFont('hindi', '', $size);
+                break;
+            default:
+                $this->pdf->SetFont('helvetica', '', $size);
+        }
+    }
+
+    public function generate($template, $data)
+    {
+        // Initialize PDF
+        $this->pdf->SetCreator('ASA ERP');
+        $this->pdf->SetAuthor('Aanshi Shringar Art');
+        
+        // Add a page
+        $this->pdf->AddPage();
+        
+        // Add watermark if specified
+        if (isset($data['watermark'])) {
+            $this->addWatermark($data['watermark']);
+        }
+        
+        // Process template with data
+        $html = view($template, $data)->render();
+        $this->pdf->writeHTML($html, true, false, true, false, '');
+        
+        // Add QR code if specified
+        if (isset($data['qr_data'])) {
+            $this->addQRCode($data['qr_data']);
+        }
+        
+        return $this->pdf->Output('', 'S');
     }
 }

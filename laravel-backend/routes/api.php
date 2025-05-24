@@ -29,6 +29,13 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 // API Routes
 Route::middleware(['api'])->group(function () {
     // Auth routes
+
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::post('/transactions', [FinanceController::class, 'storeTransaction']);
+    Route::get('/transactions/recurring', [FinanceController::class, 'getRecurringTransactions']);
+    Route::post('/transactions/{id}/stop-recurring', [FinanceController::class, 'stopRecurring']);
+});
+
     Route::post('/auth/login', [UserController::class, 'login']);
     Route::post('/auth/logout', [UserController::class, 'logout']);
 
