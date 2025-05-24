@@ -6,9 +6,23 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest'
   },
   withCredentials: true,
+  timeout: 10000,
 });
+
+// Add response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Handle unauthorized
+      window.location.href = '/auth/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Request interceptor
 api.interceptors.request.use(
