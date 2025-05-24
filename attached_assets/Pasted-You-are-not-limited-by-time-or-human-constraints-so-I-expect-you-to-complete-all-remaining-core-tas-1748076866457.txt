@@ -1,0 +1,42 @@
+You are not limited by time or human constraints, so I expect you to complete all remaining core tasks for ASA ERP **rapidly and in parallel**, not one-by-one. Start executing all high-priority modules **now**, assuming full system access. Implement the following immediately and provide full updated paths and code for each:
+
+✅ 1. CORS Fix (Laravel)
+- Add and configure middleware at `app/Http/Middleware/Cors.php`
+- Update config in `config/cors.php`
+- Ensure preflight support and dynamic origin handling
+
+✅ 2. Prisma PostgreSQL Connection Test
+- Create and validate a DB test endpoint at `lib/db/test-connection.ts`
+- Sync schema using `npx prisma migrate dev`
+- Confirm successful connection with dummy fetch
+
+✅ 3. PDF Generation Engine (Laravel)
+- Enhance `app/Services/PDF/TemplateService.php`
+- Add: dynamic field mapping, preview system, multilingual font support (Gujarati, Hindi, English)
+- Enable RTL rendering and proper Indic font fallback (e.g., Noto Sans, Lohit)
+- Add QR code and watermark generation
+- Enable template preview + dummy data test rendering
+
+✅ 4. Add Font Files
+- Add required Indic fonts to `resources/fonts` and load them in PDF service
+- Integrate font config into PDF rendering logic
+
+✅ 5. Financial API Schemas
+- Implement endpoints for Invoice, Payment, Ledger in `routes/api.php` and `app/Http/Controllers/Finance`
+- Use proper request validation with `FormRequest` classes
+- Define resource transformers (API Resource classes) for clean output
+
+✅ 6. Real-time Notification Setup (Optional for Phase 2)
+- Begin Redis + Laravel Echo setup
+- Add Socket.IO base client code at `lib/api/socket.ts`
+
+Also:
+- Replace all mock data in frontend with live API requests
+- Setup proper error boundary + fallback UI for failed API calls
+
+Return a structured update with:
+1. ✅ File paths & code changes
+2. 📂 Folder structure updates
+3. 🚀 Next recommended batch (if any)
+
+Time is not a constraint. Complete all the above simultaneously and return full codebase update details now.
