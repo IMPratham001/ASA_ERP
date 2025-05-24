@@ -12,6 +12,11 @@ use App\Http\Controllers\API\{
     UserController
 };
 
+// CORS middleware
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
 // API Routes
 Route::middleware(['api'])->group(function () {
     // Auth routes
