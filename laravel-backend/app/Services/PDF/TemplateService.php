@@ -12,16 +12,32 @@ class TemplateService
     protected $pdf;
     protected $lang;
     protected $fonts;
+    protected $fontPaths;
 
     public function __construct($lang = 'en')
     {
         $this->pdf = new TCPDF();
         $this->lang = $lang;
+        $this->fontPaths = [
+            'hi' => storage_path('fonts/Lohit-Devanagari.ttf'),
+            'gu' => storage_path('fonts/Lohit-Gujarati.ttf'),
+        ];
         $this->fonts = [
             'en' => 'helvetica',
-            'hi' => 'devanagari',
-            'gu' => 'gujarati'
+            'hi' => 'lohit_hi',
+            'gu' => 'lohit_gu'
         ];
+        
+        // Register custom fonts
+        $this->registerFonts();
+    }
+
+    protected function registerFonts()
+    {
+        foreach ($this->fontPaths as $lang => $path) {
+            $fontName = "lohit_$lang";
+            $this->pdf->AddFont($fontName, '', $path, true);
+        }
     }
 
     public function generatePDF(array $data, string $template, array $options = [])

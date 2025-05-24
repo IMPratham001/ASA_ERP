@@ -13,9 +13,38 @@ class FinanceController extends Controller
 {
     public function createTransaction(StoreTransactionRequest $request)
     {
-        $transaction = Transaction::create($request->validated());
+        $data = $request->validated();
+        
+        if ($data['is_recurring'] ?? false) {
+            $schedule = $this->createRecurringSchedule($data);
+            $data['schedule_id'] = $schedule->id;
+        }
+
+        // Handle GST calculations
+        if ($data['has_gst']) {
+            $data = $this->calculateGST($data);
+        }
+
+        $transaction = Transaction::create($data);
         event(new FinancialTransactionCreated($transaction));
+        
         return response()->json($transaction, 201);
+    }
+
+    protected function calculateGST($data)
+    {
+        $amount = $data['amount'];
+        $gstRate = $data['gst_rate'];
+        $isInterstate = $data['is_interstate'] ?? false;
+
+        if ($isInterstate) {
+            $data['igst'] = $amount * ($gstRate / 100);
+        } else {
+            $data['cgst'] = $amount * ($gstRate / 200);
+            $data['sgst'] = $amount * ($gstRate / 200);
+        }
+
+        return $data;
     }
 
     public function getTransactions(Request $request)
