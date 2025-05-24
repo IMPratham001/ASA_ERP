@@ -1,0 +1,52 @@
+I want to fully migrate my existing full-stack project from a Prisma + Next.js setup to a Laravel + Eloquent (ORM) backend with a Next.js frontend. Here's what I want you to do step-by-step:
+
+📁 CURRENT STRUCTURE:
+- `frontend/` ➝ built using Next.js (UI)
+- `prisma/` ➝ Prisma schema, migrations (to be removed)
+- `laravel-backend/` ➝ Laravel backend (to be updated)
+
+🧱 GOAL ARCHITECTURE:
+- Keep `frontend/` as a pure UI (no database or backend logic here)
+- Move ALL database interaction and business logic to `laravel-backend/` using Laravel's Eloquent ORM
+- Laravel will expose RESTful APIs via `routes/api.php` and `Http/Controllers`
+- Next.js will fetch/send data from/to Laravel using Axios or fetch
+
+✅ TASKS I want you to do:
+1. **Remove all Prisma-related setup**:
+   - Delete the `prisma/` folder and all related files
+   - Remove any Prisma-related NPM packages from the project (e.g., `@prisma/client`, `prisma`)
+
+2. **Set up Eloquent ORM in Laravel**:
+   - Create equivalent Eloquent models and migrations for existing Prisma models (use example schema if needed)
+   - Create migrations and seeders for dummy/test data
+
+3. **Create Laravel API routes for all major modules**:
+   - Set up REST APIs for modules like: Auth, Users, Roles, Finance, PDF generation, Dashboard, etc.
+   - Create Laravel controllers to handle the logic
+   - Use Laravel Request validation for inputs
+
+4. **Setup CORS and sanctum or token-based API auth in Laravel** so the frontend can securely call the backend
+
+5. **Frontend Adjustments**:
+   - Update the frontend to remove any Prisma client or schema logic
+   - Add Axios or fetch-based API utility to connect to Laravel's APIs (e.g., `utils/api.js`)
+   - Create sample calls to Laravel APIs in UI components (like fetching user data)
+
+6. **Environment config**:
+   - Ensure Laravel `.env` has correct PostgreSQL settings
+   - Ensure frontend uses `.env.local` to set Laravel API base URL
+
+🚨 VERY IMPORTANT:
+- Next.js will NOT have any ORM, database, or backend logic
+- Laravel will be the ONLY backend responsible for DB and API
+- Final folder structure must be:
+  - `frontend/` ➝ UI only (React + Axios)
+  - `laravel-backend/` ➝ Backend (Laravel + Eloquent + PostgreSQL)
+
+🛠 You can assume any Prisma schema structure and convert it into Laravel Models accordingly (for example: User, Role, Transaction, Invoice, etc.)
+
+🎯 OUTPUT:
+- A clean project with:
+  - Laravel handling all DB/backend logic
+  - Next.js acting only as a frontend via API calls
+  - No Prisma, no Node-based backend in frontend
