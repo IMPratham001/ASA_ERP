@@ -61,6 +61,7 @@ import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { StoreSwitcher } from "@/components/shared/store-switcher";
 import api from "@/lib/api/axios";
+import { ApiTest } from '@/components/shared/api-test';
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState({
@@ -179,6 +180,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <ApiTest />
       {isLoading && (
         <div className="w-full h-full flex items-center justify-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
