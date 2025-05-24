@@ -1,6 +1,4 @@
-
 import axios from 'axios';
-import { toast } from '@/hooks/use-toast';
 
 const isDev = process.env.NODE_ENV === 'development';
 const API_URL = isDev ? 'http://0.0.0.0:8000/api' : process.env.NEXT_PUBLIC_API_URL;
@@ -30,22 +28,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.code === 'ERR_NETWORK') {
-      toast({
-        title: 'Connection Error',
-        description: 'Unable to connect to the server. Please check your connection.',
-        variant: 'destructive'
-      });
-    } else if (error.response?.status === 401) {
+    if (error.response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/auth/login';
-    } else {
-      const message = error.response?.data?.message || 'An error occurred';
-      toast({
-        title: 'Error',
-        description: message,
-        variant: 'destructive'
-      });
     }
     return Promise.reject(error);
   }
