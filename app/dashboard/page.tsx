@@ -42,6 +42,19 @@ import {
   BarElement,
   RadialLinearScale,
 } from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  RadialLinearScale
+);
 import { Overview } from "@/components/dashboard/overview";
 import { RecentSales } from "@/components/dashboard/recent-sales";
 import { Button } from "@/components/ui/button";
@@ -68,7 +81,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await api.get("http://0.0.0.0:8000/api/dashboard/stats");
+        const response = await api.get("/dashboard/stats");
         if (response.data?.status === "success") {
           setDashboardData(response.data.data);
         } else {
