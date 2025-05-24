@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'paths' => ['api/*'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
     'allowed_origins' => [env('NEXT_PUBLIC_APP_URL', 'http://0.0.0.0:3000')],
     'allowed_origins_patterns' => [],

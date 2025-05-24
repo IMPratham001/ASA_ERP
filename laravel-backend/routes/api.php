@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Http\Request;
@@ -11,11 +10,12 @@ use App\Http\Controllers\API\{
     FinanceController
 };
 
-// Public routes
+use App\Http\Controllers\API\AuthController;
+
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 
-// Test endpoints
+// Test endpoint
 Route::get('/test', function() {
     return response()->json([
         'message' => 'API is working',
@@ -24,14 +24,23 @@ Route::get('/test', function() {
     ]);
 });
 
+// Fallback for undefined routes
+Route::fallback(function () {
+    return response()->json([
+        'message' => 'API endpoint not found',
+        'status' => 'error'
+    ], 404);
+});
+
+// Test endpoints
 Route::get('/test-db', function() {
     try {
         // Test DB connection
         DB::connection()->getPdo();
-        
+
         // Get users table data
         $users = \App\Models\User::take(1)->get();
-        
+
         return response()->json([
             'status' => 'success',
             'message' => 'Database connection successful',
