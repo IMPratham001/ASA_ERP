@@ -2,17 +2,28 @@
 import { NextResponse } from "next/server";
 import { compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import type { LoginCredentials } from "@/lib/auth/types";
 
-const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const { email, password } = (await req.json()) as LoginCredentials;
 
-    const user = await prisma.user.findUnique({ 
-      where: { email }
+    if (!email || !password) {
+      return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        name: true,
+        role: true
+      }
     });
 
     if (!user) {
