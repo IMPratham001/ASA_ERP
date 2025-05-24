@@ -1,0 +1,8 @@
+{
+    "require": {
+        "laravel/sanctum": "^4.1",
+        "barryvdh/laravel-dompdf": "^3.1",
+        "spatie/laravel-permission": "^6.18",
+        "maatwebsite/excel": "^3.1"
+    }
+}
