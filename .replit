@@ -24,6 +24,10 @@ externalPort = 3002
 localPort = 5555
 externalPort = 3000
 
+[[ports]]
+localPort = 8000
+externalPort = 8000
+
 [workflows]
 runButton = "Full Stack Dev"
 
