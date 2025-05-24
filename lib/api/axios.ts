@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const isDev = process.env.NODE_ENV === 'development';
-const API_URL = isDev ? 'http://0.0.0.0:8000/api' : process.env.NEXT_PUBLIC_API_URL;
+const API_URL = 'http://0.0.0.0:8000/api';
 
 const api = axios.create({
   baseURL: API_URL,
