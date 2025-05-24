@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Http\Controllers\API;
@@ -17,7 +16,7 @@ class AuthController extends Controller
         try {
             $credentials = $request->validate([
                 'email' => 'required|email',
-                'password' => 'required',
+                'password' => 'required|min:6',
             ]);
 
             if (Auth::attempt($credentials)) {
@@ -27,7 +26,11 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => 'success',
                     'token' => $token,
-                    'user' => $user
+                    'user' => [
+                        'id' => $user->id,
+                        'email' => $user->email,
+                        'name' => $user->name
+                    ]
                 ]);
             }
 
@@ -35,11 +38,17 @@ class AuthController extends Controller
                 'email' => ['The provided credentials are incorrect.'],
             ]);
 
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
-            ], 401);
+                'message' => 'Authentication failed'
+            ], 500);
         }
     }
 

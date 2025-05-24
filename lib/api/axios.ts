@@ -1,14 +1,15 @@
+
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:8000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://0.0.0.0:8000/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
-  }
+  },
+  withCredentials: true
 });
 
-// Add auth token to requests if available
 instance.interceptors.request.use((config) => {
   const token = localStorage.getItem('auth_token');
   if (token) {
@@ -17,7 +18,6 @@ instance.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle unauthorized responses
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -28,3 +28,5 @@ instance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export default instance;
