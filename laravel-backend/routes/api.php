@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Http\Request;
@@ -31,5 +30,12 @@ Route::middleware(['api'])->group(function () {
         Route::apiResource('inventory', InventoryController::class);
         Route::apiResource('invoices', InvoiceController::class);
         Route::get('/pdf/invoice/{id}', [PDFController::class, 'generateInvoice']);
+        
+        // PDF Routes
+        Route::prefix('pdf')->group(function () {
+            Route::post('/generate', [PDFController::class, 'generate']);
+            Route::post('/preview', [PDFController::class, 'preview']);
+            Route::post('/download', [PDFController::class, 'download']);
+        });
     });
 });
