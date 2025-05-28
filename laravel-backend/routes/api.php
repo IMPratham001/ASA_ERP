@@ -4,50 +4,104 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\TestController;
-use App\Http\Controllers\Api\AuditController;
-use App\Http\Controllers\Api\SystemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Public routes (no authentication required)
-Route::prefix('system')->group(function () {
-    Route::get('status', [SystemController::class, 'status']);
-});
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "api" middleware group. Make something great!
+|
+*/
 
-// Audit logging (public for login attempts)
-Route::prefix('audit')->group(function () {
-    Route::post('log', [AuditController::class, 'log']);
-});
+// =============================================================================
+// PUBLIC ROUTES (No Authentication Required)
+// =============================================================================
 
-// Authentication routes
-Route::prefix('auth')->group(function () {
-    Route::post('login', [AuthController::class, 'login']);
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('sso-init', [AuthController::class, 'ssoInit']);
+// Health check endpoint - CRITICAL for frontend monitoring
+Route::get('health', [TestController::class, 'health'])
+    ->name('api.health');
 
+// System status for login page - CRITICAL for frontend
+Route::get('system/status', [TestController::class, 'systemStatus'])
+    ->name('api.system.status');
+
+// Audit logging endpoint for login attempts
+Route::post('audit/log', [TestController::class, 'auditLog'])
+    ->name('api.audit.log');
+
+// =============================================================================
+// AUTHENTICATION ROUTES
+// =============================================================================
+
+Route::prefix('auth')->name('api.auth.')->group(function () {
+    // Public auth endpoints
+    Route::post('login', [AuthController::class, 'login'])->name('login');
+    Route::post('register', [AuthController::class, 'register'])->name('register');
+    Route::post('sso-init', [AuthController::class, 'initSSO'])->name('sso.init');
+    Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot-password');
+
+    // Protected auth routes
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('logout', [AuthController::class, 'logout']);
-        Route::get('me', [AuthController::class, 'me']);
-        Route::post('refresh', [AuthController::class, 'refresh']);
+        Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+        Route::get('me', [AuthController::class, 'me'])->name('me');
+        Route::post('refresh', [AuthController::class, 'refresh'])->name('refresh');
     });
 });
 
-// Protected routes
+// =============================================================================
+// PROTECTED ROUTES (Authentication Required)
+// =============================================================================
+
 Route::middleware('auth:sanctum')->group(function () {
+
+    // User info endpoint
     Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+        return response()->json([
+            'user' => $request->user(),
+            'timestamp' => now()
+        ]);
+    })->name('api.user');
 
-    // Customer routes
-    Route::apiResource('customers', CustomerController::class);
+    // =============================================================================
+    // CUSTOMER MANAGEMENT
+    // =============================================================================
+    Route::apiResource('customers', CustomerController::class, [
+        'names' => [
+            'index' => 'api.customers.index',
+            'store' => 'api.customers.store',
+            'show' => 'api.customers.show',
+            'update' => 'api.customers.update',
+            'destroy' => 'api.customers.destroy'
+        ]
+    ]);
 
-    // Product routes
-    Route::apiResource('products', ProductController::class);
-    Route::put('products/{product}/stock', [ProductController::class, 'updateStock']);
+    // =============================================================================
+    // PRODUCT MANAGEMENT
+    // =============================================================================
+    Route::apiResource('products', ProductController::class, [
+        'names' => [
+            'index' => 'api.products.index',
+            'store' => 'api.products.store',
+            'show' => 'api.products.show',
+            'update' => 'api.products.update',
+            'destroy' => 'api.products.destroy'
+        ]
+    ]);
 
-    // Protected system routes
-    Route::prefix('system')->group(function () {
-        Route::get('database-test', [TestController::class, 'databaseTest']);
-        Route::get('health', [TestController::class, 'apiStatus']);
+    // Additional product endpoints
+    Route::put('products/{product}/stock', [ProductController::class, 'updateStock'])
+        ->name('api.products.update-stock');
+
+    // =============================================================================
+    // SYSTEM MANAGEMENT
+    // =============================================================================
+    Route::prefix('system')->name('api.system.')->group(function () {
+        Route::get('api-status', [TestController::class, 'apiStatus'])->name('api-status');
+        Route::get('database-test', [TestController::class, 'databaseTest'])->name('database-test');
     });
 });
