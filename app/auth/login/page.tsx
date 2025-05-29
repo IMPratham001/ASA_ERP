@@ -395,7 +395,6 @@ export default function OptimizedLoginPage() {
     csrfManager.fetchCSRFToken();
   }, []);
 
-  // Memoized validation
   const validationErrors = useMemo(() => {
     const errors: Record<string, string> = {};
 

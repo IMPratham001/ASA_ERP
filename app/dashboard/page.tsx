@@ -66,7 +66,7 @@ import { ApiTest } from '@/components/shared/api-test';
 // Add at the start of the dashboard content
 <ApiTest />
 
-export default function DashboardPage() {
+export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState({
     overview: {
       totalRevenue: 0,

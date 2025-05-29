@@ -62,7 +62,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
-            'redirect_url' => '/dashboard', // Frontend expects this
+            'redirect_url' => '/dashboard',
             'data' => [
                 'user' => [
                     'id' => $user->id,

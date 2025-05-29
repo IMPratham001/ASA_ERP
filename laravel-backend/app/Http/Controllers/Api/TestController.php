@@ -90,6 +90,7 @@ class TestController extends Controller
 
     /**
      * Audit logging endpoint for login attempts
+     * FIXED: Removed session dependency that was causing 500 errors
      */
     public function auditLog(Request $request): JsonResponse
     {
@@ -106,6 +107,17 @@ class TestController extends Controller
             // Get actual IP address
             $ipAddress = $request->ip();
             
+            // Get session ID safely (might be null for API requests)
+            $sessionId = null;
+            try {
+                if ($request->hasSession()) {
+                    $sessionId = $request->session()->getId();
+                }
+            } catch (Exception $e) {
+                // Session not available, which is fine for API requests
+                $sessionId = 'api-request';
+            }
+
             // Log the audit event
             Log::info('Audit Event', [
                 'event_type' => $validated['event_type'],
@@ -114,11 +126,24 @@ class TestController extends Controller
                 'user_agent' => $request->userAgent(),
                 'details' => $validated['details'] ?? '',
                 'timestamp' => $validated['timestamp'] ?? now()->toISOString(),
-                'session_id' => $request->session()->getId(),
+                'session_id' => $sessionId,
+                'request_id' => $request->header('X-Request-ID', uniqid()),
             ]);
 
             // Optional: Store in database if you have an audit_logs table
-            // AuditLog::create([...]);
+            // You can uncomment this if you create the table:
+            /*
+            DB::table('audit_logs')->insert([
+                'event_type' => $validated['event_type'],
+                'username' => $validated['username'],
+                'ip_address' => $ipAddress,
+                'user_agent' => $request->userAgent(),
+                'details' => $validated['details'],
+                'session_id' => $sessionId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            */
 
             return response()->json([
                 'success' => true,
@@ -126,12 +151,30 @@ class TestController extends Controller
                 'timestamp' => now()->toISOString()
             ]);
 
-        } catch (Exception $e) {
-            Log::error('Audit logging failed: ' . $e->getMessage());
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors specifically
+            Log::warning('Audit log validation failed', [
+                'errors' => $e->errors(),
+                'input' => $request->all()
+            ]);
             
             return response()->json([
                 'success' => false,
-                'message' => 'Audit logging failed'
+                'message' => 'Invalid audit log data',
+                'errors' => $e->errors()
+            ], 422);
+            
+        } catch (Exception $e) {
+            Log::error('Audit logging failed: ' . $e->getMessage(), [
+                'exception' => $e,
+                'request_data' => $request->all(),
+                'stack_trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Audit logging failed',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }
