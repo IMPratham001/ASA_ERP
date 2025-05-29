@@ -1,56 +1,57 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { canAccessModule } from './lib/auth/permissions'; // Permission checker
+import { User } from './types'; // Assuming User type is shared
 
-// Define public routes that don't require authentication
 const PUBLIC_PATHS = ['/auth/login', '/auth/register', '/'];
-
-// Define protected routes that require authentication
-const PROTECTED_PATHS = ['/dashboard', '/finance', '/settings', '/inventory', '/sales'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('token')?.value;
 
-  // Allow API routes to pass through (they handle their own auth)
-  if (pathname.startsWith('/api/')) {
+  // Allow API routes, static files, and Next internals
+  if (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next') ||
+    pathname.includes('.') ||
+    pathname === '/favicon.ico'
+  ) {
     return NextResponse.next();
   }
 
-  // Allow static files and Next.js internals
-  if (pathname.startsWith('/_next') || pathname.includes('.')) {
-    return NextResponse.next();
-  }
+  const isPublic = PUBLIC_PATHS.some(path => pathname.startsWith(path));
+  const moduleName = extractModuleFromPath(pathname); // Custom function
 
-  // Check if the path is public
-  const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path));
-  const isProtectedPath = PROTECTED_PATHS.some(path => pathname.startsWith(path));
-
-  // If no token and trying to access protected route, redirect to login
-  if (!token && (isProtectedPath || (!isPublicPath && pathname !== '/'))) {
+  // Redirect to login if not authenticated and trying to access protected route
+  if (!token && !isPublic) {
     const loginUrl = new URL('/auth/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // If has token, verify it's valid
+  // If user is authenticated, verify token
   if (token) {
     try {
-      const isValidToken = await verifyToken(token, request.url);
-      
-      if (!isValidToken) {
-        // Token is invalid, clear it and redirect to login
+      const user = await getUserFromToken(token, request.url); // Custom function below
+
+      if (!user) {
         const response = NextResponse.redirect(new URL('/auth/login', request.url));
         response.cookies.delete('token');
         response.cookies.delete('user');
         return response;
       }
 
-      // If has valid token and trying to access login page, redirect to dashboard
-      if (isPublicPath && pathname !== '/') {
+      // If on login/register page while already logged in
+      if (isPublic && pathname !== '/') {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
-    } catch (error) {
-      // Token verification failed, redirect to login
+
+      // Module-level access control
+      if (!isPublic && !canAccessModule(user, moduleName)) {
+        return NextResponse.redirect(new URL('/403', request.url)); // Or a custom "Access Denied" page
+      }
+
+    } catch (err) {
       const response = NextResponse.redirect(new URL('/auth/login', request.url));
       response.cookies.delete('token');
       response.cookies.delete('user');
@@ -61,38 +62,45 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Token verification function
-async function verifyToken(token: string, baseUrl: string): Promise<boolean> {
+// ---------------------------
+// Helpers
+// ---------------------------
+
+// Extract module name from route
+function extractModuleFromPath(path: string): string {
+  const segments = path.split('/');
+  return segments[1] || 'dashboard'; // default fallback module
+}
+
+// Verifies token and fetches user info
+async function getUserFromToken(token: string, baseUrl: string): Promise<User | null> {
   try {
-    // Extract base URL for API calls
     const url = new URL(baseUrl);
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || `${url.protocol}//${url.host}`;
-    
-    const response = await fetch(`${apiBaseUrl}/api/auth/me`, {
+
+    const res = await fetch(`${apiBaseUrl}/api/auth/me`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-      },
+      }
     });
 
-    return response.ok;
-  } catch (error) {
-    console.error('Token verification failed:', error);
-    return false;
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.user as User;
+  } catch (err) {
+    console.error('Token verification error:', err);
+    return null;
   }
 }
 
+// ---------------------------
+// Middleware matcher
+// ---------------------------
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  ]
 };

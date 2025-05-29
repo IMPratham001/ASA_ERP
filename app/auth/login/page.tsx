@@ -455,6 +455,15 @@ export default function OptimizedLoginPage() {
 
       resetAttempts();
 
+      // Store token and user data in cookies if provided
+      if (response.token) {
+        document.cookie = `token=${response.token}; path=/; max-age=${SESSION_TIMEOUT * 60}; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
+      }
+      
+      if (response.user) {
+        document.cookie = `user=${encodeURIComponent(JSON.stringify(response.user))}; path=/; max-age=${SESSION_TIMEOUT * 60}; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
+      }
+
       await apiClient.auditLog({
         event_type: 'login_success',
         username: formData.email,
@@ -462,10 +471,11 @@ export default function OptimizedLoginPage() {
         timestamp: new Date().toISOString(),
       });
 
-      setTimeout(() => {
-        router.push(response.redirect_url || '/dashboard');
-        router.refresh();
-      }, 600);
+      // Handle redirect with proper fallback
+      const redirectUrl = response.redirect_url || '/dashboard';
+      
+      // Use window.location for immediate redirect to ensure middleware runs
+      window.location.href = redirectUrl;
 
     } catch (error) {
       incrementAttempts();
