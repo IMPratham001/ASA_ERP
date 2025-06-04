@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Models;
@@ -48,6 +47,11 @@ class Company extends Model
         return $this->hasMany(Category::class);
     }
 
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
@@ -66,5 +70,53 @@ class Company extends Model
     public function pdfTemplates(): HasMany
     {
         return $this->hasMany(PdfTemplate::class);
+    }
+
+    // Get total revenue from orders
+    public function getTotalRevenueAttribute()
+    {
+        return $this->orders()->sum('total_amount');
+    }
+
+    // Get total customers count
+    public function getTotalCustomersAttribute()
+    {
+        return $this->customers()->count();
+    }
+
+    // Get total products count
+    public function getTotalProductsAttribute()
+    {
+        return $this->products()->count();
+    }
+
+    // Get total orders count
+    public function getTotalOrdersAttribute()
+    {
+        return $this->orders()->count();
+    }
+
+    // Get total invoices count
+    public function getTotalInvoicesAttribute()
+    {
+        return $this->invoices()->count();
+    }
+
+    // Get pending invoices amount
+    public function getPendingInvoicesAmountAttribute()
+    {
+        return $this->invoices()->where('payment_status', 'pending')->sum('total_amount');
+    }
+
+    // Get low stock products count
+    public function getLowStockProductsCountAttribute()
+    {
+        return $this->products()->whereColumn('stock_quantity', '<=', 'min_stock_level')->count();
+    }
+
+    // Get out of stock products count
+    public function getOutOfStockProductsCountAttribute()
+    {
+        return $this->products()->where('stock_quantity', '<=', 0)->count();
     }
 }

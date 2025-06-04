@@ -1,16 +1,27 @@
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
 
-export interface ApiResponse<T> {
-  data: T;
-  message: string;
-  status: number;
-}
+export const apiClient = {
+  async get(endpoint: string) {
+    const response = await fetch(`${API_BASE_URL}/api${endpoint}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      credentials: 'include', // Important for sanctum
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+  }
+};
 
-export interface PaginatedResponse<T> {
-  data: T[];
-  meta: {
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-  };
-}
+// Dashboard specific service
+export const dashboardService = {
+  async getStats() {
+    return apiClient.get('/dashboard/stats'); // This should match your Laravel route
+  }
+};

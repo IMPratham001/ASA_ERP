@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Models;
@@ -39,9 +38,44 @@ class Customer extends Model
         return $this->belongsTo(Company::class);
     }
 
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    // Get total orders count
+    public function getTotalOrdersAttribute()
+    {
+        return $this->orders()->count();
+    }
+
+    // Get total orders value
+    public function getTotalOrdersValueAttribute()
+    {
+        return $this->orders()->sum('total_amount');
+    }
+
+    // Get total invoices count
+    public function getTotalInvoicesAttribute()
+    {
+        return $this->invoices()->count();
+    }
+
+    // Get total invoices value
+    public function getTotalInvoicesValueAttribute()
+    {
+        return $this->invoices()->sum('total_amount');
+    }
+
+    // Get pending invoices
+    public function getPendingInvoicesAttribute()
+    {
+        return $this->invoices()->where('payment_status', 'pending')->sum('total_amount');
     }
 
     protected static function boot()

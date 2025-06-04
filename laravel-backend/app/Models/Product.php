@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Models;
@@ -57,9 +56,49 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
     public function invoiceItems(): HasMany
     {
         return $this->hasMany(InvoiceItem::class);
+    }
+
+    // Get total sales quantity
+    public function getTotalSalesQuantityAttribute()
+    {
+        return $this->orderItems()->sum('quantity');
+    }
+
+    // Get total sales revenue
+    public function getTotalSalesRevenueAttribute()
+    {
+        return $this->orderItems()->sum('total_price');
+    }
+
+    // Get profit margin
+    public function getProfitMarginAttribute()
+    {
+        if ($this->selling_price <= 0) {
+            return 0;
+        }
+        
+        $profit = $this->selling_price - $this->purchase_price;
+        return ($profit / $this->selling_price) * 100;
+    }
+
+    // Check if product is low stock
+    public function getIsLowStockAttribute()
+    {
+        return $this->stock_quantity <= $this->min_stock_level;
+    }
+
+    // Check if product is out of stock
+    public function getIsOutOfStockAttribute()
+    {
+        return $this->stock_quantity <= 0;
     }
 
     protected static function boot()
