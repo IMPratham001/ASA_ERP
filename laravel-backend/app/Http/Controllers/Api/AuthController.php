@@ -6,11 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
 use Exception;
 
 class AuthController extends Controller
@@ -20,8 +19,6 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:6',
-            'remember_me' => 'sometimes|boolean',
-            'session_timeout' => 'sometimes|integer|min:1|max:480', // Max 8 hours
         ]);
 
         if ($validator->fails()) {
@@ -32,18 +29,19 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $credentials = $request->only('email', 'password');
+        $user = User::where('email', $request->email)->first();
 
-        if (!Auth::attempt($credentials)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials'
             ], 401);
         }
 
-        $user = Auth::user();
-        $token = $user->createToken('auth_token');
-        $plainTextToken = $token->plainTextToken;
+        // Revoke previous tokens (optional)
+        $user->tokens()->delete();
+
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
@@ -56,52 +54,10 @@ class AuthController extends Controller
                     'email' => $user->email,
                     'company_id' => $user->company_id,
                 ],
-                'token' => $plainTextToken,
-                'token_type' => 'Bearer'
-            ]
-        ]);
-    }
-
-    public function register(Request $request): JsonResponse
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
-            'company_id' => 'nullable|exists:companies,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $user = User::create([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
-            'company_id' => $request->input('company_id'),
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Registration successful',
-            'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'company_id' => $user->company_id,
-                ],
                 'token' => $token,
                 'token_type' => 'Bearer'
             ]
-        ], 201);
+        ]);
     }
 
     public function logout(Request $request): JsonResponse
@@ -182,7 +138,6 @@ class AuthController extends Controller
     public function initSSO(Request $request): JsonResponse
     {
         try {
-            // Placeholder logic; implement based on provider
             return response()->json([
                 'success' => true,
                 'redirect_url' => config('app.url') . '/auth/sso/redirect',

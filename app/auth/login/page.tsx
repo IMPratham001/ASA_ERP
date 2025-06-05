@@ -9,15 +9,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Lock,
   Mail,
-  Building,
   Loader2,
   AlertCircle,
   EyeIcon,
   EyeOffIcon,
-  HelpCircle,
-  ShieldCheck,
   Wifi,
+  Building,
   WifiOff,
+  ShieldCheck,
+  HelpCircle,
   Circle,
   X,
 } from "lucide-react";
@@ -29,6 +29,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
+import { apiClient } from "@/lib/api/axios"; // <-- Centralized Axios
 
 // Types
 interface FormData {
@@ -42,23 +43,15 @@ interface LoginCredentials extends FormData {
   session_timeout: number;
 }
 
-interface SystemStatus {
-  status: "operational" | "warning" | "maintenance";
-  message: string;
-  lastChecked: Date | null;
-}
-
 interface PingResult {
   time: Date;
   responseTime: number | null;
 }
 
-interface AuditEvent {
-  event_type: string;
-  username: string;
-  ip_address?: string;
-  details?: string;
-  timestamp: string;
+interface SystemStatus {
+  status: "operational" | "warning" | "maintenance";
+  message: string;
+  lastChecked: Date | null;
 }
 
 // Constants
@@ -67,56 +60,12 @@ const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
 const SESSION_TIMEOUT = 30; // minutes
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
-// CSRF Token Management
-const csrfManager = {
-  token: null as string | null,
-
-  async fetchCSRFToken(): Promise<string | null> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/sanctum/csrf-cookie`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Accept': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        // Laravel stores CSRF token in a cookie, we need to extract it
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-          const [name, value] = cookie.trim().split('=');
-          if (name === 'XSRF-TOKEN') {
-            this.token = decodeURIComponent(value);
-            return this.token;
-          }
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to fetch CSRF token:', error);
-    }
-    return null;
-  },
-
-  async getToken(): Promise<string | null> {
-    if (!this.token) {
-      await this.fetchCSRFToken();
-    }
-    return this.token;
-  },
-
-  clearToken(): void {
-    this.token = null;
-  }
-};
-
-// Validation utilities
+// Validators
 const validators = {
   email: (email: string): boolean => {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|mil|co|[a-zA-Z]{2,})$/i;
     return regex.test(email.trim());
   },
-
   password: (password: string): boolean => {
     return password.length >= 8 &&
            /[A-Za-z]/.test(password) &&
@@ -125,115 +74,19 @@ const validators = {
   }
 };
 
-// API utilities
-const apiClient = {
-  async request(endpoint: string, options: RequestInit = {}): Promise<any> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-      // Get CSRF token for POST/PUT/DELETE requests
-      let headers: Record<string, string> = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-        ...(options.headers as Record<string, string> || {}),
-      };
-
-      // For requests that modify data, include CSRF token
-      if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(options.method?.toUpperCase() || '')) {
-        const csrfToken = await csrfManager.getToken();
-        if (csrfToken) {
-          headers['X-XSRF-TOKEN'] = csrfToken;
-        }
-      }
-
-      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...options,
-        signal: controller.signal,
-        credentials: 'include', // Important for Laravel sessions and CSRF
-        headers,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!res.ok) {
-        // If CSRF token is invalid, try to refresh it once
-        if (res.status === 419 && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(options.method?.toUpperCase() || '')) {
-          csrfManager.clearToken();
-          const newToken = await csrfManager.getToken();
-
-          if (newToken) {
-            headers['X-XSRF-TOKEN'] = newToken;
-
-            // Retry the request with new token
-            const retryRes = await fetch(`${API_BASE_URL}${endpoint}`, {
-              ...options,
-              credentials: 'include',
-              headers,
-            });
-
-            if (retryRes.ok) {
-              return await retryRes.json();
-            }
-          }
-        }
-
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP ${res.status}`);
-      }
-
-      return await res.json();
-    } catch (error) {
-      clearTimeout(timeoutId);
-      if ((error as Error).name === 'AbortError') {
-        throw new Error('Request timeout - please try again');
-      }
-      throw error;
-    }
-  },
-
-  async login(credentials: LoginCredentials): Promise<any> {
-    return this.request('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
-  },
-
-  async initSSO(): Promise<any> {
-    return this.request('/api/auth/sso-init', {
-      method: 'POST',
-    });
-  },
-
-  async auditLog(event: AuditEvent): Promise<void> {
-    try {
-      await this.request('/api/audit/log', {
-        method: 'POST',
-        body: JSON.stringify(event),
-      });
-    } catch (error) {
-      console.warn('Audit logging failed:', error);
-    }
-  }
-};
-
-// Custom hooks
+// Hooks
 const useNetworkStatus = () => {
   const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
     setIsOnline(navigator.onLine);
-
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
@@ -246,11 +99,9 @@ const useBackendConnection = () => {
 
   const pingBackend = useCallback(async () => {
     setConnectionStatus('checking');
-
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
-
       const startTime = Date.now();
       const res = await fetch(`${API_BASE_URL}/api/health`, {
         method: 'GET',
@@ -260,10 +111,8 @@ const useBackendConnection = () => {
           'Accept': 'application/json',
         },
       });
-
       clearTimeout(timeoutId);
       const responseTime = Date.now() - startTime;
-
       if (res.ok) {
         setConnectionStatus('connected');
         setLastPing({ time: new Date(), responseTime });
@@ -297,7 +146,6 @@ const useSystemStatus = () => {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
-
       const res = await fetch(`${API_BASE_URL}/api/system/status`, {
         signal: controller.signal,
         credentials: 'include',
@@ -306,18 +154,13 @@ const useSystemStatus = () => {
           'Content-Type': 'application/json',
         },
       });
-
       clearTimeout(timeoutId);
-
       if (res.ok) {
         const data = await res.json();
-        setSystemStatus({
-          ...data,
-          lastChecked: new Date(),
-        });
+        setSystemStatus({ ...data, lastChecked: new Date() });
       }
     } catch (error) {
-      if ((error as Error).name !== 'AbortError') {
+      if ((error as Error).name !== "AbortError") {
         console.warn("System status check failed:", error);
         setSystemStatus({
           status: "warning",
@@ -347,7 +190,7 @@ const useLoginAttempts = () => {
   }, [lockoutUntil]);
 
   const incrementAttempts = useCallback(() => {
-    setAttempts(prev => {
+    setAttempts((prev) => {
       const newAttempts = prev + 1;
       if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
         setLockoutUntil(Date.now() + LOCKOUT_DURATION);
@@ -369,7 +212,7 @@ const useLoginAttempts = () => {
   return { attempts, isLocked, incrementAttempts, resetAttempts, getRemainingLockoutTime };
 };
 
-export default function OptimizedLoginPage() {
+export default function LoginPage() {
   const router = useRouter();
   const isOnline = useNetworkStatus();
   const systemStatus = useSystemStatus();
@@ -389,11 +232,6 @@ export default function OptimizedLoginPage() {
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
   const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false);
-
-  // Initialize CSRF token on component mount
-  useEffect(() => {
-    csrfManager.fetchCSRFToken();
-  }, []);
 
   const validationErrors = useMemo(() => {
     const errors: Record<string, string> = {};

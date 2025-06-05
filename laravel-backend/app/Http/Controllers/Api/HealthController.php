@@ -253,23 +253,39 @@ class HealthController extends Controller
     /**
      * Convert memory limit string to bytes
      */
-    private function convertToBytes($value)
-    {
-        $value = trim($value);
-        $last = strtolower($value[strlen($value) - 1]);
-        $value = (int) $value;
-        
-        switch ($last) {
-            case 'g':
-                $value *= 1024;
-            case 'm':
-                $value *= 1024;
-            case 'k':
-                $value *= 1024;
-        }
-        
-        return $value;
+private function convertToBytes($value)
+{
+    $value = trim($value);
+    $last = strtolower($value[strlen($value) - 1]);
+    $num = (int) $value;
+
+    switch ($last) {
+        case 'g':
+            $num *= 1024 * 1024 * 1024;
+            break;
+        case 'm':
+            $num *= 1024 * 1024;
+            break;
+        case 'k':
+            $num *= 1024;
+            break;
+        default:
+            $num = (int) $value;
     }
+
+    return $num;
+}
+
+private function formatBytes($size, $precision = 2)
+{
+    if ($size === 0) return '0 B';
+
+    $base = log($size, 1024);
+    $suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
+
+    return round(pow(1024, $base - floor($base)), $precision) . ' ' . $suffixes[floor($base)];
+}
+
     
     /**
      * Format bytes to human readable format

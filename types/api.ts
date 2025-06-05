@@ -1,27 +1,29 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
+// types/api.tsimport axios from 'axios';
+
+const axiosInstance = axios.create({
+  baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
+});
 
 export const apiClient = {
-  async get(endpoint: string) {
-    const response = await fetch(`${API_BASE_URL}/api${endpoint}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      credentials: 'include', // Important for sanctum
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return response.json();
-  }
-};
-
-// Dashboard specific service
-export const dashboardService = {
-  async getStats() {
-    return apiClient.get('/dashboard/stats'); // This should match your Laravel route
-  }
+  async get(endpoint: string, params = {}) {
+    const response = await axiosInstance.get(endpoint, { params });
+    return response.data;
+  },
+  async post(endpoint: string, data = {}) {
+    const response = await axiosInstance.post(endpoint, data);
+    return response.data;
+  },
+  async put(endpoint: string, data = {}) {
+    const response = await axiosInstance.put(endpoint, data);
+    return response.data;
+  },
+  async delete(endpoint: string) {
+    const response = await axiosInstance.delete(endpoint);
+    return response.data;
+  },
 };

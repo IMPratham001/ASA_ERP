@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Exception;
 
-class HealthController extends Controller
+class AuditController extends Controller
 {
     /**
      * Basic health check endpoint
